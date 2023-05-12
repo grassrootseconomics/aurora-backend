@@ -11,7 +11,15 @@
         "allowSyntheticDefaultImports": true,
         "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
         "skipLibCheck": true /* Skip type checking all .d.ts files. */,
-        "resolveJsonModule": true
+        "resolveJsonModule": true,
+        "paths": {
+            "@/*": ["./src/*"],
+            "@/public/*": ["./public/*"]
+        }
+    },
+    "ts-node": {
+        // Do not forget to `npm i -D tsconfig-paths`
+        "require": ["tsconfig-paths/register"]
     },
     "exclude": ["node_modules"]
 }

@@ -9,6 +9,10 @@
   "prisma": {
     "seed": "ts-node scripts/seed.ts"
   },
+  "_moduleAliases": {
+    "@modules": "build/modules",
+    "@core": "build/core"
+  },
   "scripts": {
     "start:docker": "yarn build && node ./dist/src/index.js",
     "docker:db:migrate": "docker compose run cacao-api yarn prisma migrate dev",
@@ -40,6 +44,7 @@
     "prettier": "^2.8.8",
     "prisma": "^4.14.0",
     "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.0.4"
   }
 }
