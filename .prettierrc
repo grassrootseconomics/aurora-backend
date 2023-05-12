@@ -3,5 +3,20 @@
     "tabWidth": 4,
     "semi": true,
     "singleQuote": true,
-    "endOfLine": "auto"
+    "endOfLine": "auto",
+    "importOrder": [
+        "express",
+        "<THIRD_PARTY_MODULES>",
+        "^@/routes/(.*)$",
+        "^@/controllers/(.*)$",
+        "^@/middleware/(.*)$",
+        "^@/services/(.*)$",
+        "^@/db/(.*)$",
+        "^@/models/(.*)$",
+        "^@/utils/(.*)$",
+        "^@/config/(.*)$",
+        "^[./]"
+    ],
+    "importOrderSeparation": true,
+    "importOrderSortSpecifiers": true
 }
