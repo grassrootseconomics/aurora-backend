@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 
+import Joi from 'joi';
+
 /**
  * Default API Response Structure.
  */
@@ -57,3 +59,9 @@ export interface ISearchResult<TData> {
      */
     totalEntries: number;
 }
+
+export type DefaultValidation = {
+    query?: Joi.Schema;
+    body?: Joi.Schema;
+    params?: Joi.Schema;
+};
