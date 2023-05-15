@@ -1,0 +1,32 @@
+[
+    {
+        "id": 1,
+        "code": "12672",
+        "idAssociation": 1
+    },
+    {
+        "id": 2,
+        "code": "72132",
+        "idAssociation": 2
+    },
+    {
+        "id": 3,
+        "code": "89236",
+        "idAssociation": 3
+    },
+    {
+        "id": 4,
+        "code": "32867",
+        "idAssociation": 2
+    },
+    {
+        "id": 5,
+        "code": "28937",
+        "idAssociation": 3
+    },
+    {
+        "id": 6,
+        "code": "82322",
+        "idAssociation": 4
+    }
+]

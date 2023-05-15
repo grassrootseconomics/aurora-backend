@@ -1,0 +1,32 @@
+[
+    {
+        "id": 1,
+        "codeBatch": "12672",
+        "idPulp": 1
+    },
+    {
+        "id": 2,
+        "codeBatch": "72132",
+        "idPulp": 3
+    },
+    {
+        "id": 3,
+        "codeBatch": "89236",
+        "idPulp": 2
+    },
+    {
+        "id": 4,
+        "codeBatch": "32867",
+        "idPulp": 4
+    },
+    {
+        "id": 5,
+        "codeBatch": "28937",
+        "idPulp": 5
+    },
+    {
+        "id": 6,
+        "codeBatch": "82322",
+        "idPulp": 6
+    }
+]

@@ -1,0 +1,80 @@
+[
+    {
+        "id": 1,
+        "cocoaType": "Perfect!",
+        "startDate": "2023-05-09T03:25:17.511Z",
+        "genetics": "2023-05-09T04:25:17.511Z",
+        "weight": 12,
+        "brixDegrees": 2.5,
+        "humidity": 2,
+        "hoursDrained": 4,
+        "nrFlips": 3,
+        "totalDays": 3,
+        "codeBatch": "12672"
+    },
+    {
+        "id": 2,
+        "cocoaType": "Perfect!",
+        "startDate": "2023-05-09T03:25:17.511Z",
+        "genetics": "2023-05-09T04:25:17.511Z",
+        "weight": 12,
+        "brixDegrees": 2.5,
+        "humidity": 2,
+        "hoursDrained": 4,
+        "nrFlips": 3,
+        "totalDays": 3,
+        "codeBatch": "72132"
+    },
+    {
+        "id": 3,
+        "cocoaType": "Perfect!",
+        "startDate": "2023-05-09T03:25:17.511Z",
+        "genetics": "2023-05-09T04:25:17.511Z",
+        "weight": 12,
+        "brixDegrees": 2.5,
+        "humidity": 2,
+        "hoursDrained": 4,
+        "nrFlips": 3,
+        "totalDays": 3,
+        "codeBatch": "89236"
+    },
+    {
+        "id": 4,
+        "cocoaType": "Perfect!",
+        "startDate": "2023-05-09T03:25:17.511Z",
+        "genetics": "2023-05-09T04:25:17.511Z",
+        "weight": 12,
+        "brixDegrees": 2.5,
+        "humidity": 2,
+        "hoursDrained": 4,
+        "nrFlips": 3,
+        "totalDays": 3,
+        "codeBatch": "32867"
+    },
+    {
+        "id": 5,
+        "cocoaType": "Perfect!",
+        "startDate": "2023-05-09T03:25:17.511Z",
+        "genetics": "2023-05-09T04:25:17.511Z",
+        "weight": 12,
+        "brixDegrees": 2.5,
+        "humidity": 2,
+        "hoursDrained": 4,
+        "nrFlips": 3,
+        "totalDays": 3,
+        "codeBatch": "28937"
+    },
+    {
+        "id": 6,
+        "cocoaType": "Perfect!",
+        "startDate": "2023-05-09T03:25:17.511Z",
+        "genetics": "2023-05-09T04:25:17.511Z",
+        "weight": 12,
+        "brixDegrees": 2.5,
+        "humidity": 2,
+        "hoursDrained": 4,
+        "nrFlips": 3,
+        "totalDays": 3,
+        "codeBatch": "82322"
+    }
+]

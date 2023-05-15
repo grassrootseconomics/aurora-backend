@@ -1,0 +1,32 @@
+[
+    {
+        "id": 1,
+        "codeProducer": "27321",
+        "codeBatch": "12672"
+    },
+    {
+        "id": 2,
+        "codeProducer": "27321",
+        "codeBatch": "72132"
+    },
+    {
+        "id": 3,
+        "codeProducer": "74382",
+        "codeBatch": "89236"
+    },
+    {
+        "id": 4,
+        "codeProducer": "10292",
+        "codeBatch": "32867"
+    },
+    {
+        "id": 5,
+        "codeProducer": "92832",
+        "codeBatch": "28937"
+    },
+    {
+        "id": 6,
+        "codeProducer": "92832",
+        "codeBatch": "82322"
+    }
+]

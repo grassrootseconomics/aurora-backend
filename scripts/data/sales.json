@@ -1,0 +1,41 @@
+[
+    {
+        "id": 1,
+        "negotiationDate": "2023-05-15T07:22:01.320Z",
+        "buyer": "Buyer #1",
+        "lotCode": "237231",
+        "negotiation": "International",
+        "negotiationTerm": "CIF",
+        "destination": "Guarma",
+        "currency": "US",
+        "pricePerKg": 10,
+        "totalValue": 20,
+        "codeBatch": "89236"
+    },
+    {
+        "id": 2,
+        "negotiationDate": "2023-05-15T07:22:01.320Z",
+        "buyer": "Buyer #2",
+        "lotCode": "237231",
+        "negotiation": "International",
+        "negotiationTerm": "CIF",
+        "destination": "Guarma",
+        "currency": "US",
+        "pricePerKg": 10,
+        "totalValue": 20,
+        "codeBatch": "72132"
+    },
+    {
+        "id": 3,
+        "negotiationDate": "2023-05-15T07:22:01.320Z",
+        "buyer": "Buyer #3",
+        "lotCode": "237231",
+        "negotiation": "International",
+        "negotiationTerm": "CIF",
+        "destination": "Guarma",
+        "currency": "US",
+        "pricePerKg": 10,
+        "totalValue": 20,
+        "codeBatch": "12672"
+    }
+]

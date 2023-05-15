@@ -1,0 +1,68 @@
+[
+    {
+        "id": 1,
+        "dayEntry": "2023-05-15T07:18:31.100Z",
+        "netWeight": 4,
+        "conversionFaction": 3,
+        "fermentationPercentage": 2,
+        "grainIndex": 2.2,
+        "sensoryProfile": "Profile #1",
+        "score": 8.7,
+        "codeBatch": "12672"
+    },
+    {
+        "id": 2,
+        "dayEntry": "2023-05-15T07:18:31.100Z",
+        "netWeight": 4,
+        "conversionFaction": 3,
+        "fermentationPercentage": 2,
+        "grainIndex": 2.2,
+        "sensoryProfile": "Profile #2",
+        "score": 8.7,
+        "codeBatch": "72132"
+    },
+    {
+        "id": 3,
+        "dayEntry": "2023-05-15T07:18:31.100Z",
+        "netWeight": 4,
+        "conversionFaction": 3,
+        "fermentationPercentage": 2,
+        "grainIndex": 2.2,
+        "sensoryProfile": "Profile #3",
+        "score": 8.7,
+        "codeBatch": "89236"
+    },
+    {
+        "id": 4,
+        "dayEntry": "2023-05-15T07:18:31.100Z",
+        "netWeight": 4,
+        "conversionFaction": 3,
+        "fermentationPercentage": 2,
+        "grainIndex": 2.2,
+        "sensoryProfile": "Profile #2",
+        "score": 8.7,
+        "codeBatch": "32867"
+    },
+    {
+        "id": 5,
+        "dayEntry": "2023-05-15T07:18:31.100Z",
+        "netWeight": 4,
+        "conversionFaction": 3,
+        "fermentationPercentage": 2,
+        "grainIndex": 2.2,
+        "sensoryProfile": "Profile #1",
+        "score": 8.7,
+        "codeBatch": "28937"
+    },
+    {
+        "id": 6,
+        "dayEntry": "2023-05-15T07:18:31.100Z",
+        "netWeight": 4,
+        "conversionFaction": 3,
+        "fermentationPercentage": 2,
+        "grainIndex": 2.2,
+        "sensoryProfile": "Profile #1",
+        "score": 8.7,
+        "codeBatch": "82322"
+    }
+]
