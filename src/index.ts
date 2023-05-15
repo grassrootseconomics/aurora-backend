@@ -1,6 +1,8 @@
 import express from 'express';
-import v1 from './routes/v1';
-import { SERVER } from './config';
+
+import { SERVER } from '@/config';
+
+import v1 from '@/routes/v1';
 
 const app = express();
 
