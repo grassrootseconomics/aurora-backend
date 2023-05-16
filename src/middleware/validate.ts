@@ -5,6 +5,16 @@ import Joi from 'joi';
 import ApiError from '@/utils/types/errors/ApiError';
 import { DefaultValidation } from '@/utils/types/server';
 
+/**
+ *
+ * Validates the request content (params, body, query)
+ * based on the schema it receives.
+ *
+ * If it detects an error, it throws it as an ApiError
+ * and the API returns an Error Response.
+ *
+ * @param {DefaultValidation} schema Joi Schema of req to validate for
+ */
 const validate =
     (schema: DefaultValidation) =>
     (req: Request, _res: Response, next: NextFunction) => {

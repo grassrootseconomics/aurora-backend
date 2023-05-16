@@ -1,6 +1,7 @@
 import { prisma } from '@/db';
 import { Producer } from '@prisma/client';
 
+import { ProducerUpdate } from '@/utils/types/producer';
 import { ISearchParameters, ISearchResult } from '@/utils/types/server';
 
 /**
@@ -69,4 +70,22 @@ export const searchProducers = async ({
         totalPages: Math.ceil(count / limit),
         page: index,
     };
+};
+
+/**
+ *
+ * Updates and returns the Details of a Producer.
+ *
+ * @param {string} code Unique Code of Producer.
+ * @param {Partial<ProducerUpdate>} producerDetails New Producer Details
+ * @returns {Promise<FermentationPhase>}
+ */
+export const updateProducerByCode = async (
+    code: string,
+    producerDetails: Partial<ProducerUpdate>
+): Promise<Producer> => {
+    return await prisma.producer.update({
+        where: { code },
+        data: producerDetails,
+    });
 };

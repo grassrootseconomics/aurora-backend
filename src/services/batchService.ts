@@ -1,7 +1,19 @@
 import { prisma } from '@/db';
-import { Batch, FermentationPhase } from '@prisma/client';
+import {
+    Batch,
+    DryingPhase,
+    FermentationPhase,
+    Sale,
+    Storage,
+} from '@prisma/client';
 
-import ISearchBatchParams from '@/utils/types/batch/ISearchBatchParams';
+import {
+    DryingPhaseUpdate,
+    FermentationPhaseUpdate,
+    ISearchBatchParams,
+    SalesPhaseUpdate,
+    StoragePhaseUpdate,
+} from '@/utils/types/batch';
 import { ISearchResult } from '@/utils/types/server';
 
 /**
@@ -174,4 +186,76 @@ export const searchBatches = async ({
         totalPages: Math.ceil(count / limit),
         page: index,
     };
+};
+
+/**
+ *
+ * Updates and returns the Sales Phase Details of a Batch.
+ *
+ * @param {number} id Id of the Sales Phase.
+ * @param {Partial<SalesPhase>} salesPhase New Sales Phase Details.
+ * @returns {Promise<Sale>}
+ */
+export const updateBatchSalesPhase = async (
+    id: number,
+    salesPhase: Partial<SalesPhaseUpdate>
+): Promise<Sale> => {
+    return await prisma.sale.update({
+        where: { id },
+        data: salesPhase,
+    });
+};
+
+/**
+ *
+ * Updates and returns the Storage Phase Details of a Batch.
+ *
+ * @param {number} id Id of the Storage Phase.
+ * @param {Partial<StoragePhase>} storagePhase New Storage Details Phase
+ * @returns {Promise<Storage>}
+ */
+export const updateBatchStoragePhase = async (
+    id: number,
+    storagePhase: Partial<StoragePhaseUpdate>
+): Promise<Storage> => {
+    return await prisma.storage.update({
+        where: { id },
+        data: storagePhase,
+    });
+};
+
+/**
+ *
+ * Updates and returns the Drying Phase Details of a Batch.
+ *
+ * @param {number} id Id of the Drying Phase.
+ * @param {Partial<DryingPhase>} dryingPhase New Drying Phase Details
+ * @returns {Promise<DryingPhase>}
+ */
+export const updateBatchDryingPhase = async (
+    id: number,
+    dryingPhase: Partial<DryingPhaseUpdate>
+): Promise<DryingPhase> => {
+    return await prisma.dryingPhase.update({
+        where: { id },
+        data: dryingPhase,
+    });
+};
+
+/**
+ *
+ * Updates and returns the Fermentation Phase Details of a Batch.
+ *
+ * @param {number} id Id of the Fermentation Phase.
+ * @param {Partial<FermentationPhaseUpdate>} fermentationPhase New Fermentation Phase Details
+ * @returns {Promise<FermentationPhase>}
+ */
+export const updateBatchFermentationPhase = async (
+    id: number,
+    fermentationPhase: Partial<FermentationPhaseUpdate>
+): Promise<FermentationPhase> => {
+    return await prisma.fermentationPhase.update({
+        where: { id },
+        data: fermentationPhase,
+    });
 };
