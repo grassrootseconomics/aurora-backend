@@ -20,6 +20,9 @@ export const APP_CONSTANTS = {
         },
         PRODUCER: {
             MISSING_CODE: 'Missing Code.',
+            UPDATE_SUCCESS: 'Producer Updated Successfully!',
+            LINK_BATCH_EXISTS: 'Producer is already linked to this Batch!',
+            FAILED_BATCH_CHANGE: 'Could not update Batches!',
             FETCH_SUCCESS: 'Successfully Fetched Producer Data!',
             SEARCH_SUCCESS: 'Successfully searched producers!',
         },

@@ -37,3 +37,10 @@ export const updateProducerSchema: DefaultValidation = {
         }),
     }),
 };
+
+export const changeProducerFromBatch: DefaultValidation = {
+    params: Joi.object().keys({
+        codeProducer: Joi.string().required(),
+        codeBatch: Joi.string().required(),
+    }),
+};

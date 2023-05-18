@@ -1,5 +1,5 @@
 import { prisma } from '@/db';
-import { Producer } from '@prisma/client';
+import { Producer, PulpBatch } from '@prisma/client';
 
 import { ProducerUpdate } from '@/utils/types/producer';
 import { ISearchParameters, ISearchResult } from '@/utils/types/server';
@@ -88,4 +88,83 @@ export const updateProducerByCode = async (
         where: { code },
         data: producerDetails,
     });
+};
+
+export const unlinkProducerFromBatch = async (
+    codeProducer: string,
+    codeBatch: string
+): Promise<boolean> => {
+    const response = await prisma.pulpBatch.deleteMany({
+        where: {
+            AND: [
+                {
+                    pulp: {
+                        codeProducer,
+                    },
+                },
+                {
+                    codeBatch,
+                },
+            ],
+        },
+    });
+    return response.count > 0;
+};
+
+export const checkProducerLinkedToBatch = async (
+    codeProducer: string,
+    codeBatch: string
+): Promise<boolean> => {
+    const response = await prisma.pulpBatch.count({
+        where: {
+            AND: [
+                {
+                    codeBatch,
+                },
+                {
+                    pulp: {
+                        codeProducer,
+                    },
+                },
+            ],
+        },
+    });
+    return response > 0;
+};
+
+export const linkProducerToBatch = async (
+    codeProducer: string,
+    codeBatch: string
+): Promise<boolean> => {
+    const pulps = await prisma.pulp.findMany({
+        where: {
+            AND: [
+                {
+                    codeProducer,
+                },
+                {
+                    batchesUsedFor: {
+                        none: {},
+                    },
+                },
+            ],
+        },
+        include: {
+            batchesUsedFor: true,
+        },
+    });
+
+    const newPulpBatches = pulps.map((pulp) => {
+        return {
+            codeBatch,
+            idPulp: pulp.id,
+        };
+    });
+
+    const result = await prisma.pulpBatch.createMany({
+        data: newPulpBatches,
+        skipDuplicates: true,
+    });
+
+    return result.count > 0;
 };

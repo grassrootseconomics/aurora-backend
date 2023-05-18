@@ -9,8 +9,11 @@ import { getAssociationById } from '@/services/associationService';
 import { getBatchesByPulpIds } from '@/services/batchService';
 import { getDepartmentById } from '@/services/departmentService';
 import {
+    checkProducerLinkedToBatch,
     getProducerByCode,
+    linkProducerToBatch,
     searchProducers,
+    unlinkProducerFromBatch,
     updateProducerByCode,
 } from '@/services/producerService';
 import { getPulpsByProducerCode } from '@/services/pulpService';
@@ -19,7 +22,10 @@ import { APP_CONSTANTS } from '@/utils/constants';
 import ApiError from '@/utils/types/errors/ApiError';
 import { ProducerUpdate } from '@/utils/types/producer';
 import { ISearchParameters } from '@/utils/types/server';
-import { updateProducerSchema } from '@/utils/validations/producerValidations';
+import {
+    changeProducerFromBatch,
+    updateProducerSchema,
+} from '@/utils/validations/producerValidations';
 
 const router = Router();
 
@@ -85,6 +91,40 @@ router.get(
     })
 );
 
+router.post(
+    `/:codeProducer/batches/:codeBatch`,
+    validate(changeProducerFromBatch),
+    asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
+        const { codeProducer, codeBatch } = req.params;
+
+        const producerAlreadyLinked = await checkProducerLinkedToBatch(
+            codeProducer,
+            codeBatch
+        );
+
+        if (producerAlreadyLinked) {
+            return res.status(400).json({
+                success: false,
+                message: APP_CONSTANTS.RESPONSE.PRODUCER.LINK_BATCH_EXISTS,
+            });
+        }
+
+        const added = await linkProducerToBatch(codeProducer, codeBatch);
+
+        if (!added) {
+            return res.status(400).json({
+                success: false,
+                message: APP_CONSTANTS.RESPONSE.PRODUCER.FAILED_BATCH_CHANGE,
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: APP_CONSTANTS.RESPONSE.PRODUCER.UPDATE_SUCCESS,
+        });
+    })
+);
+
 router.patch(
     `/:code`,
     validate(updateProducerSchema),
@@ -131,6 +171,28 @@ router.patch(
             data: {
                 updatedValues,
             },
+        });
+    })
+);
+
+router.delete(
+    `/:codeProducer/batches/:codeBatch`,
+    validate(changeProducerFromBatch),
+    asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
+        const { codeProducer, codeBatch } = req.params;
+
+        const deleted = await unlinkProducerFromBatch(codeProducer, codeBatch);
+
+        if (!deleted) {
+            return res.status(400).json({
+                success: false,
+                message: APP_CONSTANTS.RESPONSE.PRODUCER.FAILED_BATCH_CHANGE,
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: APP_CONSTANTS.RESPONSE.PRODUCER.UPDATE_SUCCESS,
         });
     })
 );

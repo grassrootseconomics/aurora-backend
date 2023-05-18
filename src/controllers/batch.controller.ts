@@ -13,14 +13,12 @@ import {
     updateBatchSalesPhase,
     updateBatchStoragePhase,
 } from '@/services/batchService';
-import { updatePulp } from '@/services/pulpService';
 
 import { APP_CONSTANTS } from '@/utils/constants';
 import {
     DryingPhaseUpdate,
     FermentationPhaseUpdate,
     ISearchBatchParams,
-    PulpUpdate,
     SalesPhaseUpdate,
     StoragePhaseUpdate,
 } from '@/utils/types/batch';
@@ -28,7 +26,6 @@ import ApiError from '@/utils/types/errors/ApiError';
 import {
     updateBatchDryingSchema,
     updateBatchFermentationSchema,
-    updateBatchPulpSchema,
     updateBatchSalesSchema,
     updateBatchStorageSchema,
 } from '@/utils/validations/batchValidations';
@@ -206,29 +203,6 @@ router.patch(
             id,
             newDetails
         );
-
-        return res.status(200).json({
-            success: true,
-            message: APP_CONSTANTS.RESPONSE.BATCH.UPDATE_SUCCESS,
-            data: {
-                updatedValues,
-            },
-        });
-    })
-);
-
-router.patch(
-    `/:id/pulp`,
-    validate(updateBatchPulpSchema),
-    asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-        const id: number = parseInt(req.params.id);
-
-        if (!id || Number.isNaN(id)) {
-            next(new ApiError(400, APP_CONSTANTS.RESPONSE.STORAGE.INVALID_ID));
-        }
-        const newDetails: Partial<PulpUpdate> = req.body.pulp;
-
-        const updatedValues = await updatePulp(id, newDetails);
 
         return res.status(200).json({
             success: true,
