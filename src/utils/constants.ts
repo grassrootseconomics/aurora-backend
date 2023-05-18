@@ -34,5 +34,8 @@ export const APP_CONSTANTS = {
             FETCH_SUCCESS: 'Successfully Fetched Department Data!',
             NOT_FOUND: 'Department Does Not Exist!',
         },
+        FLIPS: {
+            SAVE_SUCCESS: 'Flip added successfully.',
+        },
     },
 };

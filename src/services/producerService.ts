@@ -90,6 +90,14 @@ export const updateProducerByCode = async (
     });
 };
 
+/**
+ *
+ * Removes links between `Producer Pulps` and a `Batch`.
+ *
+ * @param {string} codeProducer Code of the Producer.
+ * @param {string} codeBatch Code of the Batch.
+ * @returns {Promise<boolean>} `True` on a success; `False` otherwise.
+ */
 export const unlinkProducerFromBatch = async (
     codeProducer: string,
     codeBatch: string
@@ -111,6 +119,14 @@ export const unlinkProducerFromBatch = async (
     return response.count > 0;
 };
 
+/**
+ *
+ * Checks whether a Producer has Pulps linked to a Batch.
+ *
+ * @param {string} codeProducer Code of the Producer.
+ * @param {string} codeBatch Code of the Batch.
+ * @returns {Promise<boolean>} `True` on a success; `False` otherwise.
+ */
 export const checkProducerLinkedToBatch = async (
     codeProducer: string,
     codeBatch: string
@@ -132,6 +148,14 @@ export const checkProducerLinkedToBatch = async (
     return response > 0;
 };
 
+/**
+ *
+ * Creates links between unlinked `Producer Pulps` and a `Batch`.
+ *
+ * @param {string} codeProducer Code of the Producer.
+ * @param {string} codeBatch Code of the Batch.
+ * @returns {Promise<boolean>} `True` on a success; `False` otherwise.
+ */
 export const linkProducerToBatch = async (
     codeProducer: string,
     codeBatch: string

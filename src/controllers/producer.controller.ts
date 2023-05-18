@@ -178,7 +178,7 @@ router.patch(
 router.delete(
     `/:codeProducer/batches/:codeBatch`,
     validate(changeProducerFromBatch),
-    asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
+    asyncMiddleware(async (req: Request, res: Response) => {
         const { codeProducer, codeBatch } = req.params;
 
         const deleted = await unlinkProducerFromBatch(codeProducer, codeBatch);
