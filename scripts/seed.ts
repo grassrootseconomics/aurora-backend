@@ -6,7 +6,6 @@ import departments from './data/departments.json';
 import dryingPhases from './data/dryingPhases.json';
 import fermentationPhases from './data/fermentationPhases.json';
 import fermentationFlips from './data/flips.json';
-import producerBatches from './data/producerBatches.json';
 import producers from './data/producers.json';
 import pulpBatches from './data/pulpBatches.json';
 import pulps from './data/pulps.json';
@@ -76,12 +75,6 @@ const main = async () => {
     if (pulpsSeeded === 0) {
         console.log(`Seeding Pulps!`);
         await prisma.pulp.createMany({ data: pulps });
-        console.log(`Complete!`);
-    }
-    const producerBatchesSeeded = await prisma.producersBatch.count();
-    if (producerBatchesSeeded === 0) {
-        console.log(`Seeding Links between Producers & Batches!`);
-        await prisma.producersBatch.createMany({ data: producerBatches });
         console.log(`Complete!`);
     }
     const pulpBatchesSeeded = await prisma.pulpBatch.count();

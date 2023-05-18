@@ -38,10 +38,13 @@ export const getBatchesBySoldStatus = (
             },
             pulpsUsed: {
                 include: {
-                    pulp: true,
+                    pulp: {
+                        include: {
+                            producer: true,
+                        },
+                    },
                 },
             },
-            producersInvolved: true,
         },
     });
 };
@@ -66,10 +69,13 @@ export const getBatchByCode = (code: string): Promise<Batch | null> => {
             },
             pulpsUsed: {
                 include: {
-                    pulp: true,
+                    pulp: {
+                        include: {
+                            producer: true,
+                        },
+                    },
                 },
             },
-            producersInvolved: true,
         },
     });
 };
@@ -92,20 +98,34 @@ export const getBatchFermentationModelByCode = (
 
 /**
  *
- * Queries for Batches by their Producer Code.
+ * Queries for Batches by a given collection of Pulp IDs.
  *
- * @param {string} code Producer Code.
- * @returns
+ *
+ * @param {number[]} pulpIds Pulp Ids.
+ * @returns {Promise<Batch[]>}
  */
-export const getBatchesByProducerCode = async (
-    code: string
+export const getBatchesByPulpIds = async (
+    pulpIds: number[]
 ): Promise<Batch[]> => {
-    const batchLinks = await prisma.producersBatch.findMany({
-        where: { codeProducer: code },
-        include: { batch: true },
+    const pulpBatches = await prisma.pulpBatch.findMany({
+        where: {
+            idPulp: {
+                in: pulpIds,
+            },
+        },
+        include: {
+            batch: {
+                include: {
+                    sale: true,
+                    storage: true,
+                    dryingPhase: true,
+                    fermentationPhase: true,
+                },
+            },
+        },
     });
 
-    return batchLinks.map((batchLink) => batchLink.batch);
+    return pulpBatches.map((pulpBatch) => pulpBatch.batch);
 };
 
 /**
@@ -133,12 +153,14 @@ export const searchBatches = async ({
                     },
                 },
                 {
-                    producersInvolved: {
+                    pulpsUsed: {
                         some: {
-                            producer: {
-                                department: {
-                                    name: {
-                                        contains: department,
+                            pulp: {
+                                producer: {
+                                    department: {
+                                        name: {
+                                            contains: department,
+                                        },
                                     },
                                 },
                             },
@@ -157,14 +179,13 @@ export const searchBatches = async ({
             },
             pulpsUsed: {
                 include: {
-                    pulp: true,
-                },
-            },
-            producersInvolved: {
-                include: {
-                    producer: {
+                    pulp: {
                         include: {
-                            department: true,
+                            producer: {
+                                include: {
+                                    department: true,
+                                },
+                            },
                         },
                     },
                 },

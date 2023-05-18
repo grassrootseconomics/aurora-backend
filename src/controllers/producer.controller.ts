@@ -6,7 +6,7 @@ import asyncMiddleware from '@/middleware/asyncMiddleware';
 import validate from '@/middleware/validate';
 
 import { getAssociationById } from '@/services/associationService';
-import { getBatchesByProducerCode } from '@/services/batchService';
+import { getBatchesByPulpIds } from '@/services/batchService';
 import { getDepartmentById } from '@/services/departmentService';
 import {
     getProducerByCode,
@@ -72,8 +72,8 @@ router.get(
                 new ApiError(400, APP_CONSTANTS.RESPONSE.PRODUCER.MISSING_CODE)
             );
         }
-        const batches = await getBatchesByProducerCode(code);
         const pulps = await getPulpsByProducerCode(code);
+        const batches = await getBatchesByPulpIds(pulps.map((pulp) => pulp.id));
         return res.status(200).json({
             success: true,
             message: APP_CONSTANTS.RESPONSE.BATCH.FETCH_SUCCESS,
@@ -127,7 +127,7 @@ router.patch(
 
         return res.status(200).json({
             success: true,
-            message: APP_CONSTANTS.RESPONSE.BATCH.UPDATE_SUCCESS,
+            message: APP_CONSTANTS.RESPONSE.PRODUCER.UPDATE_SUCCESS,
             data: {
                 updatedValues,
             },

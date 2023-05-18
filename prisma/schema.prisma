@@ -67,9 +67,8 @@ model Producer {
   nrWaterSources Decimal
   wildlife       String
 
-  producedBatches ProducersBatch[]
-  producedPulps   Pulp[]
-  platformUser    User?
+  producedPulps Pulp[]
+  platformUser  User?
 }
 
 // An Association, otherwise known as groups of Producers.
@@ -100,24 +99,11 @@ model Batch {
   idAssociation Int
   association   Association @relation(fields: [idAssociation], references: [id])
 
-  producersInvolved ProducersBatch[]
-
   sale              Sale?
   storage           Storage?
   dryingPhase       DryingPhase?
   fermentationPhase FermentationPhase?
   pulpsUsed         PulpBatch[]
-}
-
-// Multiple Producers can contribute to multiple Batches
-model ProducersBatch {
-  id Int @id @default(autoincrement())
-
-  codeProducer String
-  producer     Producer @relation(fields: [codeProducer], references: [code])
-
-  codeBatch String
-  batch     Batch  @relation(fields: [codeBatch], references: [code])
 }
 
 // Sales Phase of a Batch
