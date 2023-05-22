@@ -9,6 +9,7 @@ import fermentationFlips from './data/flips.json';
 import producers from './data/producers.json';
 import pulpBatches from './data/pulpBatches.json';
 import pulps from './data/pulps.json';
+import roles from './data/roles.json';
 import sales from './data/sales.json';
 import storages from './data/storages.json';
 
@@ -17,6 +18,14 @@ import storages from './data/storages.json';
 // and parsing the data folder contents with the help of the array.
 const main = async () => {
     console.log(`STARTING SEEDING PROCESS`);
+
+    const rolesSeeded = await prisma.role.count();
+    if (rolesSeeded === 0) {
+        console.log(`Seeding Roles!`);
+        await prisma.role.createMany({ data: roles });
+        console.log(`Complete!`);
+    }
+
     const associationsSeeded = await prisma.association.count();
     if (associationsSeeded === 0) {
         console.log(`Seeding Associations!`);

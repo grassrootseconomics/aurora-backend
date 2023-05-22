@@ -21,7 +21,7 @@ model User {
   username      String?
   walletAddress String  @unique
   role          Role    @relation(fields: [idRole], references: [id])
-  idRole        Int
+  idRole        Int     @default(1)
   nonces        Nonce?
 
   idProducer      Int?      @unique
@@ -33,8 +33,8 @@ model Nonce {
   substance  String
   expiration DateTime
 
-  user   User @relation(fields: [idUser], references: [id])
-  idUser Int  @unique
+  user       User   @relation(fields: [userWallet], references: [walletAddress])
+  userWallet String @unique
 }
 
 model Producer {

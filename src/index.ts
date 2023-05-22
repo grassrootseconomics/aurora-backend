@@ -1,6 +1,7 @@
 import express from 'express';
 
 import { SERVER } from '@/config';
+import cors from 'cors';
 
 import v1 from '@/routes/v1';
 
@@ -10,7 +11,9 @@ import ApiError from '@/utils/types/errors/ApiError';
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use('/v1', v1);
 

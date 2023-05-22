@@ -8,12 +8,44 @@ const CONNECTION_URL: string =
 
 const PORT = process.env.PORT || '8080';
 
+/**
+ * 
+REFRESH_TOKEN__ISSUER="testIssuer"
+
+ACCESS_TOKEN_ISSUER="testIssuer"
+ */
+
+const REFRESH_TOKEN_SECRET: string =
+    process.env.REFRESH_TOKEN_SECRET || 'refreshToken';
+const ACCESS_TOKEN_SECRET: string =
+    process.env.ACCESS_TOKEN_SECRET || 'accessToken';
+
+const REFRESH_TOKEN_EXPIRE: number =
+    parseInt(process.env.REFRESH_TOKEN_EXPIRE) || 2592000;
+const ACCESS_TOKEN_EXPIRE: number =
+    parseInt(process.env.ACCESS_TOKEN_EXPIRE) || 1800;
+
+const REFRESH_TOKEN__ISSUER: string =
+    process.env.REFRESH_TOKEN__ISSUER || 'testIssuer';
+const ACCESS_TOKEN_ISSUER: string =
+    process.env.ACCESS_TOKEN_ISSUER || 'testIssuer';
+
 const DB = {
     CONNECTION_URL,
 };
 
 const SERVER = {
     PORT,
+    ACCESS_TOKEN: {
+        SECRET: ACCESS_TOKEN_SECRET,
+        EXPIRE_TIME: ACCESS_TOKEN_EXPIRE,
+        ISSUER: ACCESS_TOKEN_ISSUER,
+    },
+    REFRESH_TOKEN: {
+        SECRET: REFRESH_TOKEN_SECRET,
+        EXPIRE_TIME: REFRESH_TOKEN_EXPIRE,
+        ISSUER: REFRESH_TOKEN__ISSUER,
+    },
 };
 
 export { SERVER, DB };

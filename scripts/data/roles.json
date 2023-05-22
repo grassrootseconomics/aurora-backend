@@ -1,0 +1,14 @@
+[
+    {
+        "id": 1,
+        "name": "Buyer"
+    },
+    {
+        "id": 2,
+        "name": "Association"
+    },
+    {
+        "id": 3,
+        "name": "Project"
+    }
+]

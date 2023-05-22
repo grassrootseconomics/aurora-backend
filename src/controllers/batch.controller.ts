@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response, Router } from 'express';
 
 import asyncMiddleware from '@/middleware/asyncMiddleware';
+import extractJWT from '@/middleware/extractJWT';
 import validate from '@/middleware/validate';
 
 import {
