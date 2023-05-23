@@ -65,3 +65,14 @@ export type DefaultValidation = {
     body?: Joi.Schema;
     params?: Joi.Schema;
 };
+
+export type JWTToken = {
+    address: string;
+    key: string;
+    role: 'Buyer' | 'Producer' | 'Project';
+    name: string;
+    type: 'ACCESS' | 'REFRESH';
+    exp: number;
+    iat: number;
+    iss: string;
+};

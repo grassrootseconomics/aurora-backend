@@ -68,9 +68,12 @@ export const getRefreshToken = async (
     nonce: string,
     signature: string
 ): Promise<string> => {
-    const user: User = await prisma.user.findUnique({
+    const user = await prisma.user.findUnique({
         where: {
             walletAddress: userWallet,
+        },
+        include: {
+            role: true,
         },
     });
 
@@ -113,7 +116,7 @@ export const getRefreshToken = async (
     });
 
     // Return the refresh token
-    return signJWT('REFRESH', userWallet, nonce, user.username);
+    return signJWT('REFRESH', userWallet, nonce, user.username, user.role.name);
 };
 
 /**
@@ -146,5 +149,11 @@ export const getAccessToken = async (refreshToken: string): Promise<string> => {
         throw new ApiError(401, 'Account Does not Exist!');
     }
 
-    return signJWT('ACCESS', decoded['address']);
+    return signJWT(
+        'ACCESS',
+        decoded['address'],
+        '',
+        decoded['name'],
+        decoded['role']
+    );
 };

@@ -5,12 +5,15 @@ import jwt from 'jsonwebtoken';
 
 import ApiError from '@/utils/types/errors/ApiError';
 
+/**
+ * Extracts the JWT from the Authorization Header.
+ */
 const extractJWT = (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers['authorization']?.split(' ')[1];
 
     if (token) {
         jwt.verify(token, SERVER.ACCESS_TOKEN.SECRET, (error, decoded) => {
-            if (error) {
+            if (error)
                 return next(
                     new ApiError(
                         404,
@@ -18,14 +21,10 @@ const extractJWT = (req: Request, res: Response, next: NextFunction) => {
                         error.stack
                     )
                 );
-            } else {
-                res.locals.jwt = decoded;
-                next();
-            }
+            res.locals.jwt = decoded;
         });
-    } else {
-        return next(new ApiError(401, 'You are not authenticated!'));
     }
+    next();
 };
 
 export default extractJWT;

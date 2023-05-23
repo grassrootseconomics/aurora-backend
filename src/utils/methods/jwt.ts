@@ -1,12 +1,25 @@
 import { SERVER } from '@/config';
 import jwt from 'jsonwebtoken';
 
+/**
+ *
+ * Signs and creates a jwt token.
+ *
+ * Parameters are added to the jwt content. These are user details.
+ *
+ * @param type Type of JWT (REFRESH or ACCESS).
+ * @param {string} address User Wallet Address.
+ * @param {string} key Nonce or Unique Key.
+ * @param {string} name Username or User Name.
+ * @param {string} role User Role Title.
+ * @returns
+ */
 export const signJWT = (
-    type: string,
+    type: 'REFRESH' | 'ACCESS',
     address: string,
-    key = '',
-    username = '',
-    email = ''
+    key: string = '',
+    name: string = '',
+    role: string = 'Buyer'
 ): string => {
     const expireTime =
         type === 'REFRESH'
@@ -21,8 +34,8 @@ export const signJWT = (
             {
                 address,
                 key,
-                username,
-                email,
+                role,
+                name,
                 type,
             },
             type === 'REFRESH'
