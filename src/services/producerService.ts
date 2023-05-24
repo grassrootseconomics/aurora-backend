@@ -1,8 +1,44 @@
 import { prisma } from '@/db';
-import { Producer, PulpBatch } from '@prisma/client';
+import { Producer } from '@prisma/client';
 
 import { ProducerUpdate } from '@/utils/types/producer';
 import { ISearchParameters, ISearchResult } from '@/utils/types/server';
+
+/**
+ *
+ * Fetch all base Producers.
+ *
+ * @returns {Promise<Producer[]>}
+ */
+export const getAllProducers = (): Promise<Producer[]> => {
+    return prisma.producer.findMany();
+};
+/**
+ *
+ * Fetch all Producers with Sale & Storage Batch Data attached.
+ *
+ * @returns
+ */
+export const getProducersWithBatchData = () => {
+    return prisma.producer.findMany({
+        include: {
+            producedPulps: {
+                include: {
+                    batchesUsedFor: {
+                        include: {
+                            batch: {
+                                include: {
+                                    sale: true,
+                                    storage: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    });
+};
 
 /**
  *
@@ -192,3 +228,9 @@ export const linkProducerToBatch = async (
 
     return result.count > 0;
 };
+
+// export const getProducerStatistics = async (): Promise<ProducersStatistics> => {
+//     const producers = await prisma.producer.findMany();
+
+//     return statistics
+// };

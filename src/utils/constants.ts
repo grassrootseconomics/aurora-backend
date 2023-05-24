@@ -39,3 +39,7 @@ export const APP_CONSTANTS = {
         },
     },
 };
+
+export const DB_CONSTANTS = {
+    ROLES: ['buyer', 'association', 'project'] as const,
+};

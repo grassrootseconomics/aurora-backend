@@ -2,6 +2,8 @@ import { NextFunction, Request, Response } from 'express';
 
 import Joi from 'joi';
 
+import { DB_CONSTANTS } from '../constants';
+
 /**
  * Default API Response Structure.
  */
@@ -69,10 +71,12 @@ export type DefaultValidation = {
 export type JWTToken = {
     address: string;
     key: string;
-    role: 'Buyer' | 'Producer' | 'Project';
+    role: 'buyer' | 'association' | 'project';
     name: string;
     type: 'ACCESS' | 'REFRESH';
     exp: number;
     iat: number;
     iss: string;
 };
+
+export type Roles = (typeof DB_CONSTANTS.ROLES)[number];

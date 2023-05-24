@@ -14,20 +14,614 @@ import {
     SalesPhaseUpdate,
     StoragePhaseUpdate,
 } from '@/utils/types/batch';
+import {
+    MonthlyOrganicSoldPrice,
+    MonthlyProductionOfCacao,
+    MonthlyPulpCollected,
+    MonthlySalesInKg,
+    MonthlySalesInUSD,
+} from '@/utils/types/reports';
 import { ISearchResult } from '@/utils/types/server';
 
+/**
+ *
+ * Groups production in kg of dry cocoa by month in a year.
+ *
+ * Each month report contains the kg sold of each department/origin.
+ *
+ * @param {number} year Year to filter by.
+ * @param departmentName
+ * @returns {Promise<MonthlyProductionOfCacao>}
+ */
+export const getProductionByDepartment = async (
+    year: number = new Date().getFullYear(),
+    departmentName?: string
+): Promise<MonthlyProductionOfCacao> => {
+    const regionsWithProduction = await prisma.department.findMany({
+        where: {
+            name: departmentName,
+        },
+        include: {
+            producers: {
+                include: {
+                    producedPulps: {
+                        include: {
+                            batchesUsedFor: {
+                                include: {
+                                    batch: {
+                                        include: {
+                                            storage: true,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    });
+
+    const reports: MonthlyProductionOfCacao = [...Array(12)].map(() => {
+        const departmentsReport = {};
+
+        regionsWithProduction.forEach((department) => {
+            departmentsReport[department.name] = 0;
+        });
+
+        return departmentsReport;
+    });
+
+    reports.forEach((_el, index) => {
+        Object.keys(reports[index]).map((department) => {
+            const departmentData = regionsWithProduction.find(
+                (dep) => dep.name === department
+            );
+
+            departmentData.producers.forEach((producer) => {
+                producer.producedPulps.forEach((pulp) => {
+                    reports[index][department] += pulp.batchesUsedFor.reduce(
+                        (prev, current) => {
+                            const dayEntry = current.batch.storage.dayEntry;
+                            if (
+                                dayEntry.getFullYear() === year &&
+                                dayEntry.getMonth() === index
+                            ) {
+                                return (
+                                    prev +
+                                    current.batch.storage.netWeight.toNumber()
+                                );
+                            } else {
+                                return prev + 0;
+                            }
+                        },
+                        0
+                    );
+                });
+            });
+        });
+    });
+
+    return reports;
+};
+
+/**
+ *
+ * Sums up the average USD price of Organic Cocoa by month in a year.
+ *
+ * @param {number} year Year to filter by.
+ * @returns {Promise<MonthlyOrganicSoldPrice>}
+ */
+export const getUSDPriceOfOrganicCocoa = async (
+    year: number = new Date().getFullYear()
+): Promise<MonthlyOrganicSoldPrice> => {
+    const batches = await prisma.batch.findMany({
+        where: {
+            AND: [
+                {
+                    fermentationPhase: {
+                        cocoaType: 'organic',
+                    },
+                },
+                {
+                    sale: {
+                        currency: 'USD',
+                    },
+                },
+            ],
+        },
+        include: {
+            sale: true,
+            fermentationPhase: true,
+        },
+    });
+
+    const reports: MonthlyOrganicSoldPrice = [...Array(12)].map(() => {
+        return {
+            organicSoldPrice: 0,
+        };
+    });
+
+    reports.forEach((_element, index) => {
+        const filteredBatches = batches.filter(
+            (batch) =>
+                batch.sale.negotiationDate.getFullYear() === year &&
+                batch.sale.negotiationDate.getMonth() === index
+        );
+
+        reports[index].organicSoldPrice =
+            filteredBatches.reduce(
+                (prev, current) => prev + current.sale.totalValue,
+                0
+            ) / filteredBatches.length;
+    });
+
+    return reports;
+};
+
+/**
+ *
+ * Groups batch kg sales sold in a year by months.
+ *
+ * Each month report contains the kg sold of each association.
+ *
+ * @param onlyInternational Flag to filter for international sales only; Default to false.
+ * @param {number} year Year to filter by.
+ * @param associationName Association to filter by.
+ * @returns {Promise<MonthlySalesInKg>}
+ */
+export const getSalesInKgByAssociation = async (
+    onlyInternational: boolean = false,
+    year: number = new Date().getFullYear(),
+    associationName?: string
+): Promise<MonthlySalesInKg> => {
+    // Query by optional association name,
+    // optional international sales
+    // and only sold batches
+    const associationsWithBatches = await prisma.association.findMany({
+        where: {
+            AND: [
+                {
+                    name: associationName,
+                },
+                {
+                    producers: {
+                        some: {
+                            producedPulps: {
+                                some: {
+                                    batchesUsedFor: {
+                                        some: {
+                                            batch: onlyInternational
+                                                ? {
+                                                      sale: {
+                                                          negotiation:
+                                                              'International',
+                                                      },
+                                                  }
+                                                : { NOT: { sale: null } },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            ],
+        },
+        include: {
+            producers: {
+                include: {
+                    producedPulps: {
+                        include: {
+                            batchesUsedFor: {
+                                include: {
+                                    batch: {
+                                        include: {
+                                            storage: true,
+                                            sale: true,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    });
+
+    const reports: MonthlySalesInKg = [...Array(12)].map(() => {
+        const associationReport = {};
+        associationsWithBatches.forEach((assoc) => {
+            associationReport[assoc.name] = 0;
+        });
+
+        return associationReport;
+    });
+
+    reports.forEach((_element, index) => {
+        Object.keys(reports[index]).map((association) => {
+            const associationData = associationsWithBatches.find(
+                (assoc) => assoc.name === association
+            );
+
+            // Add all kgs in storage of batches of an association
+            associationData.producers.forEach((producer) => {
+                producer.producedPulps.forEach((pulp) => {
+                    reports[index][association] += pulp.batchesUsedFor.reduce(
+                        (prev, current) => {
+                            if (!current.batch.sale) return prev + 0;
+                            const dayEntry = current.batch.sale.negotiationDate;
+                            if (
+                                dayEntry.getFullYear() === year &&
+                                dayEntry.getMonth() === index
+                            )
+                                return (
+                                    prev +
+                                    current.batch.storage.netWeight.toNumber()
+                                );
+                            else return prev + 0;
+                        },
+                        0
+                    );
+                });
+            });
+        });
+    });
+
+    return reports;
+};
+
+/**
+ *
+ * Groups batch kg quantity sold in a year by months.
+ *
+ * Each month report contains the kg sold of each department/origin.
+ *
+ * @param onlyInternational Flag to filter for international sales only; Default to false.
+ * @param {number} year Year to filter by.
+ * @param {string} departmentName Department to filter by.
+ * @returns {Promise<MonthlySalesInKg>}
+ */
+export const getSalesInKgByDepartment = async (
+    onlyInternational: boolean = false,
+    year: number = new Date().getFullYear(),
+    departmentName?: string
+): Promise<MonthlySalesInKg> => {
+    const regionsWithSale = await prisma.department.findMany({
+        where: {
+            AND: [
+                { name: departmentName },
+                {
+                    producers: {
+                        some: {
+                            producedPulps: {
+                                some: {
+                                    batchesUsedFor: {
+                                        some: {
+                                            batch: onlyInternational
+                                                ? {
+                                                      sale: {
+                                                          negotiation:
+                                                              'International',
+                                                      },
+                                                  }
+                                                : { NOT: { sale: null } },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            ],
+        },
+        include: {
+            producers: {
+                include: {
+                    producedPulps: {
+                        include: {
+                            batchesUsedFor: {
+                                include: {
+                                    batch: {
+                                        include: {
+                                            storage: true,
+                                            sale: true,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    });
+
+    const reports: MonthlySalesInKg = [...Array(12)].map(() => {
+        const departmentReport = {};
+        regionsWithSale.forEach((department) => {
+            departmentReport[department.name] = 0;
+        });
+
+        return departmentReport;
+    });
+
+    reports.forEach((_el, index) => {
+        Object.keys(reports[index]).map((department) => {
+            const departmentData = regionsWithSale.find(
+                (dep) => dep.name === department
+            );
+
+            departmentData.producers.forEach((producer) => {
+                producer.producedPulps.forEach((pulp) => {
+                    reports[index][department] += pulp.batchesUsedFor.reduce(
+                        function (prev, current) {
+                            const dayEntry = current.batch.sale.negotiationDate;
+                            if (
+                                dayEntry.getFullYear() === year &&
+                                dayEntry.getMonth() === index
+                            ) {
+                                return (
+                                    prev +
+                                    current.batch.storage.netWeight.toNumber()
+                                );
+                            } else return prev + 0;
+                        },
+                        0
+                    );
+                });
+            });
+        });
+    });
+
+    return reports;
+};
+
+/**
+ *
+ * Groups batch sales in USD in a year by months.
+ *
+ * Each month report contains the sales in USD of each association.
+ *
+ * @param {number} year Year to filter by.
+ * @param {string} associationName Association to filter by.
+ * @returns {Promise<MonthlySalesInUSD>}
+ */
+export const getMonthlySalesInUSD = async (
+    year: number = new Date().getFullYear(),
+    associationName?: string
+): Promise<MonthlySalesInUSD> => {
+    const batches = await prisma.batch.findMany({
+        where: {
+            AND: [
+                {
+                    // THIS NEEDS CHANGING!
+                    association: {
+                        name: associationName,
+                    },
+                },
+                {
+                    NOT: { sale: null },
+                },
+            ],
+        },
+        include: {
+            sale: true,
+        },
+    });
+    // Instantiate empty report.
+    const reports: MonthlySalesInUSD = [...Array(12)].map(() => {
+        return { salesInUSD: 0 };
+    });
+
+    reports.forEach((_element, index) => {
+        const filteredBatches = batches.filter(
+            (batch) =>
+                batch.sale.negotiationDate.getFullYear() === year &&
+                batch.sale.negotiationDate.getMonth() === index &&
+                batch.sale.currency === 'US'
+        );
+
+        reports[index].salesInUSD = filteredBatches.reduce(
+            (prev, batch) => prev + batch.sale.totalValue,
+            0
+        );
+    });
+
+    return reports;
+};
+/**
+ *
+ * Groups collected cocoa pulp in a year by months.
+ *
+ * Each month report contains the production of each association.
+ *
+ * @param {number} year Year to filter by.
+ * @param {string} associationName Association to filter by.
+ * @returns {Promise<MonthlyPulpCollected>}
+ */
+export const getMonthlyCocoaPulp = async (
+    year: number = new Date().getFullYear(),
+    associationName?: string
+): Promise<MonthlyPulpCollected> => {
+    const pulpOfAssociation = await prisma.pulp.findMany({
+        where: {
+            producer: {
+                association: {
+                    name: associationName,
+                },
+            },
+        },
+        include: {
+            producer: {
+                include: {
+                    association: true,
+                },
+            },
+        },
+    });
+
+    const reports: MonthlyPulpCollected = [...Array(12)].map(() => {
+        return {
+            pulpKg: 0,
+        };
+    });
+
+    reports.forEach((_el, index) => {
+        const pulps = pulpOfAssociation.filter(
+            (pulps) =>
+                pulps.collectionDate.getFullYear() === year &&
+                pulps.collectionDate.getMonth() === index
+        );
+
+        reports[index].pulpKg = pulps.reduce(
+            (prev, current) => prev + current.totalPulpKg.toNumber(),
+            0
+        );
+    });
+
+    return reports;
+};
+
+/**
+ *
+ * Groups production of dry cocoa in a year by months.
+ *
+ * Each month report contains the production of each association.
+ *
+ * @param {number} year Year to filter by.
+ * @param {string} associationName Association to filter by.
+ * @returns {Promise<MonthlyProductionOfCacao>}
+ */
+export const getProductionOfDryCocoa = async (
+    year: number = new Date().getFullYear(),
+    associationName?: string
+): Promise<MonthlyProductionOfCacao> => {
+    const associationsWithBatches = await prisma.association.findMany({
+        where: {
+            name: associationName,
+        },
+        include: {
+            producers: {
+                include: {
+                    producedPulps: {
+                        include: {
+                            batchesUsedFor: {
+                                include: {
+                                    batch: {
+                                        include: {
+                                            storage: true,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    });
+
+    const reports: MonthlyProductionOfCacao = [...Array(12)].map(() => {
+        const associationReport = {};
+
+        associationsWithBatches.forEach((assoc) => {
+            associationReport[assoc.name] = 0;
+        });
+
+        return associationReport;
+    });
+
+    reports.forEach((_element, index) => {
+        Object.keys(reports[index]).map((association) => {
+            const associationData = associationsWithBatches.find(
+                (assoc) => assoc.name === association
+            );
+
+            associationData.producers.forEach((producer) => {
+                producer.producedPulps.forEach((pulp) => {
+                    reports[index][association] += pulp.batchesUsedFor.reduce(
+                        (prev, current) => {
+                            const dayEntry = current.batch.storage.dayEntry;
+                            if (
+                                dayEntry.getFullYear() === year &&
+                                dayEntry.getMonth() === index
+                            ) {
+                                return (
+                                    prev +
+                                    current.batch.storage.netWeight.toNumber()
+                                );
+                            } else {
+                                return prev + 0;
+                            }
+                        },
+                        0
+                    );
+                });
+            });
+        });
+    });
+
+    return reports;
+};
+
+/**
+ *
+ * Fetches every `Batch` with its optional `Sale` and `Storage` Prop included.
+ *
+ * `Batches` that have no `Sale` or `Storage` return with undefined `Sale` or `Storage`.
+ *
+ * @returns `Batches` with `Sales` and `Storage` attached.
+ */
+export const getAllBatchesWithSoldAndSalePhases = () => {
+    return prisma.batch.findMany({
+        include: {
+            storage: true,
+            sale: true,
+        },
+    });
+};
 /**
  *
  * Fetches batches by their sale status; Default to true.
  *
  * @param {boolean} sold If the batch was sold.
- * @returns {Promise<Batch[]>}
+ * @param {boolean} onlyInternational Optional flag to filter by international sales.
+ * @param {string} associationName Optional flag to filter by association.
  */
 export const getBatchesBySoldStatus = (
-    sold: boolean = true
-): Promise<Batch[]> => {
+    sold: boolean = true,
+    onlyInternational: boolean = false,
+    associationName?: string
+) => {
     return prisma.batch.findMany({
-        where: sold ? { NOT: { sale: null } } : { sale: null },
+        where: {
+            AND: [
+                {
+                    pulpsUsed: {
+                        some: {
+                            pulp: {
+                                producer: {
+                                    association: {
+                                        name: associationName,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                onlyInternational
+                    ? {
+                          sale: {
+                              negotiation: 'International',
+                          },
+                      }
+                    : sold
+                    ? { NOT: { sale: null } }
+                    : { sale: null },
+            ],
+        },
         include: {
             sale: true,
             storage: true,
