@@ -7,10 +7,8 @@ import requiresRoles from '@/middleware/guards/requiresRole';
 import validate from '@/middleware/validate';
 
 import {
-    getAllBatchesWithSoldAndSalePhases,
     getBatchByCode,
     getBatchFermentationModelByCode,
-    getBatchesBySoldStatus,
     getMonthlyCocoaPulp,
     getMonthlySalesInUSD,
     getProductionByDepartment,
@@ -31,7 +29,6 @@ import { getAgeByBirthDate } from '@/utils/methods/date';
 import {
     DryingPhaseUpdate,
     FermentationPhaseUpdate,
-    ISearchBatchParams,
     SalesPhaseUpdate,
     StoragePhaseUpdate,
 } from '@/utils/types/batch';
@@ -54,23 +51,6 @@ const router = Router();
 
 router.get(
     '/',
-    asyncMiddleware(async (req: Request, res: Response) => {
-        const options: ISearchBatchParams = req.body.options;
-
-        const result = await searchBatches(options);
-
-        return res.status(200).json({
-            success: true,
-            message: APP_CONSTANTS.RESPONSE.BATCH.FETCH_SUCCESS,
-            data: {
-                result,
-            },
-        });
-    })
-);
-
-router.get(
-    '/report/',
     extractJWT,
     asyncMiddleware(async (req: Request, res: Response) => {
         const token: JWTToken = res.locals.jwt;
@@ -81,6 +61,20 @@ router.get(
         )
             ? undefined
             : parseInt(req.query.year?.toString());
+
+        // For pagination
+        const index: number | undefined = isNaN(
+            parseInt(req.query.index?.toString())
+        )
+            ? undefined
+            : parseInt(req.query.index?.toString());
+        const limit: number | undefined = isNaN(
+            parseInt(req.query.limit?.toString())
+        )
+            ? undefined
+            : parseInt(req.query.limit?.toString());
+
+        // For buyer to filter by department
         const department: string | undefined = req.query.department?.toString();
 
         let report: Partial<BuyerReport> &
@@ -95,9 +89,15 @@ router.get(
         };
 
         // Fetching available statistics for every type of user.
-        const producers = await getAllProducers();
+        const producers = await getAllProducers({ department });
         // This needs filtering by year
-        const batches = await getAllBatchesWithSoldAndSalePhases();
+        const searchBatchesResult = await searchBatches({
+            search: '',
+            index,
+            limit,
+            filterField: 'department',
+            filterValue: department,
+        });
 
         statistics.nrCocoaProducers = producers.length;
         statistics.haForestConservation = producers.reduce(
@@ -128,16 +128,19 @@ router.get(
         } else {
             // Authenticated get more cocoa statistics data.
             // Filtered by year.
-            statistics.kgDryCocoaAvailable = batches.reduce((prev, batch) => {
-                // Only non-sold cocoa
-                if (
-                    !batch.sale &&
-                    batch.storage.dayEntry.getFullYear() === year
-                )
-                    return prev + batch.storage.netWeight.toNumber();
-            }, 0);
-            statistics.kgDryCocoaInternationallySold = batches.reduce(
+            statistics.kgDryCocoaAvailable = searchBatchesResult.data.reduce(
                 (prev, batch) => {
+                    // Only non-sold cocoa
+                    if (
+                        !batch.sale &&
+                        batch.storage.dayEntry.getFullYear() === year
+                    )
+                        return prev + batch.storage.netWeight.toNumber();
+                },
+                0
+            );
+            statistics.kgDryCocoaInternationallySold =
+                searchBatchesResult.data.reduce((prev, batch) => {
                     // Only sold cocoa
                     if (
                         batch.sale &&
@@ -145,9 +148,7 @@ router.get(
                         batch.storage.dayEntry.getFullYear() === year
                     )
                         return prev + batch.storage.netWeight.toNumber();
-                },
-                0
-            );
+                }, 0);
 
             if (token.role === 'association') {
                 const [
@@ -192,6 +193,7 @@ router.get(
             success: true,
             message: 'Information',
             data: {
+                searchBatchesResult,
                 report,
                 statistics,
             },
@@ -213,17 +215,39 @@ router.get(
         )
             ? undefined
             : parseInt(req.query.year?.toString());
+
+        // For pagination
+        const index: number | undefined = isNaN(
+            parseInt(req.query.index?.toString())
+        )
+            ? undefined
+            : parseInt(req.query.index?.toString());
+        const limit: number | undefined = isNaN(
+            parseInt(req.query.limit?.toString())
+        )
+            ? undefined
+            : parseInt(req.query.limit?.toString());
+
+        // For project users to filter by association
         let association: string | undefined = req.query.association?.toString();
+        // For producers & project users to search by batch code.
+        const search: string | undefined = req.query.search?.toString();
 
         // Only users with the project role can filter by associations.
         if (token.role === 'association') association = undefined;
 
         // Fetch batches to calculate internationally sold.
-        const batches = (
-            await getBatchesBySoldStatus(true, true, association)
-        ).filter((batch) => batch.storage.dayEntry.getFullYear() === year);
+        const searchBatchesResult = await searchBatches({
+            search,
+            index,
+            limit,
+            filterField: 'association',
+            filterValue: association,
+            internationallySold: true,
+            year,
+        });
 
-        const kgDryCocoaInternationallySold = batches.reduce(
+        const kgDryCocoaInternationallySold = searchBatchesResult.data.reduce(
             (prev, current) => prev + current.storage.netWeight.toNumber(),
             0
         );
@@ -237,7 +261,7 @@ router.get(
             success: true,
             message: APP_CONSTANTS.RESPONSE.BATCH.FETCH_SUCCESS,
             data: {
-                batches,
+                searchBatchesResult,
                 statistics: {
                     kgDryCocoaInternationallySold,
                 },
@@ -263,17 +287,39 @@ router.get(
         )
             ? undefined
             : parseInt(req.query.year?.toString());
+
+        // For pagination
+        const index: number | undefined = isNaN(
+            parseInt(req.query.index?.toString())
+        )
+            ? undefined
+            : parseInt(req.query.index?.toString());
+        const limit: number | undefined = isNaN(
+            parseInt(req.query.limit?.toString())
+        )
+            ? undefined
+            : parseInt(req.query.limit?.toString());
+
+        // For project users to filter by association
         let association: string | undefined = req.query.association?.toString();
+        // For producers & project users to search by batch code.
+        const search: string | undefined = req.query.search?.toString();
 
         // Only users with the project role can filter by associations.
         if (token.role === 'association') association = undefined;
 
         // Fetch batches to calculate available kg.
-        const batches = (
-            await getBatchesBySoldStatus(false, false, association)
-        ).filter((batch) => batch.storage.dayEntry.getFullYear() === year);
+        const searchBatchesResult = await searchBatches({
+            search,
+            index,
+            limit,
+            filterField: 'association',
+            filterValue: association,
+            sold: false,
+            year,
+        });
 
-        const kgDryCocoaAvailable = batches.reduce(
+        const kgDryCocoaAvailable = searchBatchesResult.data.reduce(
             (prev, current) => prev + current.storage.netWeight.toNumber(),
             0
         );
@@ -287,7 +333,7 @@ router.get(
             success: true,
             message: APP_CONSTANTS.RESPONSE.BATCH.FETCH_SUCCESS,
             data: {
-                batches,
+                searchBatchesResult,
                 statistics: {
                     kgDryCocoaAvailable,
                 },

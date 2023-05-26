@@ -3,6 +3,9 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { Association, Department } from '@prisma/client';
 
 import asyncMiddleware from '@/middleware/asyncMiddleware';
+import extractJWT from '@/middleware/extractJWT';
+import requiresAuth from '@/middleware/guards/requiresAuth';
+import requiresRoles from '@/middleware/guards/requiresRole';
 import validate from '@/middleware/validate';
 
 import { getAssociationById } from '@/services/associationService';
@@ -10,6 +13,7 @@ import { getBatchesByPulpIds } from '@/services/batchService';
 import { getDepartmentById } from '@/services/departmentService';
 import {
     checkProducerLinkedToBatch,
+    getAllProducers,
     getProducerByCode,
     linkProducerToBatch,
     searchProducers,
@@ -19,9 +23,11 @@ import {
 import { getPulpsByProducerCode } from '@/services/pulpService';
 
 import { APP_CONSTANTS } from '@/utils/constants';
+import { getAgeByBirthDate } from '@/utils/methods/date';
 import ApiError from '@/utils/types/errors/ApiError';
 import { ProducerUpdate } from '@/utils/types/producer';
-import { ISearchParameters } from '@/utils/types/server';
+import { ProducersStatistics } from '@/utils/types/reports';
+import { ISearchParameters, JWTToken } from '@/utils/types/server';
 import {
     changeProducerFromBatch,
     updateProducerSchema,
@@ -31,15 +37,61 @@ const router = Router();
 
 router.get(
     '/',
+    extractJWT,
+    requiresAuth,
+    requiresRoles(['project', 'association']),
     asyncMiddleware(async (req: Request, res: Response) => {
-        const options: ISearchParameters = req.body.options;
+        const token: JWTToken = res.locals.jwt;
 
-        const producers = await searchProducers({ ...options });
+        const search: string | undefined = req.query.search?.toString();
+        // For pagination
+        const index: number | undefined = isNaN(
+            parseInt(req.query.index?.toString())
+        )
+            ? undefined
+            : parseInt(req.query.index?.toString());
+        const limit: number | undefined = isNaN(
+            parseInt(req.query.limit?.toString())
+        )
+            ? undefined
+            : parseInt(req.query.limit?.toString());
+
+        let association: string | undefined = req.query.association?.toString();
+        // Only users with the project role can filter by associations.
+        if (token.role === 'association') association = undefined;
+
+        const statistics: ProducersStatistics = {
+            nrCocoaProducers: 0,
+            nrYoungMen: 0,
+            nrWomen: 0,
+            haForestConservation: 0,
+        };
+
+        const searchProducersResult = await searchProducers({
+            search,
+            index,
+            limit,
+            filterField: 'association',
+            filterValue: association,
+        });
+
+        const producers = await getAllProducers({ association });
+
+        statistics.nrYoungMen = producers.filter(
+            (producer) =>
+                producer.gender.toLowerCase() === 'male' &&
+                getAgeByBirthDate(producer.birthDate) < 30
+        ).length;
+        statistics.nrWomen = producers.filter(
+            (producer) => producer.gender === 'female'
+        ).length;
+
         return res.status(200).json({
             success: true,
             message: APP_CONSTANTS.RESPONSE.PRODUCER.SEARCH_SUCCESS,
             data: {
-                producers,
+                searchProducersResult,
+                statistics,
             },
         });
     })
@@ -47,6 +99,9 @@ router.get(
 
 router.get(
     '/:code',
+    extractJWT,
+    requiresAuth,
+    requiresRoles(['project', 'association']),
     asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
         const { code } = req.params;
 
@@ -70,6 +125,9 @@ router.get(
 
 router.get(
     '/:code/batches',
+    extractJWT,
+    requiresAuth,
+    requiresRoles(['project', 'association']),
     asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
         const { code } = req.params;
 
@@ -93,6 +151,9 @@ router.get(
 
 router.post(
     `/:codeProducer/batches/:codeBatch`,
+    extractJWT,
+    requiresAuth,
+    requiresRoles(['project', 'association']),
     validate(changeProducerFromBatch),
     asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
         const { codeProducer, codeBatch } = req.params;
@@ -127,6 +188,9 @@ router.post(
 
 router.patch(
     `/:code`,
+    extractJWT,
+    requiresAuth,
+    requiresRoles(['project', 'association']),
     validate(updateProducerSchema),
     asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
         const { code } = req.params;
@@ -177,6 +241,9 @@ router.patch(
 
 router.delete(
     `/:codeProducer/batches/:codeBatch`,
+    extractJWT,
+    requiresAuth,
+    requiresRoles(['project', 'association']),
     validate(changeProducerFromBatch),
     asyncMiddleware(async (req: Request, res: Response) => {
         const { codeProducer, codeBatch } = req.params;

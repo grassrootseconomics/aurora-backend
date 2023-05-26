@@ -582,6 +582,7 @@ export const getAllBatchesWithSoldAndSalePhases = () => {
         },
     });
 };
+
 /**
  *
  * Fetches batches by their sale status; Default to true.
@@ -727,14 +728,26 @@ export const getBatchesByPulpIds = async (
  * Searches, paginates and filters batches by batch code and department.
  *
  * @param {ISearchBatchParams} options Search Filters.
- * @returns {Promise<ISearchResult<Batch>>}
+ * @returns
  */
 export const searchBatches = async ({
     search = '',
     index = 0,
     limit = 10,
-    department = '',
-}: ISearchBatchParams): Promise<ISearchResult<Batch>> => {
+    filterField = 'association',
+    filterValue = '',
+    sold,
+    internationallySold,
+    year = new Date().getFullYear(),
+}: ISearchBatchParams) => {
+    let startDate: Date | undefined;
+    let endDate: Date | undefined;
+
+    if (year) {
+        startDate = new Date(year, 0, 1);
+        endDate = new Date(year + 1, 0, 1);
+    }
+
     const data = await prisma.batch.findMany({
         // I should switch this to a cursor approach.
         skip: index * limit,
@@ -751,9 +764,9 @@ export const searchBatches = async ({
                         some: {
                             pulp: {
                                 producer: {
-                                    department: {
+                                    [filterField]: {
                                         name: {
-                                            contains: department,
+                                            contains: filterValue,
                                         },
                                     },
                                 },
@@ -761,6 +774,25 @@ export const searchBatches = async ({
                         },
                     },
                 },
+                internationallySold !== undefined
+                    ? internationallySold
+                        ? { sale: { negotiation: 'International' } }
+                        : { NOT: { sale: { negotiation: 'International' } } }
+                    : sold !== undefined
+                    ? sold
+                        ? { NOT: { sale: null } }
+                        : { sale: null }
+                    : null,
+                year !== undefined
+                    ? {
+                          storage: {
+                              dayEntry: {
+                                  gte: startDate.toISOString(),
+                                  lte: endDate.toISOString(),
+                              },
+                          },
+                      }
+                    : null,
             ],
         },
         include: {
@@ -787,11 +819,46 @@ export const searchBatches = async ({
         },
     });
 
+    console.log(data.length);
     const count = await prisma.batch.count({
         where: {
-            code: {
-                contains: search,
-            },
+            AND: [
+                {
+                    code: {
+                        contains: search,
+                    },
+                },
+                {
+                    pulpsUsed: {
+                        some: {
+                            pulp: {
+                                producer: {
+                                    [filterField]: {
+                                        name: {
+                                            contains: filterValue,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                sold !== undefined
+                    ? sold
+                        ? { NOT: { sale: null } }
+                        : { sale: null }
+                    : null,
+                year !== undefined
+                    ? {
+                          storage: {
+                              dayEntry: {
+                                  gte: startDate.toISOString(),
+                                  lte: endDate.toISOString(),
+                              },
+                          },
+                      }
+                    : null,
+            ],
         },
     });
 

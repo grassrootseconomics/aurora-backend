@@ -10,6 +10,8 @@ import { ISearchParameters } from '../server';
 
 type ExcludableBatchPhaseProps = 'id' | 'codeBatch';
 
+type SearchBatchesFilterField = 'association' | 'department';
+
 export type StoragePhaseUpdate = Omit<Storage, ExcludableBatchPhaseProps>;
 
 export type DryingPhaseUpdate = Omit<Drying, ExcludableBatchPhaseProps>;
@@ -26,5 +28,9 @@ export type FermentationPhaseUpdate = Omit<
  * Search Parameters for Batches.
  */
 export interface ISearchBatchParams extends ISearchParameters {
-    department: string;
+    filterField: SearchBatchesFilterField;
+    filterValue: string;
+    sold?: boolean;
+    internationallySold?: boolean;
+    year?: number;
 }

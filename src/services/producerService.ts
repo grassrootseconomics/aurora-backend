@@ -1,7 +1,7 @@
 import { prisma } from '@/db';
 import { Producer } from '@prisma/client';
 
-import { ProducerUpdate } from '@/utils/types/producer';
+import { ISearchProducerParams, ProducerUpdate } from '@/utils/types/producer';
 import { ISearchParameters, ISearchResult } from '@/utils/types/server';
 
 /**
@@ -10,8 +10,30 @@ import { ISearchParameters, ISearchResult } from '@/utils/types/server';
  *
  * @returns {Promise<Producer[]>}
  */
-export const getAllProducers = (): Promise<Producer[]> => {
-    return prisma.producer.findMany();
+export const getAllProducers = ({
+    association = '',
+    department = '',
+}): Promise<Producer[]> => {
+    return prisma.producer.findMany({
+        where: {
+            AND: [
+                {
+                    department: {
+                        name: {
+                            contains: department,
+                        },
+                    },
+                },
+                {
+                    association: {
+                        name: {
+                            contains: association,
+                        },
+                    },
+                },
+            ],
+        },
+    });
 };
 /**
  *
@@ -62,21 +84,34 @@ export const searchProducers = async ({
     search = '',
     index = 0,
     limit = 10,
-}: ISearchParameters): Promise<ISearchResult<Producer>> => {
+    filterField = 'association',
+    filterValue = '',
+}: ISearchProducerParams): Promise<ISearchResult<Producer>> => {
     const data = await prisma.producer.findMany({
         // I should switch this to a cursor approach.
         skip: index * limit,
         take: limit,
         where: {
-            OR: [
+            AND: [
                 {
-                    firstName: {
-                        contains: search,
-                    },
+                    OR: [
+                        {
+                            firstName: {
+                                contains: search,
+                            },
+                        },
+                        {
+                            lastName: {
+                                contains: search,
+                            },
+                        },
+                    ],
                 },
                 {
-                    lastName: {
-                        contains: search,
+                    [filterField]: {
+                        name: {
+                            contains: filterValue,
+                        },
                     },
                 },
             ],
@@ -85,15 +120,26 @@ export const searchProducers = async ({
 
     const count = await prisma.producer.count({
         where: {
-            OR: [
+            AND: [
                 {
-                    firstName: {
-                        contains: search,
-                    },
+                    OR: [
+                        {
+                            firstName: {
+                                contains: search,
+                            },
+                        },
+                        {
+                            lastName: {
+                                contains: search,
+                            },
+                        },
+                    ],
                 },
                 {
-                    lastName: {
-                        contains: search,
+                    [filterField]: {
+                        name: {
+                            contains: filterValue,
+                        },
                     },
                 },
             ],
