@@ -1,0 +1,258 @@
+[
+    {
+        "id": 1,
+        "day": 1,
+        "temperatureMass": 33,
+        "phMass": 33,
+        "phCotiledon": 30,
+        "idFermentationPhase": 1
+    },
+    {
+        "id": 2,
+        "day": 2,
+        "temperatureMass": 34,
+        "phMass": 32,
+        "phCotiledon": 29,
+        "idFermentationPhase": 1
+    },
+    {
+        "id": 3,
+        "day": 3,
+        "temperatureMass": 35,
+        "phMass": 33,
+        "phCotiledon": 30,
+        "idFermentationPhase": 1
+    },
+    {
+        "id": 4,
+        "day": 4,
+        "temperatureMass": 32,
+        "phMass": 33,
+        "phCotiledon": 30,
+        "idFermentationPhase": 1
+    },
+    {
+        "id": 5,
+        "day": 5,
+        "temperatureMass": 31,
+        "phMass": 33,
+        "phCotiledon": 30,
+        "idFermentationPhase": 1
+    },
+    {
+        "id": 6,
+        "day": 1,
+        "temperatureMass": 33,
+        "phMass": 33,
+        "phCotiledon": 30,
+        "idFermentationPhase": 2
+    },
+    {
+        "id": 7,
+        "day": 2,
+        "temperatureMass": 34,
+        "phMass": 32,
+        "phCotiledon": 29,
+        "idFermentationPhase": 2
+    },
+    {
+        "id": 8,
+        "day": 3,
+        "temperatureMass": 35,
+        "phMass": 33,
+        "phCotiledon": 30,
+        "idFermentationPhase": 2
+    },
+    {
+        "id": 9,
+        "day": 4,
+        "temperatureMass": 32,
+        "phMass": 33,
+        "phCotiledon": 30,
+        "idFermentationPhase": 2
+    },
+    {
+        "id": 10,
+        "day": 5,
+        "temperatureMass": 31,
+        "phMass": 33,
+        "phCotiledon": 30,
+        "idFermentationPhase": 2
+    },
+    {
+        "id": 11,
+        "day": 1,
+        "temperatureMass": 33,
+        "phMass": 33,
+        "phCotiledon": 30,
+        "idFermentationPhase": 3
+    },
+    {
+        "id": 12,
+        "day": 2,
+        "temperatureMass": 34,
+        "phMass": 32,
+        "phCotiledon": 29,
+        "idFermentationPhase": 3
+    },
+    {
+        "id": 13,
+        "day": 3,
+        "temperatureMass": 35,
+        "phMass": 33,
+        "phCotiledon": 30,
+        "idFermentationPhase": 3
+    },
+    {
+        "id": 14,
+        "day": 4,
+        "temperatureMass": 32,
+        "phMass": 33,
+        "phCotiledon": 30,
+        "idFermentationPhase": 3
+    },
+    {
+        "id": 15,
+        "day": 5,
+        "temperatureMass": 31,
+        "phMass": 33,
+        "phCotiledon": 30,
+        "idFermentationPhase": 3
+    },
+    {
+        "id": 16,
+        "day": 1,
+        "temperatureMass": 33,
+        "phMass": 33,
+        "phCotiledon": 30,
+        "idFermentationPhase": 4
+    },
+    {
+        "id": 17,
+        "day": 2,
+        "temperatureMass": 34,
+        "phMass": 32,
+        "phCotiledon": 29,
+        "idFermentationPhase": 4
+    },
+    {
+        "id": 18,
+        "day": 3,
+        "temperatureMass": 35,
+        "phMass": 33,
+        "phCotiledon": 30,
+        "idFermentationPhase": 4
+    },
+    {
+        "id": 19,
+        "day": 4,
+        "temperatureMass": 32,
+        "phMass": 33,
+        "phCotiledon": 30,
+        "idFermentationPhase": 4
+    },
+    {
+        "id": 20,
+        "day": 5,
+        "temperatureMass": 31,
+        "phMass": 33,
+        "phCotiledon": 30,
+        "idFermentationPhase": 4
+    },
+    {
+        "id": 21,
+        "day": 1,
+        "temperatureMass": 33,
+        "phMass": 33,
+        "phCotiledon": 30,
+        "idFermentationPhase": 5
+    },
+    {
+        "id": 22,
+        "day": 2,
+        "temperatureMass": 34,
+        "phMass": 32,
+        "phCotiledon": 29,
+        "idFermentationPhase": 5
+    },
+    {
+        "id": 23,
+        "day": 3,
+        "temperatureMass": 35,
+        "phMass": 33,
+        "phCotiledon": 30,
+        "idFermentationPhase": 5
+    },
+    {
+        "id": 24,
+        "day": 4,
+        "temperatureMass": 32,
+        "phMass": 33,
+        "phCotiledon": 30,
+        "idFermentationPhase": 5
+    },
+    {
+        "id": 25,
+        "day": 5,
+        "temperatureMass": 31,
+        "phMass": 33,
+        "phCotiledon": 30,
+        "idFermentationPhase": 5
+    },
+    {
+        "id": 26,
+        "day": 1,
+        "temperatureMass": 33,
+        "phMass": 33,
+        "phCotiledon": 30,
+        "idFermentationPhase": 6
+    },
+    {
+        "id": 27,
+        "day": 2,
+        "temperatureMass": 34,
+        "phMass": 32,
+        "phCotiledon": 29,
+        "idFermentationPhase": 6
+    },
+    {
+        "id": 28,
+        "day": 3,
+        "temperatureMass": 35,
+        "phMass": 33,
+        "phCotiledon": 30,
+        "idFermentationPhase": 6
+    },
+    {
+        "id": 29,
+        "day": 4,
+        "temperatureMass": 32,
+        "phMass": 33,
+        "phCotiledon": 30,
+        "idFermentationPhase": 6
+    },
+    {
+        "id": 30,
+        "day": 5,
+        "temperatureMass": 31,
+        "phMass": 33,
+        "phCotiledon": 30,
+        "idFermentationPhase": 6
+    },
+    {
+        "id": 31,
+        "day": 6,
+        "temperatureMass": 31,
+        "phMass": 27,
+        "phCotiledon": 28,
+        "idFermentationPhase": 6
+    },
+    {
+        "id": 32,
+        "day": 7,
+        "temperatureMass": 31,
+        "phMass": 30,
+        "phCotiledon": 29,
+        "idFermentationPhase": 6
+    }
+]
