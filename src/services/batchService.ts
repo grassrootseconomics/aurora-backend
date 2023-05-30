@@ -660,6 +660,7 @@ export const getBatchByCode = (code: string): Promise<Batch | null> => {
             fermentationPhase: {
                 include: {
                     flips: true,
+                    dailyReports: true,
                 },
             },
             pulpsUsed: {
@@ -687,7 +688,7 @@ export const getBatchFermentationModelByCode = (
 ): Promise<FermentationPhase | null> => {
     return prisma.fermentationPhase.findUnique({
         where: { codeBatch: code },
-        include: { flips: true },
+        include: { flips: true, dailyReports: true },
     });
 };
 

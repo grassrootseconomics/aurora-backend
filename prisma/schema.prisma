@@ -165,10 +165,10 @@ model FermentationPhase {
   nrFlips      Decimal
   totalDays    Decimal
 
-  codeBatch             String                  @unique
-  batch                 Batch                   @relation(fields: [codeBatch], references: [code])
-  flips                 FermentationFlip[]
-  FermentationDayReport FermentationDayReport[]
+  codeBatch    String                  @unique
+  batch        Batch                   @relation(fields: [codeBatch], references: [code])
+  flips        FermentationFlip[]
+  dailyReports FermentationDayReport[]
 }
 
 // A fermentation flip or day of the fermentation process.
