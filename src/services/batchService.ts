@@ -657,6 +657,7 @@ export const getBatchByCode = (code: string): Promise<Batch | null> => {
         include: {
             sale: true,
             storage: true,
+            dryingPhase: true,
             fermentationPhase: {
                 include: {
                     flips: true,
@@ -667,7 +668,11 @@ export const getBatchByCode = (code: string): Promise<Batch | null> => {
                 include: {
                     pulp: {
                         include: {
-                            producer: true,
+                            producer: {
+                                include: {
+                                    association: true,
+                                },
+                            },
                         },
                     },
                 },
