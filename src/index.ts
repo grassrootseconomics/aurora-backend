@@ -2,12 +2,15 @@ import express from 'express';
 
 import { SERVER } from '@/config';
 import cors from 'cors';
+import cron from 'node-cron';
 
 import v1 from '@/routes/v1';
 
 import { errorHandler } from '@/middleware/handlers/errorHandler';
 
 import ApiError from '@/utils/types/errors/ApiError';
+
+import { syncODKForms } from './db/synkODK';
 
 const app = express();
 
@@ -26,4 +29,12 @@ app.use(errorHandler);
 
 app.listen(SERVER.PORT, () => {
     console.log(`Application started on port ${SERVER.PORT}!`);
+});
+
+cron.schedule('* * * * 12 3', () => {
+    try {
+        syncODKForms();
+    } catch (err) {
+        console.log(err);
+    }
 });

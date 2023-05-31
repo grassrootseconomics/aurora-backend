@@ -1,6 +1,6 @@
-import { Request, Response, Router } from 'express';
+import { NextFunction, Request, Response, Router } from 'express';
 
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import JSZip from 'jszip';
 
 import associationController from '@/controllers/association.controller';
@@ -11,33 +11,47 @@ import producerController from '@/controllers/producer.controller';
 
 import asyncMiddleware from '@/middleware/asyncMiddleware';
 
-import { APP_CONSTANTS } from '@/utils/constants';
+import ApiError from '@/utils/types/errors/ApiError';
 
 const router = Router();
 
 router.get(
     '/',
-    asyncMiddleware(async (_req: Request, res: Response) => {
-        const response = await axios.get(
-            'http://localhost:8383/v1/projects/1/forms/Aurora-A-Productor/submissions.csv.zip?attachments=false&groupPaths=true&deletedFields=false&splitSelectMultiples=false'
-        );
+    asyncMiddleware(
+        async (_req: Request, res: Response, next: NextFunction) => {
+            const response: AxiosResponse<ArrayBuffer> =
+                await axios.get<ArrayBuffer>(
+                    'http://localhost:8383/v1/projects/1/forms/Aurora-C-Fermentación/submissions.csv.zip?attachments=false&groupPaths=true&deletedFields=false&splitSelectMultiples=true&filter=',
+                    {
+                        responseType: 'arraybuffer',
+                    }
+                );
+            try {
+                const zipData: ArrayBuffer = response.data;
 
-        const zip = new JSZip();
+                const zip: JSZip = await JSZip.loadAsync(zipData);
 
-        zip.loadAsync(response.data)
-            .then((data) => {
-                console.log(data);
+                const csvFiles: string[] = [];
+                await Promise.all(
+                    zip.file(/\.csv$/i).map(async (file) => {
+                        const content: string = await file.async('string');
+                        console.log(content);
+                        csvFiles.push(content);
+                    })
+                );
 
                 return res.status(200).json({
                     success: true,
-                    message: APP_CONSTANTS.RESPONSE.ROOT.SUCCESS,
+                    message: 'Yep',
+                    data: {
+                        csvFiles,
+                    },
                 });
-            })
-            .catch((err) => {
-                console.error('Loading error');
-                throw err;
-            });
-    })
+            } catch (error) {
+                next(new ApiError(500, error.message));
+            }
+        }
+    )
 );
 
 router.use('/auth', authController);

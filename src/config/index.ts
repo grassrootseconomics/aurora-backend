@@ -8,13 +8,6 @@ const CONNECTION_URL: string =
 
 const PORT = process.env.PORT || '8080';
 
-/**
- * 
-REFRESH_TOKEN__ISSUER="testIssuer"
-
-ACCESS_TOKEN_ISSUER="testIssuer"
- */
-
 const REFRESH_TOKEN_SECRET: string =
     process.env.REFRESH_TOKEN_SECRET || 'refreshToken';
 const ACCESS_TOKEN_SECRET: string =
@@ -29,6 +22,9 @@ const REFRESH_TOKEN__ISSUER: string =
     process.env.REFRESH_TOKEN__ISSUER || 'testIssuer';
 const ACCESS_TOKEN_ISSUER: string =
     process.env.ACCESS_TOKEN_ISSUER || 'testIssuer';
+
+const ODK_API_URL: string = process.env.ODK_API_URL || '';
+const ODK_PROJECT_ID: string = process.env.ODK_PROJECT_ID || '';
 
 const DB = {
     CONNECTION_URL,
@@ -48,4 +44,9 @@ const SERVER = {
     },
 };
 
-export { SERVER, DB };
+const ODK = {
+    API_URL: ODK_API_URL,
+    PROJECT_ID: ODK_PROJECT_ID,
+};
+
+export { SERVER, DB, ODK };
