@@ -6,6 +6,7 @@ import {
     Sale,
     Storage,
 } from '@prisma/client';
+import { Decimal } from '@prisma/client/runtime';
 
 import {
     DryingPhaseUpdate,
@@ -21,7 +22,52 @@ import {
     MonthlySalesInKg,
     MonthlySalesInUSD,
 } from '@/utils/types/reports';
-import { ISearchResult } from '@/utils/types/server';
+
+/**
+ *
+ * Calculates the total kg of available/sold cocoa.
+ *
+ * @param {number} year Year to filter by.
+ * @param {boolean} sold Available/sold status.
+ * @param {boolean} onlyInternational Wether to filter for internationaly sold only.
+ * @returns {Promise<Decimal>}
+ */
+export const getSumKGOfCocoaBySoldStatus = async (
+    year: number = new Date().getFullYear(),
+    sold: boolean = false,
+    onlyInternational: boolean = false
+): Promise<Decimal> => {
+    const startDate = new Date(year, 0, 1);
+    const endDate = new Date(year + 1, 0, 1);
+    const aggregation = await prisma.storage.aggregate({
+        where: {
+            AND: [
+                {
+                    batch: onlyInternational
+                        ? {
+                              sale: {
+                                  negotiation: 'International',
+                              },
+                          }
+                        : sold
+                        ? { NOT: { sale: null } }
+                        : { sale: null },
+                },
+                {
+                    dayEntry: {
+                        gte: startDate.toISOString(),
+                        lte: endDate.toISOString(),
+                    },
+                },
+            ],
+        },
+        _sum: {
+            netWeight: true,
+        },
+    });
+
+    return aggregation._sum.netWeight;
+};
 
 /**
  *
@@ -742,8 +788,8 @@ export const searchBatches = async ({
     limit = 10,
     filterField = 'association',
     filterValue = '',
-    sold,
-    internationallySold,
+    sold = false,
+    internationallySold = false,
     year = new Date().getFullYear(),
 }: ISearchBatchParams) => {
     let startDate: Date | undefined;
@@ -825,7 +871,6 @@ export const searchBatches = async ({
         },
     });
 
-    console.log(data.length);
     const count = await prisma.batch.count({
         where: {
             AND: [
@@ -849,7 +894,11 @@ export const searchBatches = async ({
                         },
                     },
                 },
-                sold !== undefined
+                internationallySold !== undefined
+                    ? internationallySold
+                        ? { sale: { negotiation: 'International' } }
+                        : { NOT: { sale: { negotiation: 'International' } } }
+                    : sold !== undefined
                     ? sold
                         ? { NOT: { sale: null } }
                         : { sale: null }

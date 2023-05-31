@@ -15,6 +15,7 @@ import {
     getProductionOfDryCocoa,
     getSalesInKgByAssociation,
     getSalesInKgByDepartment,
+    getSumKGOfCocoaBySoldStatus,
     getUSDPriceOfOrganicCocoa,
     searchBatches,
     updateBatchDryingPhase,
@@ -97,6 +98,8 @@ router.get(
             limit,
             filterField: 'department',
             filterValue: department,
+            sold: false,
+            internationallySold: false,
         });
 
         statistics.nrCocoaProducers = producers.length;
@@ -117,38 +120,21 @@ router.get(
             statistics.nrWomen = producers.filter(
                 (producer) => producer.gender === 'female'
             ).length;
-            const [productionByOrigin, internationalSalesInKg] =
-                await Promise.all([
-                    getProductionByDepartment(year, department),
-                    getSalesInKgByDepartment(true, year, department),
-                ]);
-
+            const [
+                productionByOrigin,
+                internationalSalesInKg,
+                kgAvailableCocoa,
+            ] = await Promise.all([
+                getProductionByDepartment(year, department),
+                getSalesInKgByDepartment(true, year, department),
+                getSumKGOfCocoaBySoldStatus(year, false, false),
+            ]);
+            statistics.kgDryCocoaAvailable = kgAvailableCocoa.toNumber();
             report['productionByOrigin'] = productionByOrigin;
             report['internationalSalesInKg'] = internationalSalesInKg;
         } else {
             // Authenticated get more cocoa statistics data.
             // Filtered by year.
-            statistics.kgDryCocoaAvailable = searchBatchesResult.data.reduce(
-                (prev, batch) => {
-                    // Only non-sold cocoa
-                    if (
-                        !batch.sale &&
-                        batch.storage.dayEntry.getFullYear() === year
-                    )
-                        return prev + batch.storage.netWeight.toNumber();
-                },
-                0
-            );
-            statistics.kgDryCocoaInternationallySold =
-                searchBatchesResult.data.reduce((prev, batch) => {
-                    // Only sold cocoa
-                    if (
-                        batch.sale &&
-                        batch.sale.negotiation === 'International' &&
-                        batch.storage.dayEntry.getFullYear() === year
-                    )
-                        return prev + batch.storage.netWeight.toNumber();
-                }, 0);
 
             if (token.role === 'association') {
                 const [
@@ -156,11 +142,15 @@ router.get(
                     salesInKg,
                     monthlyCocoaPulp,
                     monthlySalesInUSD,
+                    kgDryCocoaAvailable,
+                    kgDryCocoaInternationallySold,
                 ] = await Promise.all([
                     getProductionOfDryCocoa(year),
                     getSalesInKgByAssociation(false, year),
                     getMonthlyCocoaPulp(year),
                     getMonthlySalesInUSD(year),
+                    getSumKGOfCocoaBySoldStatus(year, false, false),
+                    getSumKGOfCocoaBySoldStatus(year, true, true),
                 ]);
                 report = {
                     productionOfDryCocoa,
@@ -168,17 +158,25 @@ router.get(
                     monthlyCocoaPulp,
                     monthlySalesInUSD,
                 };
+                (statistics.kgDryCocoaAvailable =
+                    kgDryCocoaAvailable.toNumber()),
+                    (statistics.kgDryCocoaInternationallySold =
+                        kgDryCocoaInternationallySold.toNumber());
             } else {
                 const [
                     productionOfDryCocoa,
                     priceOfOrganicCocoa,
                     productionByRegions,
                     monthlySalesInUSD,
+                    kgDryCocoaAvailable,
+                    kgDryCocoaInternationallySold,
                 ] = await Promise.all([
                     getProductionOfDryCocoa(year),
                     getUSDPriceOfOrganicCocoa(year),
                     getProductionByDepartment(year),
                     getMonthlySalesInUSD(year),
+                    getSumKGOfCocoaBySoldStatus(year, false, false),
+                    getSumKGOfCocoaBySoldStatus(year, true, true),
                 ]);
                 report = {
                     productionOfDryCocoa,
@@ -186,6 +184,10 @@ router.get(
                     productionByRegions,
                     monthlySalesInUSD,
                 };
+                (statistics.kgDryCocoaAvailable =
+                    kgDryCocoaAvailable.toNumber()),
+                    (statistics.kgDryCocoaInternationallySold =
+                        kgDryCocoaInternationallySold.toNumber());
             }
         }
 
