@@ -129,7 +129,9 @@ router.get(
         } else {
             if (token.role === 'association') {
                 const userAssociationName =
-                    await getAssociationNameOfProducerByUserWallet(token.role);
+                    await getAssociationNameOfProducerByUserWallet(
+                        token.address
+                    );
                 const [
                     productionOfDryCocoa,
                     salesInKg,
