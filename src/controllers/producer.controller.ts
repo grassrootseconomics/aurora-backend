@@ -23,11 +23,10 @@ import {
 import { getPulpsByProducerCode } from '@/services/pulpService';
 
 import { APP_CONSTANTS } from '@/utils/constants';
-import { getAgeByBirthDate } from '@/utils/methods/date';
 import ApiError from '@/utils/types/errors/ApiError';
 import { ProducerUpdate } from '@/utils/types/producer';
 import { ProducersStatistics } from '@/utils/types/reports';
-import { ISearchParameters, JWTToken } from '@/utils/types/server';
+import { JWTToken } from '@/utils/types/server';
 import {
     changeProducerFromBatch,
     updateProducerSchema,
@@ -80,7 +79,7 @@ router.get(
         statistics.nrYoungMen = producers.filter(
             (producer) =>
                 producer.gender.toLowerCase() === 'male' &&
-                getAgeByBirthDate(producer.birthDate) < 30
+                new Date().getFullYear() - producer.birthYear < 30
         ).length;
         statistics.nrWomen = producers.filter(
             (producer) => producer.gender === 'female'

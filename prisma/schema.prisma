@@ -38,13 +38,13 @@ model Nonce {
 }
 
 model Producer {
-  id          Int      @id @default(autoincrement())
-  code        String   @unique
+  id          Int    @id @default(autoincrement())
+  code        String @unique
   firstName   String
   lastName    String
   phoneNumber String
   gender      String
-  birthDate   DateTime
+  birthYear   Int
 
   // DEPARTMENT FOREGIN KEY
   idDepartment Int
