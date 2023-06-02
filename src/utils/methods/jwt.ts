@@ -19,7 +19,7 @@ export const signJWT = (
     address: string,
     key: string = '',
     name: string = '',
-    role: string = 'Buyer'
+    role: string = 'buyer'
 ): string => {
     const expireTime =
         type === 'REFRESH'

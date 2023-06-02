@@ -38,13 +38,13 @@ model Nonce {
 }
 
 model Producer {
-  id          Int      @id @default(autoincrement())
-  code        String   @unique
+  id          Int    @id @default(autoincrement())
+  code        String @unique
   firstName   String
   lastName    String
   phoneNumber String
   gender      String
-  birthDate   DateTime
+  birthYear   Int
 
   // DEPARTMENT FOREGIN KEY
   idDepartment Int
@@ -78,6 +78,8 @@ model Association {
   creationDate   DateTime
   description    String
   nrOfAssociates Int
+  fbSocialLink   String?
+  instSocialLink String?
   producers      Producer[]
   batches        Batch[]
 }
@@ -163,9 +165,10 @@ model FermentationPhase {
   nrFlips      Decimal
   totalDays    Decimal
 
-  codeBatch String             @unique
-  batch     Batch              @relation(fields: [codeBatch], references: [code])
-  flips     FermentationFlip[]
+  codeBatch    String                  @unique
+  batch        Batch                   @relation(fields: [codeBatch], references: [code])
+  flips        FermentationFlip[]
+  dailyReports FermentationDayReport[]
 }
 
 // A fermentation flip or day of the fermentation process.
@@ -178,6 +181,17 @@ model FermentationFlip {
   temp     Decimal
   ambient  Decimal
   humidity Decimal
+
+  idFermentationPhase Int
+  fermentationPhase   FermentationPhase @relation(fields: [idFermentationPhase], references: [id])
+}
+
+model FermentationDayReport {
+  id              Int     @id @default(autoincrement())
+  day             Int
+  temperatureMass Decimal
+  phMass          Decimal
+  phCotiledon     Decimal
 
   idFermentationPhase Int
   fermentationPhase   FermentationPhase @relation(fields: [idFermentationPhase], references: [id])

@@ -6,6 +6,7 @@ import {
     Sale,
     Storage,
 } from '@prisma/client';
+import { Decimal } from '@prisma/client/runtime';
 
 import {
     DryingPhaseUpdate,
@@ -21,7 +22,71 @@ import {
     MonthlySalesInKg,
     MonthlySalesInUSD,
 } from '@/utils/types/reports';
-import { ISearchResult } from '@/utils/types/server';
+
+/**
+ *
+ * Calculates the total kg of available/sold cocoa.
+ *
+ * @param {number} year Year to filter by.
+ * @param {boolean} sold Available/sold status.
+ * @param {boolean} onlyInternational Wether to filter for internationaly sold only.
+ * @param {string} department Optional to filter by department of batch producers.
+ * @returns {Promise<Decimal>}
+ */
+export const getSumKGOfCocoaBySoldStatus = async (
+    year: number = new Date().getFullYear(),
+    sold: boolean = false,
+    onlyInternational: boolean = false,
+    department: string = ''
+): Promise<Decimal | null> => {
+    const startDate = new Date(year, 0, 1);
+    const endDate = new Date(year + 1, 0, 1);
+    const aggregation = await prisma.storage.aggregate({
+        where: {
+            AND: [
+                {
+                    batch: onlyInternational
+                        ? {
+                              sale: {
+                                  negotiation: 'International',
+                              },
+                          }
+                        : sold
+                        ? { NOT: { sale: null } }
+                        : { sale: null },
+                },
+                {
+                    dayEntry: {
+                        gte: startDate.toISOString(),
+                        lte: endDate.toISOString(),
+                    },
+                },
+                {
+                    batch: {
+                        pulpsUsed: {
+                            some: {
+                                pulp: {
+                                    producer: {
+                                        department: {
+                                            name: {
+                                                contains: department,
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            ],
+        },
+        _sum: {
+            netWeight: true,
+        },
+    });
+
+    return aggregation._sum.netWeight;
+};
 
 /**
  *
@@ -582,6 +647,7 @@ export const getAllBatchesWithSoldAndSalePhases = () => {
         },
     });
 };
+
 /**
  *
  * Fetches batches by their sale status; Default to true.
@@ -656,16 +722,22 @@ export const getBatchByCode = (code: string): Promise<Batch | null> => {
         include: {
             sale: true,
             storage: true,
+            dryingPhase: true,
             fermentationPhase: {
                 include: {
                     flips: true,
+                    dailyReports: true,
                 },
             },
             pulpsUsed: {
                 include: {
                     pulp: {
                         include: {
-                            producer: true,
+                            producer: {
+                                include: {
+                                    association: true,
+                                },
+                            },
                         },
                     },
                 },
@@ -686,7 +758,7 @@ export const getBatchFermentationModelByCode = (
 ): Promise<FermentationPhase | null> => {
     return prisma.fermentationPhase.findUnique({
         where: { codeBatch: code },
-        include: { flips: true },
+        include: { flips: true, dailyReports: true },
     });
 };
 
@@ -727,14 +799,26 @@ export const getBatchesByPulpIds = async (
  * Searches, paginates and filters batches by batch code and department.
  *
  * @param {ISearchBatchParams} options Search Filters.
- * @returns {Promise<ISearchResult<Batch>>}
+ * @returns
  */
 export const searchBatches = async ({
     search = '',
     index = 0,
     limit = 10,
-    department = '',
-}: ISearchBatchParams): Promise<ISearchResult<Batch>> => {
+    filterField = 'association',
+    filterValue = '',
+    sold = false,
+    internationallySold = false,
+    year = new Date().getFullYear(),
+}: ISearchBatchParams) => {
+    let startDate: Date | undefined;
+    let endDate: Date | undefined;
+
+    if (year) {
+        startDate = new Date(year, 0, 1);
+        endDate = new Date(year + 1, 0, 1);
+    }
+
     const data = await prisma.batch.findMany({
         // I should switch this to a cursor approach.
         skip: index * limit,
@@ -751,9 +835,9 @@ export const searchBatches = async ({
                         some: {
                             pulp: {
                                 producer: {
-                                    department: {
+                                    [filterField]: {
                                         name: {
-                                            contains: department,
+                                            contains: filterValue,
                                         },
                                     },
                                 },
@@ -761,6 +845,25 @@ export const searchBatches = async ({
                         },
                     },
                 },
+                internationallySold !== undefined
+                    ? internationallySold
+                        ? { sale: { negotiation: 'International' } }
+                        : { NOT: { sale: { negotiation: 'International' } } }
+                    : sold !== undefined
+                    ? sold
+                        ? { NOT: { sale: null } }
+                        : { sale: null }
+                    : null,
+                year !== undefined
+                    ? {
+                          storage: {
+                              dayEntry: {
+                                  gte: startDate.toISOString(),
+                                  lte: endDate.toISOString(),
+                              },
+                          },
+                      }
+                    : null,
             ],
         },
         include: {
@@ -789,9 +892,47 @@ export const searchBatches = async ({
 
     const count = await prisma.batch.count({
         where: {
-            code: {
-                contains: search,
-            },
+            AND: [
+                {
+                    code: {
+                        contains: search,
+                    },
+                },
+                {
+                    pulpsUsed: {
+                        some: {
+                            pulp: {
+                                producer: {
+                                    [filterField]: {
+                                        name: {
+                                            contains: filterValue,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                internationallySold !== undefined
+                    ? internationallySold
+                        ? { sale: { negotiation: 'International' } }
+                        : { NOT: { sale: { negotiation: 'International' } } }
+                    : sold !== undefined
+                    ? sold
+                        ? { NOT: { sale: null } }
+                        : { sale: null }
+                    : null,
+                year !== undefined
+                    ? {
+                          storage: {
+                              dayEntry: {
+                                  gte: startDate.toISOString(),
+                                  lte: endDate.toISOString(),
+                              },
+                          },
+                      }
+                    : null,
+            ],
         },
     });
 

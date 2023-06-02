@@ -2,6 +2,7 @@ import { prisma } from '@/db';
 
 import associations from './data/associations.json';
 import batches from './data/batches.json';
+import dayReports from './data/dayReport.json';
 import departments from './data/departments.json';
 import dryingPhases from './data/dryingPhases.json';
 import fermentationPhases from './data/fermentationPhases.json';
@@ -72,6 +73,13 @@ const main = async () => {
     if (fermentationFlipsSeeded === 0) {
         console.log(`Seeding Fermentation Phases Flips!`);
         await prisma.fermentationFlip.createMany({ data: fermentationFlips });
+        console.log(`Complete!`);
+    }
+    const fermentationDayReportsSeeded =
+        await prisma.fermentationDayReport.count();
+    if (fermentationDayReportsSeeded === 0) {
+        console.log(`Seeding Fermentation Day Reports!`);
+        await prisma.fermentationDayReport.createMany({ data: dayReports });
         console.log(`Complete!`);
     }
     const producersSeeded = await prisma.producer.count();

@@ -1,14 +1,14 @@
 [
     {
         "id": 1,
-        "name": "Buyer"
+        "name": "buyer"
     },
     {
         "id": 2,
-        "name": "Association"
+        "name": "association"
     },
     {
         "id": 3,
-        "name": "Project"
+        "name": "project"
     }
 ]
