@@ -1,13 +1,15 @@
 import { ODK } from '@/config';
 import { prisma } from '@/db';
 import { odkAPI } from '@/plugins/axios';
-import { DryingPhase, Producer, Storage } from '@prisma/client';
+import { DryingPhase, Prisma, Producer, Pulp, Storage } from '@prisma/client';
 import { AxiosResponse } from 'axios';
 import JSZip from 'jszip';
 
+import { stringIsValidDate } from '@/utils/methods/date';
 import { convertStringToDate } from '@/utils/methods/dates';
 import { convertStringToDecimal } from '@/utils/methods/numbers';
 import {
+    parseCollectionFormSubmissions,
     parseDryingFormSubmissions,
     parseProductionFormSubmissions,
     parseStorageFormSubmissions,
@@ -29,10 +31,9 @@ export const getODKFormSubmissionCSVFileContents = async (
     formId: AuroraFormID,
     projectId?: string
 ): Promise<string[]> => {
+    if (!projectId) projectId = ODK.PROJECT_ID;
     const response: AxiosResponse<ArrayBuffer> = await odkAPI.get<ArrayBuffer>(
-        `/v1/projects/${
-            projectId || ODK.PROJECT_ID
-        }/forms/${formId}/submissions.csv.zip?attachments=false&groupPaths=true&deletedFields=false&splitSelectMultiples=true`,
+        `/v1/projects/${projectId}/forms/${formId}/submissions.csv.zip?attachments=false&groupPaths=true&deletedFields=false&splitSelectMultiples=true`,
         {
             responseType: 'arraybuffer',
         }
@@ -56,9 +57,7 @@ export const getODKFormSubmissionCSVFileContents = async (
  * SeedsProducers Information from the Producer Submission Form
  */
 export const seedProducersFormData = async () => {
-    const csvFiles = await getODKFormSubmissionCSVFileContents(
-        'Aurora-A-Productor'
-    );
+    const csvFiles = await getODKFormSubmissionCSVFileContents('A-Productor');
 
     const entries = parseProductionFormSubmissions(csvFiles[0]);
 
@@ -77,13 +76,13 @@ export const seedProducersFormData = async () => {
             // seed associations if these do not exist
             let association = await prisma.association.findUnique({
                 where: {
-                    name: entries[i].association,
+                    name: entries[i]['a-association'],
                 },
             });
             if (!association) {
                 association = await prisma.association.create({
                     data: {
-                        name: entries[i].association,
+                        name: entries[i]['a-association'],
                         creationDate: new Date(),
                         description: '',
                         nrOfAssociates: 1,
@@ -107,14 +106,19 @@ export const seedProducersFormData = async () => {
                 });
             }
             // seed
+
+            const producerAge = parseInt(entries[i]['a-age']);
+
             const producerData: Omit<Producer, 'id'> = {
                 code: entries[i]['a-producer_code'],
                 firstName: entries[i].farmer_first_name ?? '',
                 lastName: entries[i].farmer_last_name ?? '',
                 phoneNumber: entries[i].phone_number ?? '',
                 gender: entries[i]['a-resp_gender'] ?? '',
-                birthDate: new Date(),
-                municipiality: '',
+                birthYear: isNaN(producerAge)
+                    ? new Date().getFullYear()
+                    : new Date().getFullYear() - producerAge,
+                municipiality: entries[i]['a-town'],
                 village: entries[i]['a-village_name'] ?? '',
                 idDepartment: department.id,
                 idAssociation: association.id,
@@ -122,14 +126,16 @@ export const seedProducersFormData = async () => {
                 location: '',
                 nrOfHa: convertStringToDecimal(entries[i]['a-total_area']),
                 nrCocoaHa: convertStringToDecimal(entries[i]['a-cacao_area']),
-                nrForestHa: convertStringToDecimal('0'),
+                nrForestHa: convertStringToDecimal(
+                    entries[i]['a-protected_area']
+                ),
                 nrCocoaLots: convertStringToDecimal(
                     entries[i]['a-lots_r_count']
                 ),
                 nrWaterSources: convertStringToDecimal(
                     entries[i]['a-water_sources_num']
                 ),
-                wildlife: '',
+                wildlife: entries[i]['a-animal'],
             };
 
             await prisma.producer.create({
@@ -143,7 +149,54 @@ export const seedProducersFormData = async () => {
  * Seeds Pulp Collection Information from the Pulp Collection Submission Form
  */
 export const seedCollectionFormData = async () => {
-    console.log('Pulp Collection Sync not yet implemented');
+    const csvFiles = await getODKFormSubmissionCSVFileContents('B-Recolección');
+
+    const entries = parseCollectionFormSubmissions(csvFiles[0]);
+
+    for (let i = 0; i < entries.length; i++) {
+        if (!entries[i].prod_code) continue;
+
+        const producer = await prisma.producer.findUnique({
+            where: { code: entries[i].prod_code },
+        });
+
+        if (!producer) continue;
+
+        const batchWeightCCN = convertStringToDecimal(
+            entries[i].batch_net_weight_CCN
+        ).toNumber();
+        const batchWeightARO = convertStringToDecimal(
+            entries[i].batch_net_weight_aromatic
+        ).toNumber();
+        const batchWeightHYB = convertStringToDecimal(
+            entries[i].batch_net_weight_hybrid
+        ).toNumber();
+        const batchWeightUNK = convertStringToDecimal(
+            entries[i].batch_net_weight_unknown
+        ).toNumber();
+
+        const pulpData: Omit<Pulp, 'id'> = {
+            codeProducer: entries[i].prod_code,
+            collectionDate: stringIsValidDate(entries[i].collection_date)
+                ? new Date(entries[i].collection_date)
+                : new Date(),
+            quality: entries[i].batch_quality,
+            status: entries[i].batch_status,
+            genetics: 'mixed',
+            totalPulpKg: new Prisma.Decimal(
+                batchWeightCCN +
+                    batchWeightARO +
+                    batchWeightHYB +
+                    batchWeightUNK
+            ),
+            pricePerKg: convertStringToDecimal(entries[i].batch_kg_price),
+            totalPrice: convertStringToDecimal(entries[i].batch_total_price),
+        };
+
+        await prisma.pulp.create({
+            data: pulpData,
+        });
+    }
 };
 
 /**
@@ -157,9 +210,7 @@ export const seedFermentationFormData = async () => {
  * Seeds Drying Phase Information from the Drying Submission Form
  */
 export const seedDryingFormData = async () => {
-    const csvFiles = await getODKFormSubmissionCSVFileContents(
-        'Aurora-D-Secado'
-    );
+    const csvFiles = await getODKFormSubmissionCSVFileContents('D-Secado');
 
     const entries = parseDryingFormSubmissions(csvFiles[0]);
     for (let i = 0; i < entries.length; i++) {
@@ -196,7 +247,7 @@ export const seedDryingFormData = async () => {
  */
 export const seedStorageFormData = async () => {
     const csvFiles = await getODKFormSubmissionCSVFileContents(
-        'Aurora-E-Almacenamiento'
+        'E-Almacenamiento'
     );
 
     const entries = parseStorageFormSubmissions(csvFiles[0]);

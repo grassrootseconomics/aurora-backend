@@ -8,3 +8,9 @@
 export const getAgeByBirthDate = (date: Date): number => {
     return date.getFullYear() - new Date().getFullYear();
 };
+
+export const stringIsValidDate = (str: string): boolean => {
+    const timestamp = Date.parse(str);
+
+    return !isNaN(timestamp);
+};
