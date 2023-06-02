@@ -121,7 +121,10 @@ router.get(
                 getSalesInKgByDepartment(true, year, department),
                 getSumKGOfCocoaBySoldStatus(year, false, false, department),
             ]);
-            statistics.kgDryCocoaAvailable = kgAvailableCocoa.toNumber();
+
+            statistics.kgDryCocoaAvailable = kgAvailableCocoa
+                ? kgAvailableCocoa.toNumber()
+                : 0;
             report['productionByOrigin'] = productionByOrigin;
             report['internationalSalesInKg'] = internationalSalesInKg;
         } else {
@@ -156,10 +159,13 @@ router.get(
                     monthlyCocoaPulp,
                     monthlySalesInUSD,
                 };
-                (statistics.kgDryCocoaAvailable =
-                    kgDryCocoaAvailable.toNumber()),
+                (statistics.kgDryCocoaAvailable = kgDryCocoaAvailable
+                    ? kgDryCocoaAvailable.toNumber()
+                    : 0),
                     (statistics.kgDryCocoaInternationallySold =
-                        kgDryCocoaInternationallySold.toNumber());
+                        kgDryCocoaInternationallySold
+                            ? kgDryCocoaInternationallySold.toNumber()
+                            : 0);
             } else {
                 const [
                     productionOfDryCocoa,
