@@ -112,6 +112,19 @@ router.get(
             !token ||
             (token && token.role !== 'project' && token.role !== 'association')
         ) {
+            const [
+                productionByOrigin,
+                internationalSalesInKg,
+                kgAvailableCocoa,
+            ] = await Promise.all([
+                getProductionByDepartment(year, department),
+                getSalesInKgByDepartment(true, year, department),
+                getSumKGOfCocoaBySoldStatus(year, false, false, department),
+            ]);
+            statistics.kgDryCocoaAvailable = kgAvailableCocoa.toNumber();
+            report['productionByOrigin'] = productionByOrigin;
+            report['internationalSalesInKg'] = internationalSalesInKg;
+        } else {
             statistics.nrYoungMen = producers.filter(
                 (producer) =>
                     producer.gender.toLowerCase() === 'male' &&
@@ -120,21 +133,6 @@ router.get(
             statistics.nrWomen = producers.filter(
                 (producer) => producer.gender === 'female'
             ).length;
-            const [
-                productionByOrigin,
-                internationalSalesInKg,
-                kgAvailableCocoa,
-            ] = await Promise.all([
-                getProductionByDepartment(year, department),
-                getSalesInKgByDepartment(true, year, department),
-                getSumKGOfCocoaBySoldStatus(year, false, false),
-            ]);
-            statistics.kgDryCocoaAvailable = kgAvailableCocoa.toNumber();
-            report['productionByOrigin'] = productionByOrigin;
-            report['internationalSalesInKg'] = internationalSalesInKg;
-        } else {
-            // Authenticated get more cocoa statistics data.
-            // Filtered by year.
 
             if (token.role === 'association') {
                 const [

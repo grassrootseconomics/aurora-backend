@@ -30,12 +30,14 @@ import {
  * @param {number} year Year to filter by.
  * @param {boolean} sold Available/sold status.
  * @param {boolean} onlyInternational Wether to filter for internationaly sold only.
+ * @param {string} department Optional to filter by department of batch producers.
  * @returns {Promise<Decimal>}
  */
 export const getSumKGOfCocoaBySoldStatus = async (
     year: number = new Date().getFullYear(),
     sold: boolean = false,
-    onlyInternational: boolean = false
+    onlyInternational: boolean = false,
+    department: string = ''
 ): Promise<Decimal> => {
     const startDate = new Date(year, 0, 1);
     const endDate = new Date(year + 1, 0, 1);
@@ -57,6 +59,23 @@ export const getSumKGOfCocoaBySoldStatus = async (
                     dayEntry: {
                         gte: startDate.toISOString(),
                         lte: endDate.toISOString(),
+                    },
+                },
+                {
+                    batch: {
+                        pulpsUsed: {
+                            some: {
+                                pulp: {
+                                    producer: {
+                                        department: {
+                                            name: {
+                                                contains: department,
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
                     },
                 },
             ],
