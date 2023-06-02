@@ -1,11 +1,14 @@
 import { NextFunction, Request, Response, Router } from 'express';
 
+import { Producer } from '@prisma/client';
+
 import asyncMiddleware from '@/middleware/asyncMiddleware';
 import extractJWT from '@/middleware/extractJWT';
 import requiresAuth from '@/middleware/guards/requiresAuth';
 import requiresRoles from '@/middleware/guards/requiresRole';
 import validate from '@/middleware/validate';
 
+import { getAssociationOfProducerByUserWallet } from '@/services/authService';
 import {
     getBatchByCode,
     getBatchFermentationModelByCode,
@@ -54,7 +57,6 @@ router.get(
     extractJWT,
     asyncMiddleware(async (req: Request, res: Response) => {
         const token: JWTToken = res.locals.jwt;
-
         // Fetching available parameters for every type of user.
         const year: number | undefined = isNaN(
             parseInt(req.query.year?.toString())
@@ -88,8 +90,7 @@ router.get(
             haForestConservation: 0,
         };
 
-        // Fetching available statistics for every type of user.
-        const producers = await getAllProducers({ department });
+        let producers: Producer[] = [];
         // This needs filtering by year
         const searchBatchesResult = await searchBatches({
             search: '',
@@ -99,13 +100,8 @@ router.get(
             filterValue: department,
             sold: false,
             internationallySold: false,
+            year,
         });
-
-        statistics.nrCocoaProducers = producers.length;
-        statistics.haForestConservation = producers.reduce(
-            (prev, current) => prev + current.nrForestHa.toNumber(),
-            0
-        );
 
         if (
             !token ||
@@ -115,11 +111,15 @@ router.get(
                 productionByOrigin,
                 internationalSalesInKg,
                 kgAvailableCocoa,
+                producersByDepartment,
             ] = await Promise.all([
                 getProductionByDepartment(year, department),
                 getSalesInKgByDepartment(true, year, department),
                 getSumKGOfCocoaBySoldStatus(year, false, false, department),
+                getAllProducers({ department }),
             ]);
+
+            producers = producersByDepartment;
 
             statistics.kgDryCocoaAvailable = kgAvailableCocoa
                 ? kgAvailableCocoa.toNumber()
@@ -127,16 +127,9 @@ router.get(
             report['productionByOrigin'] = productionByOrigin;
             report['internationalSalesInKg'] = internationalSalesInKg;
         } else {
-            statistics.nrYoungMen = producers.filter(
-                (producer) =>
-                    producer.gender.toLowerCase() === 'male' &&
-                    new Date().getFullYear() - producer.birthYear < 30
-            ).length;
-            statistics.nrWomen = producers.filter(
-                (producer) => producer.gender === 'female'
-            ).length;
-
             if (token.role === 'association') {
+                const userAssociationName =
+                    await getAssociationOfProducerByUserWallet(token.role);
                 const [
                     productionOfDryCocoa,
                     salesInKg,
@@ -144,14 +137,29 @@ router.get(
                     monthlySalesInUSD,
                     kgDryCocoaAvailable,
                     kgDryCocoaInternationallySold,
+                    producersByAssociation,
                 ] = await Promise.all([
-                    getProductionOfDryCocoa(year),
-                    getSalesInKgByAssociation(false, year),
-                    getMonthlyCocoaPulp(year),
-                    getMonthlySalesInUSD(year),
-                    getSumKGOfCocoaBySoldStatus(year, false, false),
-                    getSumKGOfCocoaBySoldStatus(year, true, true),
+                    getProductionOfDryCocoa(year, userAssociationName),
+                    getSalesInKgByAssociation(false, year, userAssociationName),
+                    getMonthlyCocoaPulp(year, userAssociationName),
+                    getMonthlySalesInUSD(year, userAssociationName),
+                    getSumKGOfCocoaBySoldStatus(
+                        year,
+                        false,
+                        false,
+                        '',
+                        userAssociationName
+                    ),
+                    getSumKGOfCocoaBySoldStatus(
+                        year,
+                        true,
+                        true,
+                        '',
+                        userAssociationName
+                    ),
+                    getAllProducers({ association: userAssociationName }),
                 ]);
+                producers = producersByAssociation;
                 report = {
                     productionOfDryCocoa,
                     salesInKg,
@@ -173,6 +181,7 @@ router.get(
                     monthlySalesInUSD,
                     kgDryCocoaAvailable,
                     kgDryCocoaInternationallySold,
+                    allProducers,
                 ] = await Promise.all([
                     getProductionOfDryCocoa(year),
                     getUSDPriceOfOrganicCocoa(year),
@@ -180,7 +189,10 @@ router.get(
                     getMonthlySalesInUSD(year),
                     getSumKGOfCocoaBySoldStatus(year, false, false),
                     getSumKGOfCocoaBySoldStatus(year, true, true),
+                    getAllProducers({}),
                 ]);
+                producers = allProducers;
+
                 report = {
                     productionOfDryCocoa,
                     priceOfOrganicCocoa,
@@ -192,7 +204,21 @@ router.get(
                     (statistics.kgDryCocoaInternationallySold =
                         kgDryCocoaInternationallySold.toNumber());
             }
+            statistics.nrYoungMen = producers.filter(
+                (producer) =>
+                    producer.gender.toLowerCase() === 'male' &&
+                    new Date().getFullYear() - producer.birthYear < 30
+            ).length;
+            statistics.nrWomen = producers.filter(
+                (producer) => producer.gender === 'female'
+            ).length;
         }
+
+        statistics.nrCocoaProducers = producers.length;
+        statistics.haForestConservation = producers.reduce(
+            (prev, current) => prev + current.nrForestHa.toNumber(),
+            0
+        );
 
         res.status(200).json({
             success: true,
@@ -239,7 +265,10 @@ router.get(
         const search: string | undefined = req.query.search?.toString();
 
         // Only users with the project role can filter by associations.
-        if (token.role === 'association') association = undefined;
+        if (token.role === 'association')
+            association = await getAssociationOfProducerByUserWallet(
+                token.address
+            );
 
         // Fetch batches to calculate internationally sold.
         const searchBatchesResult = await searchBatches({
@@ -286,7 +315,6 @@ router.get(
     requiresRoles(['project', 'association']),
     asyncMiddleware(async (req: Request, res: Response) => {
         const token: JWTToken = res.locals.jwt;
-
         const year: number | undefined = isNaN(
             parseInt(req.query.year?.toString())
         )
@@ -311,7 +339,10 @@ router.get(
         const search: string | undefined = req.query.search?.toString();
 
         // Only users with the project role can filter by associations.
-        if (token.role === 'association') association = undefined;
+        if (token.role === 'association')
+            association = await getAssociationOfProducerByUserWallet(
+                token.address
+            );
 
         // Fetch batches to calculate available kg.
         const searchBatchesResult = await searchBatches({

@@ -2,7 +2,7 @@ import { prisma } from '@/db';
 import { Producer } from '@prisma/client';
 
 import { ISearchProducerParams, ProducerUpdate } from '@/utils/types/producer';
-import { ISearchParameters, ISearchResult } from '@/utils/types/server';
+import { ISearchResult } from '@/utils/types/server';
 
 /**
  *
@@ -274,9 +274,3 @@ export const linkProducerToBatch = async (
 
     return result.count > 0;
 };
-
-// export const getProducerStatistics = async (): Promise<ProducersStatistics> => {
-//     const producers = await prisma.producer.findMany();
-
-//     return statistics
-// };

@@ -31,13 +31,15 @@ import {
  * @param {boolean} sold Available/sold status.
  * @param {boolean} onlyInternational Wether to filter for internationaly sold only.
  * @param {string} department Optional to filter by department of batch producers.
+ * @param {string} association Optional to filter by association of batch producers.
  * @returns {Promise<Decimal>}
  */
 export const getSumKGOfCocoaBySoldStatus = async (
     year: number = new Date().getFullYear(),
     sold: boolean = false,
     onlyInternational: boolean = false,
-    department: string = ''
+    department: string = '',
+    association: string = ''
 ): Promise<Decimal | null> => {
     const startDate = new Date(year, 0, 1);
     const endDate = new Date(year + 1, 0, 1);
@@ -70,6 +72,23 @@ export const getSumKGOfCocoaBySoldStatus = async (
                                         department: {
                                             name: {
                                                 contains: department,
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                {
+                    batch: {
+                        pulpsUsed: {
+                            some: {
+                                pulp: {
+                                    producer: {
+                                        association: {
+                                            name: {
+                                                contains: association,
                                             },
                                         },
                                     },

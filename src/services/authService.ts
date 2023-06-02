@@ -157,3 +157,53 @@ export const getAccessToken = async (refreshToken: string): Promise<string> => {
         decoded['role']
     );
 };
+
+/**
+ * Fetch a user by its wallet address.
+ *
+ * @param {string} address User Wallet Address
+ * @returns {Promise<User>}
+ */
+export const getUserByWalletAddress = async (
+    address: string
+): Promise<User> => {
+    return prisma.user.findUnique({
+        where: {
+            walletAddress: address,
+        },
+    });
+};
+
+/**
+ *
+ * Fetch a user's association name.
+ *
+ * @param {string} address Wallet Address of the User.
+ * @returns {Promise<string | undefined>}
+ */
+export const getAssociationOfProducerByUserWallet = async (
+    address: string
+): Promise<string | undefined> => {
+    const user = await prisma.user.findUnique({
+        where: {
+            walletAddress: address,
+        },
+        include: {
+            producerDetails: {
+                include: {
+                    association: true,
+                },
+            },
+        },
+    });
+
+    const associationName: string | undefined = user
+        ? user.producerDetails
+            ? user.producerDetails.association
+                ? user.producerDetails.association.name
+                : undefined
+            : undefined
+        : undefined;
+
+    return associationName;
+};
