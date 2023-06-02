@@ -8,7 +8,7 @@ import requiresAuth from '@/middleware/guards/requiresAuth';
 import requiresRoles from '@/middleware/guards/requiresRole';
 import validate from '@/middleware/validate';
 
-import { getAssociationOfProducerByUserWallet } from '@/services/authService';
+import { getAssociationNameOfProducerByUserWallet } from '@/services/authService';
 import {
     getBatchByCode,
     getBatchFermentationModelByCode,
@@ -129,7 +129,7 @@ router.get(
         } else {
             if (token.role === 'association') {
                 const userAssociationName =
-                    await getAssociationOfProducerByUserWallet(token.role);
+                    await getAssociationNameOfProducerByUserWallet(token.role);
                 const [
                     productionOfDryCocoa,
                     salesInKg,
@@ -266,7 +266,7 @@ router.get(
 
         // Only users with the project role can filter by associations.
         if (token.role === 'association')
-            association = await getAssociationOfProducerByUserWallet(
+            association = await getAssociationNameOfProducerByUserWallet(
                 token.address
             );
 
@@ -340,7 +340,7 @@ router.get(
 
         // Only users with the project role can filter by associations.
         if (token.role === 'association')
-            association = await getAssociationOfProducerByUserWallet(
+            association = await getAssociationNameOfProducerByUserWallet(
                 token.address
             );
 

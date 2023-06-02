@@ -9,7 +9,7 @@ import requiresRoles from '@/middleware/guards/requiresRole';
 import validate from '@/middleware/validate';
 
 import { getAssociationById } from '@/services/associationService';
-import { getAssociationOfProducerByUserWallet } from '@/services/authService';
+import { getAssociationNameOfProducerByUserWallet } from '@/services/authService';
 import { getBatchesByPulpIds } from '@/services/batchService';
 import { getDepartmentById } from '@/services/departmentService';
 import {
@@ -59,7 +59,7 @@ router.get(
         let association: string | undefined = req.query.association?.toString();
         // Only users with the project role can filter by associations.
         if (token.role === 'association')
-            association = await getAssociationOfProducerByUserWallet(
+            association = await getAssociationNameOfProducerByUserWallet(
                 token.address
             );
 
