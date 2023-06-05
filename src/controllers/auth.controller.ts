@@ -105,7 +105,7 @@ router.get(
     extractJWT,
     requiresAuth,
     requiresRoles(['association']),
-    asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
+    asyncMiddleware(async (_req: Request, res: Response) => {
         const token: JWTToken = res.locals.jwt;
 
         const association = await getAssociationOfUserProducerByWallet(

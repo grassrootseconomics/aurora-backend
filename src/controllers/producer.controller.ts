@@ -39,7 +39,7 @@ router.get(
     '/',
     extractJWT,
     requiresAuth,
-    requiresRoles(['project', 'association']),
+    requiresRoles(['association']),
     asyncMiddleware(async (req: Request, res: Response) => {
         const token: JWTToken = res.locals.jwt;
 
@@ -104,7 +104,7 @@ router.get(
     '/:code',
     extractJWT,
     requiresAuth,
-    requiresRoles(['project', 'association']),
+    requiresRoles(['association']),
     asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
         const { code } = req.params;
 
@@ -130,7 +130,7 @@ router.get(
     '/:code/batches',
     extractJWT,
     requiresAuth,
-    requiresRoles(['project', 'association']),
+    requiresRoles(['association']),
     asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
         const { code } = req.params;
 
@@ -193,7 +193,7 @@ router.patch(
     `/:code`,
     extractJWT,
     requiresAuth,
-    requiresRoles(['project', 'association']),
+    requiresRoles(['association']),
     validate(updateProducerSchema),
     asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
         const { code } = req.params;
@@ -246,7 +246,7 @@ router.delete(
     `/:codeProducer/batches/:codeBatch`,
     extractJWT,
     requiresAuth,
-    requiresRoles(['project', 'association']),
+    requiresRoles(['association']),
     validate(changeProducerFromBatch),
     asyncMiddleware(async (req: Request, res: Response) => {
         const { codeProducer, codeBatch } = req.params;

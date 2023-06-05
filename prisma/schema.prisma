@@ -165,36 +165,11 @@ model FermentationPhase {
   nrFlips      Decimal
   totalDays    Decimal
 
-  codeBatch    String                  @unique
-  batch        Batch                   @relation(fields: [codeBatch], references: [code])
-  flips        FermentationFlip[]
-  dailyReports FermentationDayReport[]
-}
+  codeBatch String @unique
+  batch     Batch  @relation(fields: [codeBatch], references: [code])
 
-// A fermentation flip or day of the fermentation process.
-model FermentationFlip {
-  id Int @id @default(autoincrement())
-
-  index    Int
-  type     String
-  time     Int
-  temp     Decimal
-  ambient  Decimal
-  humidity Decimal
-
-  idFermentationPhase Int
-  fermentationPhase   FermentationPhase @relation(fields: [idFermentationPhase], references: [id])
-}
-
-model FermentationDayReport {
-  id              Int     @id @default(autoincrement())
-  day             Int
-  temperatureMass Decimal
-  phMass          Decimal
-  phCotiledon     Decimal
-
-  idFermentationPhase Int
-  fermentationPhase   FermentationPhase @relation(fields: [idFermentationPhase], references: [id])
+  flips        Json[]
+  dailyReports Json[]
 }
 
 model Pulp {

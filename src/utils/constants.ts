@@ -9,6 +9,18 @@ export const APP_CONSTANTS = {
             UPDATE_SUCCESS: 'Values Updated Successfully!',
             FETCH_SUCCESS: 'Successfully fetched the batches!',
         },
+        FERMENTATION: {
+            INVALID_ID: 'Fermentation Phase Id is invalid!',
+            UPDATE_SUCCESS: 'Successfully updated fermentation detail!',
+            FLIPS: {
+                INVALID_INDEX: 'Index for Flip is invalid!',
+                NOT_FOUND: 'Day Report does not exist!',
+            },
+            DAY_REPORT: {
+                INVALID_INDEX: 'Index for Day is invalid!',
+                NOT_FOUND: 'Day Report does not exist!',
+            },
+        },
         STORAGE: {
             INVALID_ID: 'Storage Phase Id is invalid!',
         },
