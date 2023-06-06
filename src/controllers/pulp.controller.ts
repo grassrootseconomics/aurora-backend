@@ -10,6 +10,7 @@ import { checkBatchExistsByCode } from '@/services/batchService';
 import { checkProducerExistsByCode } from '@/services/producerService';
 import {
     addPulp,
+    getPulpById,
     removePulpById,
     updatePulpById,
 } from '@/services/pulpService';
@@ -23,6 +24,32 @@ import {
 } from '@/utils/validations/pulpValidations';
 
 const router = Router();
+
+router.get(
+    '/:id',
+    extractJWT,
+    requiresAuth,
+    requiresRoles(['association']),
+    asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
+        const id: number = parseInt(req.params.id);
+
+        if (!id || Number.isNaN(id)) {
+            return next(
+                new ApiError(400, APP_CONSTANTS.RESPONSE.PULP.INVALID_ID)
+            );
+        }
+
+        const pulp = await getPulpById(id);
+
+        res.status(200).json({
+            success: true,
+            message: 'Successfully fetched pulp',
+            data: {
+                pulp,
+            },
+        });
+    })
+);
 
 router.post(
     '/',
@@ -74,6 +101,12 @@ router.patch(
     asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
         const id: number = parseInt(req.params.id);
         const pulpData: UpdatePulp = req.body.pulp;
+
+        if (!id || Number.isNaN(id)) {
+            return next(
+                new ApiError(400, APP_CONSTANTS.RESPONSE.PULP.INVALID_ID)
+            );
+        }
 
         if (!pulpData) {
             return next(

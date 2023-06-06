@@ -5,6 +5,24 @@ import { AddPulp, UpdatePulp } from '@/utils/types/pulp';
 
 /**
  *
+ * Fetch a pulp by its Id.
+ *
+ * @param {number} id Id of Pulp.
+ * @returns
+ */
+export const getPulpById = (id: number) => {
+    return prisma.pulp.findUnique({
+        where: {
+            id,
+        },
+        include: {
+            batchesUsedFor: true,
+        },
+    });
+};
+
+/**
+ *
  * Fetches existing pulps by their producer's code.
  *
  * @param {string} code Producer Code.
