@@ -73,7 +73,7 @@ export const getSumKGOfCocoaBySoldStatus = async (
                 {
                     batch: {
                         pulpsUsed: {
-                            some: {
+                            every: {
                                 pulp: {
                                     producer: {
                                         department: {
@@ -90,7 +90,7 @@ export const getSumKGOfCocoaBySoldStatus = async (
                 {
                     batch: {
                         pulpsUsed: {
-                            some: {
+                            every: {
                                 pulp: {
                                     producer: {
                                         association: {
@@ -279,11 +279,11 @@ export const getSalesInKgByAssociation = async (
                 },
                 {
                     producers: {
-                        some: {
+                        every: {
                             producedPulps: {
-                                some: {
+                                every: {
                                     batchesUsedFor: {
-                                        some: {
+                                        every: {
                                             batch: onlyInternational
                                                 ? {
                                                       sale: {
@@ -387,11 +387,11 @@ export const getSalesInKgByDepartment = async (
                 { name: departmentName },
                 {
                     producers: {
-                        some: {
+                        every: {
                             producedPulps: {
-                                some: {
+                                every: {
                                     batchesUsedFor: {
-                                        some: {
+                                        every: {
                                             batch: onlyInternational
                                                 ? {
                                                       sale: {
@@ -694,7 +694,7 @@ export const getBatchesBySoldStatus = (
             AND: [
                 {
                     pulpsUsed: {
-                        some: {
+                        every: {
                             pulp: {
                                 producer: {
                                     association: {
@@ -850,7 +850,7 @@ export const searchBatches = async ({
                 },
                 {
                     pulpsUsed: {
-                        some: {
+                        every: {
                             pulp: {
                                 producer: {
                                     [filterField]: {
@@ -914,7 +914,7 @@ export const searchBatches = async ({
                 },
                 {
                     pulpsUsed: {
-                        some: {
+                        every: {
                             pulp: {
                                 producer: {
                                     [filterField]: {
