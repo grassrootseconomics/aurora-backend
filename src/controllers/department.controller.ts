@@ -1,9 +1,6 @@
 import { Request, Response, Router } from 'express';
 
 import asyncMiddleware from '@/middleware/asyncMiddleware';
-import extractJWT from '@/middleware/extractJWT';
-import requiresAuth from '@/middleware/guards/requiresAuth';
-import requiresRoles from '@/middleware/guards/requiresRole';
 
 import { getAllDepartments } from '@/services/departmentService';
 
@@ -13,9 +10,6 @@ const router = Router();
 
 router.get(
     '/',
-    extractJWT,
-    requiresAuth,
-    requiresRoles(['association']),
     asyncMiddleware(async (_req: Request, res: Response) => {
         const departments = await getAllDepartments();
         return res.status(200).json({
