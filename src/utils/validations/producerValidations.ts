@@ -14,7 +14,7 @@ export const updateProducerSchema: DefaultValidation = {
             lastName: Joi.string().optional(),
             phoneNumber: Joi.string().optional(),
             gender: Joi.string().optional(),
-            birthDate: Joi.date().iso().optional(),
+            birthYear: Joi.number().optional(),
 
             // DEPARTMENT FOREGIN KEY
             idDepartment: Joi.number().integer().min(1).optional(),
