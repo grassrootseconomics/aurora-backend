@@ -1,30 +1,25 @@
 [
     {
-        "id": 1,
         "name": "Department #1",
         "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur convallis massa in tellus bibendum eleifend. Nam tristique suscipit ante tempor porta. Aenean sed dui arcu.",
         "nrOfAssociates": 15
     },
     {
-        "id": 2,
         "name": "Department #2",
         "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur convallis massa in tellus bibendum eleifend. Nam tristique suscipit ante tempor porta. Aenean sed dui arcu.",
         "nrOfAssociates": 12
     },
     {
-        "id": 3,
         "name": "Department #3",
         "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur convallis massa in tellus bibendum eleifend. Nam tristique suscipit ante tempor porta. Aenean sed dui arcu.",
         "nrOfAssociates": 17
     },
     {
-        "id": 4,
         "name": "Department #4",
         "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur convallis massa in tellus bibendum eleifend. Nam tristique suscipit ante tempor porta. Aenean sed dui arcu.",
         "nrOfAssociates": 11
     },
     {
-        "id": 5,
         "name": "Department #5",
         "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur convallis massa in tellus bibendum eleifend. Nam tristique suscipit ante tempor porta. Aenean sed dui arcu.",
         "nrOfAssociates": 10
