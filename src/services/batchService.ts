@@ -236,15 +236,17 @@ export const getUSDPriceOfOrganicCocoa = async (
     reports.forEach((_element, index) => {
         const filteredBatches = batches.filter(
             (batch) =>
-                batch.sale.negotiationDate.getFullYear() === year &&
-                batch.sale.negotiationDate.getMonth() === index
+                batch?.sale?.negotiationDate?.getFullYear() === year &&
+                batch?.sale?.negotiationDate?.getMonth() === index
+        );
+        const sales = filteredBatches.reduce(
+            (prev, current) => prev + current?.sale?.totalValue,
+            0
         );
 
-        reports[index].organicSoldPrice =
-            filteredBatches.reduce(
-                (prev, current) => prev + current.sale.totalValue,
-                0
-            ) / filteredBatches.length;
+        reports[index].organicSoldPrice = sales
+            ? sales / filteredBatches.length
+            : 0;
     });
 
     return reports;
