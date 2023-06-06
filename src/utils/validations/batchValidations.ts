@@ -79,6 +79,18 @@ export const updateBatchFermentationSchema: DefaultValidation = {
     }),
 };
 
+export const addBatchFlipReportSchema: DefaultValidation = {
+    body: Joi.object({
+        flip: Joi.object({
+            type: Joi.string().optional(),
+            time: Joi.number().optional(),
+            temp: Joi.number().optional(),
+            ambient: Joi.number().optional(),
+            humidity: Joi.number().optional(),
+        }),
+    }),
+};
+
 export const updateBatchFlipReportSchema: DefaultValidation = {
     params: Joi.object().keys({
         id: Joi.number().integer().min(1).required(),
@@ -91,6 +103,19 @@ export const updateBatchFlipReportSchema: DefaultValidation = {
             temp: Joi.number().optional(),
             ambient: Joi.number().optional(),
             humidity: Joi.number().optional(),
+        }),
+    }),
+};
+
+export const addBatchDayReportSchema: DefaultValidation = {
+    params: Joi.object().keys({
+        id: Joi.number().integer().min(1).required(),
+    }),
+    body: Joi.object({
+        dayReport: Joi.object({
+            temperatureMass: Joi.number().optional(),
+            phMass: Joi.number().optional(),
+            phCotiledon: Joi.number().optional(),
         }),
     }),
 };

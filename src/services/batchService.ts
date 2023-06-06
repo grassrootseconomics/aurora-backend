@@ -975,6 +975,82 @@ export const searchBatches = async ({
 
 /**
  *
+ * Adds a flip report to the fermentation phase of a batch.
+ *
+ * @param fermentationId Id of the fermentation phase.
+ * @param flip Flip Details.
+ * @returns {Promise<FermentationPhase>}
+ */
+export const addBatchFermentationFlip = async (
+    fermentationId: number,
+    flip: Flip
+): Promise<FermentationPhase> => {
+    const fermentationPhase = await prisma.fermentationPhase.findUnique({
+        where: { id: fermentationId },
+        select: { flips: true },
+    });
+
+    const flips: Flip[] = fermentationPhase.flips.map((jsonFlip) => {
+        return {
+            type: jsonFlip['type'],
+            time: jsonFlip['time'],
+            temp: jsonFlip['temp'],
+            ambient: jsonFlip['ambient'],
+            humidity: jsonFlip['humidity'],
+        };
+    });
+
+    flips.push(flip);
+
+    flips.sort((a, b) => a.time - b.time);
+
+    return prisma.fermentationPhase.update({
+        where: { id: fermentationId },
+        data: {
+            flips,
+        },
+    });
+};
+
+/**
+ *
+ * Adds a day report to the fermentation phase of a batch.
+ *
+ * @param fermentationId Id of the fermentation phase.
+ * @param flip Day Report Details.
+ * @returns {Promise<FermentationPhase>}
+ */
+export const addBatchFermentationDayReport = async (
+    fermentationId: number,
+    dayReport: DayReport
+) => {
+    const fermentationPhase = await prisma.fermentationPhase.findUnique({
+        where: { id: fermentationId },
+        select: { dailyReports: true },
+    });
+
+    const dailyReports: DayReport[] = fermentationPhase.dailyReports.map(
+        (jsonDailyReport) => {
+            return {
+                temperatureMass: jsonDailyReport['temperatureMass'],
+                phMass: jsonDailyReport['phMass'],
+                phCotiledon: jsonDailyReport['phCotiledon'],
+            };
+        }
+    );
+
+    dailyReports.push(dayReport);
+
+    return prisma.fermentationPhase.update({
+        where: { id: fermentationId },
+        data: {
+            dailyReports,
+        },
+    });
+};
+
+/**
+ *
  * Updates and returns the Sales Phase Details of a Batch.
  *
  * @param {number} id Id of the Sales Phase.
@@ -1078,7 +1154,7 @@ export const updateBatchFermentationFlip = async (
     if (!flips[flipIndex]) {
         throw new ApiError(
             404,
-            APP_CONSTANTS.RESPONSE.FERMENTATION.FLIPS.NOT_FOUND
+            APP_CONSTANTS.RESPONSE.FERMENTATION.FLIP.NOT_FOUND
         );
     }
 
@@ -1180,7 +1256,7 @@ export const removeBatchFermentationFlip = async (
     } else {
         throw new ApiError(
             404,
-            APP_CONSTANTS.RESPONSE.FERMENTATION.FLIPS.NOT_FOUND
+            APP_CONSTANTS.RESPONSE.FERMENTATION.FLIP.NOT_FOUND
         );
     }
 };

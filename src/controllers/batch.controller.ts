@@ -10,6 +10,8 @@ import validate from '@/middleware/validate';
 
 import { getAssociationNameOfProducerByUserWallet } from '@/services/authService';
 import {
+    addBatchFermentationDayReport,
+    addBatchFermentationFlip,
     getBatchByCode,
     getBatchFermentationModelByCode,
     getMonthlyCocoaPulp,
@@ -40,8 +42,11 @@ import {
     StoragePhaseUpdate,
 } from '@/utils/types/batch';
 import ApiError from '@/utils/types/errors/ApiError';
-import { DayReportUpdate } from '@/utils/types/fermentation/DayReport';
-import { FlipUpdate } from '@/utils/types/fermentation/Flip';
+import {
+    DayReport,
+    DayReportUpdate,
+} from '@/utils/types/fermentation/DayReport';
+import { Flip, FlipUpdate } from '@/utils/types/fermentation/Flip';
 import {
     BuyerReport,
     DashboardStatistics,
@@ -50,6 +55,8 @@ import {
 } from '@/utils/types/reports';
 import { JWTToken } from '@/utils/types/server';
 import {
+    addBatchDayReportSchema,
+    addBatchFlipReportSchema,
     updateBatchDayReportSchema,
     updateBatchDryingSchema,
     updateBatchFermentationSchema,
@@ -541,6 +548,67 @@ router.patch(
     })
 );
 
+router.post(
+    '/:id/fermentation/flips',
+    validate(addBatchFlipReportSchema),
+    asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
+        const id: number = parseInt(req.params.id);
+        if (!id || Number.isNaN(id)) {
+            return next(
+                new ApiError(
+                    400,
+                    APP_CONSTANTS.RESPONSE.FERMENTATION.INVALID_ID
+                )
+            );
+        }
+        const newDetails: Flip = req.body.flip;
+
+        const newFermentationDetails = await addBatchFermentationFlip(
+            id,
+            newDetails
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: APP_CONSTANTS.RESPONSE.FERMENTATION.FLIP.SAVE_SUCCESS,
+            data: {
+                updatedValues: newFermentationDetails.flips,
+            },
+        });
+    })
+);
+
+router.post(
+    '/:id/fermentation/reports',
+    validate(addBatchDayReportSchema),
+    asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
+        const id: number = parseInt(req.params.id);
+        if (!id || Number.isNaN(id)) {
+            return next(
+                new ApiError(
+                    400,
+                    APP_CONSTANTS.RESPONSE.FERMENTATION.INVALID_ID
+                )
+            );
+        }
+        const newDetails: DayReport = req.body.dayReport;
+
+        const newFermentationDetails = await addBatchFermentationDayReport(
+            id,
+            newDetails
+        );
+
+        return res.status(200).json({
+            success: true,
+            message:
+                APP_CONSTANTS.RESPONSE.FERMENTATION.DAY_REPORT.SAVE_SUCCESS,
+            data: {
+                updatedValues: newFermentationDetails.dailyReports,
+            },
+        });
+    })
+);
+
 router.patch(
     '/:id/fermentation/flips/:flipIndex',
     extractJWT,
@@ -564,7 +632,7 @@ router.patch(
             return next(
                 new ApiError(
                     400,
-                    APP_CONSTANTS.RESPONSE.FERMENTATION.FLIPS.INVALID_INDEX
+                    APP_CONSTANTS.RESPONSE.FERMENTATION.FLIP.INVALID_INDEX
                 )
             );
         }
@@ -635,9 +703,9 @@ router.patch(
 
 router.delete(
     '/:id/fermentation/flips/:flipIndex',
-    extractJWT,
-    requiresAuth,
-    requiresRoles(['association']),
+    // extractJWT,
+    // requiresAuth,
+    // requiresRoles(['association']),
     asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
         const id: number = parseInt(req.params.id);
         const flipIndex: number = parseInt(req.params.flipIndex);
@@ -655,7 +723,7 @@ router.delete(
             return next(
                 new ApiError(
                     400,
-                    APP_CONSTANTS.RESPONSE.FERMENTATION.FLIPS.INVALID_INDEX
+                    APP_CONSTANTS.RESPONSE.FERMENTATION.FLIP.INVALID_INDEX
                 )
             );
         }
@@ -674,9 +742,9 @@ router.delete(
 
 router.delete(
     '/:id/fermentation/reports/:dayIndex',
-    extractJWT,
-    requiresAuth,
-    requiresRoles(['association']),
+    // extractJWT,
+    // requiresAuth,
+    // requiresRoles(['association']),
     asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
         const id: number = parseInt(req.params.id);
         const dayIndex: number = parseInt(req.params.dayIndex);

@@ -26,11 +26,13 @@ export const APP_CONSTANTS = {
         FERMENTATION: {
             INVALID_ID: 'Fermentation Phase Id is invalid!',
             UPDATE_SUCCESS: 'Successfully updated fermentation detail!',
-            FLIPS: {
+            FLIP: {
+                SAVE_SUCCESS: 'Flip added successfully.',
                 INVALID_INDEX: 'Index for Flip is invalid!',
                 NOT_FOUND: 'Day Report does not exist!',
             },
             DAY_REPORT: {
+                SAVE_SUCCESS: 'Daily Report added successfully.',
                 INVALID_INDEX: 'Index for Day is invalid!',
                 NOT_FOUND: 'Day Report does not exist!',
             },
@@ -60,9 +62,6 @@ export const APP_CONSTANTS = {
         DEPARTMENT: {
             FETCH_SUCCESS: 'Successfully Fetched Department Data!',
             NOT_FOUND: 'Department Does Not Exist!',
-        },
-        FLIPS: {
-            SAVE_SUCCESS: 'Flip added successfully.',
         },
     },
 };
