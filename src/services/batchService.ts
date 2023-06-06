@@ -767,6 +767,21 @@ export const getBatchByCode = (code: string): Promise<Batch | null> => {
 
 /**
  *
+ * Checks if a batch with the given code exists.
+ *
+ * @param {string} code Batch Code to filter for.
+ * @returns {Promise<boolean>}
+ */
+export const checkBatchExistsByCode = async (
+    code: string
+): Promise<boolean> => {
+    const batch = await prisma.batch.findUnique({ where: { code } });
+
+    return batch !== null;
+};
+
+/**
+ *
  * Fetches the Fermentation Model of a Batch.
  *
  * @param {string} code Batch Code.

@@ -6,8 +6,22 @@ export const APP_CONSTANTS = {
         },
         BATCH: {
             MISSING_CODE: 'Missing Code.',
+            NOT_FOUND: 'Batch with given code does not exist!',
             UPDATE_SUCCESS: 'Values Updated Successfully!',
             FETCH_SUCCESS: 'Successfully fetched the batches!',
+        },
+        PULP: {
+            INVALID_ID: 'Pulp Id is invalid!',
+            SAVE: {
+                SUCCESS: 'Successfully saved pulp!',
+            },
+            UPDATE: {
+                SUCCESS: 'Successfully updated pulp!',
+                MISSING_VALUES: 'Missing Update Details!',
+            },
+            DELETE: {
+                SUCCESS: 'Successfully removed pulp!',
+            },
         },
         FERMENTATION: {
             INVALID_ID: 'Fermentation Phase Id is invalid!',
@@ -32,6 +46,7 @@ export const APP_CONSTANTS = {
         },
         PRODUCER: {
             MISSING_CODE: 'Missing Code.',
+            NOT_FOUND: 'Producer with given code does not exist!',
             UPDATE_SUCCESS: 'Producer Updated Successfully!',
             LINK_BATCH_EXISTS: 'Producer is already linked to this Batch!',
             FAILED_BATCH_CHANGE: 'Could not update Batches!',

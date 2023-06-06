@@ -192,8 +192,8 @@ model Pulp {
 model PulpBatch {
   id        Int    @id @default(autoincrement())
   codeBatch String
-  batch     Batch  @relation(fields: [codeBatch], references: [code])
+  batch     Batch  @relation(fields: [codeBatch], references: [code], onDelete: Cascade)
 
   idPulp Int
-  pulp   Pulp @relation(fields: [idPulp], references: [id])
+  pulp   Pulp @relation(fields: [idPulp], references: [id], onDelete: Cascade)
 }

@@ -75,6 +75,21 @@ export const getProducerByCode = (code: string): Promise<Producer | null> => {
 
 /**
  *
+ * Checks if a producer with the given code exists.
+ *
+ * @param {string} code Producer Code to filter for.
+ * @returns {Promise<boolean>}
+ */
+export const checkProducerExistsByCode = async (
+    code: string
+): Promise<boolean> => {
+    const producer = await prisma.producer.findUnique({ where: { code } });
+
+    return producer !== null;
+};
+
+/**
+ *
  * Searches, paginates and filters producers by name.
  *
  * @param {ISearchParameters} options Search Filters.
