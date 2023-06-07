@@ -81,7 +81,6 @@ model Association {
   fbSocialLink   String?
   instSocialLink String?
   producers      Producer[]
-  batches        Batch[]
 }
 
 // Departments or Counties of Associations
@@ -97,9 +96,6 @@ model Department {
 model Batch {
   id   Int    @id @default(autoincrement())
   code String @unique
-
-  idAssociation Int
-  association   Association @relation(fields: [idAssociation], references: [id])
 
   sale              Sale?
   storage           Storage?
