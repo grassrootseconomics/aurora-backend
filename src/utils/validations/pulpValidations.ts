@@ -6,7 +6,7 @@ export const addPulpSchema: DefaultValidation = {
     body: Joi.object({
         pulp: Joi.object({
             codeProducer: Joi.string().required(),
-            codeBatch: Joi.string().optional(),
+            codeBatch: Joi.optional(),
             collectionDate: Joi.date().iso().required(),
             quality: Joi.string().required(),
             status: Joi.string().required(),
@@ -25,7 +25,7 @@ export const updatePulpSchema: DefaultValidation = {
     body: Joi.object({
         pulp: Joi.object({
             codeProducer: Joi.string().optional(),
-            codeBatch: Joi.string().optional(),
+            codeBatch: Joi.optional(),
             collectionDate: Joi.date().iso().optional(),
             quality: Joi.string().optional(),
             status: Joi.string().optional(),

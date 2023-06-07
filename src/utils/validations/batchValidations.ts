@@ -133,23 +133,3 @@ export const updateBatchDayReportSchema: DefaultValidation = {
         }),
     }),
 };
-
-export const updateBatchPulpSchema: DefaultValidation = {
-    params: Joi.object().keys({
-        id: Joi.number().integer().min(1).required(),
-    }),
-    body: Joi.object({
-        pulp: Joi.object({
-            id: Joi.forbidden(),
-            codeProducer: Joi.forbidden(),
-
-            pricePerKg: Joi.number().optional(),
-            collectionDate: Joi.date().iso().optional(),
-            quality: Joi.string().optional(),
-            status: Joi.string().optional(),
-            genetics: Joi.string().optional(),
-            totalPulpKg: Joi.number().optional(),
-            totalPrice: Joi.number().optional(),
-        }),
-    }),
-};

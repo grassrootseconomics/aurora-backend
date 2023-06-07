@@ -142,6 +142,13 @@ export const updatePulpById = async (id: number, updatePulp: UpdatePulp) => {
             });
             pulp.batchesUsedFor = [newLink];
         }
+    } else {
+        await prisma.pulpBatch.deleteMany({
+            where: {
+                idPulp: pulp.id,
+            },
+        });
+        pulp.batchesUsedFor = [];
     }
     return pulp;
 };
