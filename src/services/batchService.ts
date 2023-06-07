@@ -489,9 +489,16 @@ export const getMonthlySalesInUSD = async (
         where: {
             AND: [
                 {
-                    // THIS NEEDS CHANGING!
-                    association: {
-                        name: associationName,
+                    pulpsUsed: {
+                        every: {
+                            pulp: {
+                                producer: {
+                                    association: {
+                                        name: associationName,
+                                    },
+                                },
+                            },
+                        },
                     },
                 },
                 {
