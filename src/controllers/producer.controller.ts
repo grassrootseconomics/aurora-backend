@@ -39,7 +39,7 @@ router.get(
     '/',
     extractJWT,
     requiresAuth,
-    requiresRoles(['association']),
+    requiresRoles(['project', 'association']),
     asyncMiddleware(async (req: Request, res: Response) => {
         const token: JWTToken = res.locals.jwt;
 
@@ -104,7 +104,7 @@ router.get(
     '/:code',
     extractJWT,
     requiresAuth,
-    requiresRoles(['association']),
+    requiresRoles(['project', 'association']),
     asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
         const { code } = req.params;
 

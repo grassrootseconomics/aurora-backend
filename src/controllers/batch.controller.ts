@@ -302,15 +302,23 @@ router.get(
             year,
         });
 
-        const kgDryCocoaInternationallySold = searchBatchesResult.data.reduce(
-            (prev, current) => prev + current.storage.netWeight.toNumber(),
-            0
-        );
+        // const kgDryCocoaInternationallySold = searchBatchesResult.data.reduce(
+        //     (prev, current) => prev + current.storage.netWeight.toNumber(),
+        //     0
+        // );
 
-        const [salesInKg, monthlySalesInUSD] = await Promise.all([
-            getSalesInKgByAssociation(false, year, association),
-            getMonthlySalesInUSD(year, association),
-        ]);
+        const [salesInKg, monthlySalesInUSD, kgDryCocoaInternationallySold] =
+            await Promise.all([
+                getSalesInKgByAssociation(false, year, association),
+                getMonthlySalesInUSD(year, association),
+                getSumKGOfCocoaBySoldStatus(
+                    year,
+                    true,
+                    true,
+                    undefined,
+                    association
+                ),
+            ]);
 
         return res.status(200).json({
             success: true,
@@ -376,15 +384,23 @@ router.get(
             year,
         });
 
-        const kgDryCocoaAvailable = searchBatchesResult.data.reduce(
-            (prev, current) => prev + current.storage.netWeight.toNumber(),
-            0
-        );
+        // const kgDryCocoaAvailable = searchBatchesResult.data.reduce(
+        //     (prev, current) => prev + current.storage.netWeight.toNumber(),
+        //     0
+        // );
 
-        const [monthlyCocoaPulp, productionOfDryCocoa] = await Promise.all([
-            getMonthlyCocoaPulp(year, association),
-            getProductionOfDryCocoa(year, association),
-        ]);
+        const [monthlyCocoaPulp, productionOfDryCocoa, kgDryCocoaAvailable] =
+            await Promise.all([
+                getMonthlyCocoaPulp(year, association),
+                getProductionOfDryCocoa(year, association),
+                getSumKGOfCocoaBySoldStatus(
+                    year,
+                    false,
+                    false,
+                    undefined,
+                    association
+                ),
+            ]);
 
         return res.status(200).json({
             success: true,

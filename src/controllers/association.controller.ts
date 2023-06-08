@@ -15,7 +15,7 @@ router.get(
     '/',
     extractJWT,
     requiresAuth,
-    requiresRoles(['association']),
+    requiresRoles(['project']),
     asyncMiddleware(async (_req: Request, res: Response) => {
         const associations = await getAllAssociations();
         return res.status(200).json({
