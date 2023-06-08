@@ -20,6 +20,7 @@ model User {
   id            Int     @id @default(autoincrement())
   username      String?
   walletAddress String  @unique
+  emailAddress  String?
   role          Role    @relation(fields: [idRole], references: [id])
   idRole        Int     @default(1)
   nonces        Nonce?
@@ -77,6 +78,7 @@ model Association {
   name           String     @unique
   creationDate   DateTime
   description    String
+  emailAddress   String?
   nrOfAssociates Int
   fbSocialLink   String?
   instSocialLink String?

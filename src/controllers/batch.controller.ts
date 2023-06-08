@@ -32,9 +32,12 @@ import {
     updateBatchSalesPhase,
     updateBatchStoragePhase,
 } from '@/services/batchService';
+import { sendBatchRequestEmails } from '@/services/emailService';
 import { getAllProducers } from '@/services/producerService';
+import { getBatchRequestUserEmails } from '@/services/userService';
 
 import { APP_CONSTANTS } from '@/utils/constants';
+import { EmailParameters } from '@/utils/types/association/EmailParameters';
 import {
     DryingPhaseUpdate,
     FermentationPhaseUpdate,
@@ -57,6 +60,7 @@ import { JWTToken } from '@/utils/types/server';
 import {
     addBatchDayReportSchema,
     addBatchFlipReportSchema,
+    sendBatchRequestEmailsSchema,
     updateBatchDayReportSchema,
     updateBatchDryingSchema,
     updateBatchFermentationSchema,
@@ -549,6 +553,48 @@ router.patch(
 );
 
 router.post(
+    '/:code/sample-request',
+    validate(sendBatchRequestEmailsSchema),
+    asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
+        const { code } = req.params;
+        const emailFields: EmailParameters = req.body.fields;
+
+        if (!emailFields) {
+            return next(new ApiError(400, 'Missing Email Fields Parameter!'));
+        }
+
+        const emails = await getBatchRequestUserEmails(code);
+
+        if (emails.length === 0) {
+            return res.status(500).json({
+                success: false,
+                message: 'No emails to send batch request to.',
+            });
+        }
+
+        const emailResponse = await sendBatchRequestEmails(
+            emails,
+            emailFields,
+            code
+        );
+
+        if (emailResponse.accepted.length > 0) {
+            return res.status(200).json({
+                success: true,
+                message: 'Sample Request Email successfully sent!',
+                data: { emailResponse },
+            });
+        } else {
+            return res.status(500).json({
+                success: false,
+                message:
+                    'Could not send request email to all batch-related users.',
+            });
+        }
+    })
+);
+
+router.post(
     '/:id/fermentation/flips',
     validate(addBatchFlipReportSchema),
     asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
@@ -703,9 +749,9 @@ router.patch(
 
 router.delete(
     '/:id/fermentation/flips/:flipIndex',
-    // extractJWT,
-    // requiresAuth,
-    // requiresRoles(['association']),
+    extractJWT,
+    requiresAuth,
+    requiresRoles(['association']),
     asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
         const id: number = parseInt(req.params.id);
         const flipIndex: number = parseInt(req.params.flipIndex);
@@ -742,9 +788,9 @@ router.delete(
 
 router.delete(
     '/:id/fermentation/reports/:dayIndex',
-    // extractJWT,
-    // requiresAuth,
-    // requiresRoles(['association']),
+    extractJWT,
+    requiresAuth,
+    requiresRoles(['association']),
     asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
         const id: number = parseInt(req.params.id);
         const dayIndex: number = parseInt(req.params.dayIndex);

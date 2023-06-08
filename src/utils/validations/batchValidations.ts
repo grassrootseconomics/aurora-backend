@@ -133,3 +133,18 @@ export const updateBatchDayReportSchema: DefaultValidation = {
         }),
     }),
 };
+
+export const sendBatchRequestEmailsSchema: DefaultValidation = {
+    params: Joi.object().keys({
+        code: Joi.string().required(),
+    }),
+    body: Joi.object({
+        fields: Joi.object({
+            country: Joi.string().required(),
+            city: Joi.string().required(),
+            name: Joi.string().required(),
+            contactNumber: Joi.string().required(),
+            email: Joi.string().required(),
+        }),
+    }),
+};

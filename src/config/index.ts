@@ -8,13 +8,6 @@ const CONNECTION_URL: string =
 
 const PORT = process.env.PORT || '8080';
 
-/**
- * 
-REFRESH_TOKEN__ISSUER="testIssuer"
-
-ACCESS_TOKEN_ISSUER="testIssuer"
- */
-
 const REFRESH_TOKEN_SECRET: string =
     process.env.REFRESH_TOKEN_SECRET || 'refreshToken';
 const ACCESS_TOKEN_SECRET: string =
@@ -30,8 +23,16 @@ const REFRESH_TOKEN__ISSUER: string =
 const ACCESS_TOKEN_ISSUER: string =
     process.env.ACCESS_TOKEN_ISSUER || 'testIssuer';
 
+const SMTP_KEY: string = process.env.SMTP_KEY || undefined;
+const SMTP_ACCOUNT: string = process.env.SMTP_ACCOUNT || undefined;
+
 const DB = {
     CONNECTION_URL,
+};
+
+const SMTP = {
+    KEY: SMTP_KEY,
+    ACCOUNT: SMTP_ACCOUNT,
 };
 
 const SERVER = {
@@ -48,4 +49,4 @@ const SERVER = {
     },
 };
 
-export { SERVER, DB };
+export { SERVER, DB, SMTP };
