@@ -63,13 +63,6 @@ router.get(
                 token.address
             );
 
-        const statistics: ProducersStatistics = {
-            nrCocoaProducers: 0,
-            nrYoungMen: 0,
-            nrWomen: 0,
-            haForestConservation: 0,
-        };
-
         const searchProducersResult = await searchProducers({
             search,
             index,
@@ -80,14 +73,33 @@ router.get(
 
         const producers = await getAllProducers({ association });
 
-        statistics.nrYoungMen = producers.filter(
-            (producer) =>
-                producer.gender.toLowerCase() === 'male' &&
-                new Date().getFullYear() - producer.birthYear < 30
-        ).length;
-        statistics.nrWomen = producers.filter(
-            (producer) => producer.gender === 'female'
-        ).length;
+        let nrMen = 0;
+        let nrYoungMen = 0;
+        let nrWomen = 0;
+        let haCocoa = 0;
+        let haForestConservation = 0;
+        producers.forEach((producer) => {
+            haCocoa += producer.nrCocoaHa.toNumber();
+            haForestConservation += producer.nrForestHa.toNumber();
+            if (producer.gender === 'female') {
+                nrWomen++;
+            } else {
+                if (
+                    producer.gender.toLowerCase() === 'male' &&
+                    new Date().getFullYear() - producer.birthYear < 30
+                )
+                    nrYoungMen++;
+                nrMen++;
+            }
+        });
+        const statistics: ProducersStatistics = {
+            nrMen,
+            nrWomen,
+            nrYoungMen,
+            haCocoa,
+            haForestConservation,
+            nrCocoaProducers: producers.length,
+        };
 
         return res.status(200).json({
             success: true,
