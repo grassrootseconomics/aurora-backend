@@ -1,6 +1,5 @@
 [
     {
-        "id": 1,
         "cocoaType": "Perfect!",
         "startDate": "2023-05-09T03:25:17.511Z",
         "genetics": "2023-05-09T04:25:17.511Z",
@@ -10,10 +9,59 @@
         "hoursDrained": 4,
         "nrFlips": 3,
         "totalDays": 3,
-        "codeBatch": "12672"
+        "codeBatch": "12672",
+        "flips": [
+            {
+                "type": "time",
+                "time": 4,
+                "temp": 33,
+                "ambient": 30,
+                "humidity": 3
+            },
+            {
+                "type": "time",
+                "time": 4,
+                "temp": 35,
+                "ambient": 34,
+                "humidity": 3
+            },
+            {
+                "type": "time",
+                "time": 4,
+                "temp": 34,
+                "ambient": 33,
+                "humidity": 3
+            }
+        ],
+        "dailyReports": [
+            {
+                "temperatureMass": 33,
+                "phMass": 33,
+                "phCotiledon": 30
+            },
+            {
+                "temperatureMass": 34,
+                "phMass": 32,
+                "phCotiledon": 29
+            },
+            {
+                "temperatureMass": 35,
+                "phMass": 33,
+                "phCotiledon": 30
+            },
+            {
+                "temperatureMass": 32,
+                "phMass": 33,
+                "phCotiledon": 30
+            },
+            {
+                "temperatureMass": 31,
+                "phMass": 33,
+                "phCotiledon": 30
+            }
+        ]
     },
     {
-        "id": 2,
         "cocoaType": "Perfect!",
         "startDate": "2023-05-09T03:25:17.511Z",
         "genetics": "2023-05-09T04:25:17.511Z",
@@ -23,10 +71,66 @@
         "hoursDrained": 4,
         "nrFlips": 3,
         "totalDays": 3,
-        "codeBatch": "72132"
+        "codeBatch": "72132",
+        "flips": [
+            {
+                "type": "time",
+                "time": 4,
+                "temp": 33,
+                "ambient": 30,
+                "humidity": 3
+            },
+            {
+                "type": "time",
+                "time": 4,
+                "temp": 35,
+                "ambient": 34,
+                "humidity": 3
+            },
+            {
+                "type": "time",
+                "time": 4,
+                "temp": 34,
+                "ambient": 33,
+                "humidity": 3
+            },
+            {
+                "type": "time",
+                "time": 4,
+                "temp": 34,
+                "ambient": 33,
+                "humidity": 3
+            }
+        ],
+        "dailyReports": [
+            {
+                "temperatureMass": 33,
+                "phMass": 33,
+                "phCotiledon": 30
+            },
+            {
+                "temperatureMass": 34,
+                "phMass": 32,
+                "phCotiledon": 29
+            },
+            {
+                "temperatureMass": 35,
+                "phMass": 33,
+                "phCotiledon": 30
+            },
+            {
+                "temperatureMass": 32,
+                "phMass": 33,
+                "phCotiledon": 30
+            },
+            {
+                "temperatureMass": 31,
+                "phMass": 33,
+                "phCotiledon": 30
+            }
+        ]
     },
     {
-        "id": 3,
         "cocoaType": "Perfect!",
         "startDate": "2023-05-09T03:25:17.511Z",
         "genetics": "2023-05-09T04:25:17.511Z",
@@ -36,10 +140,66 @@
         "hoursDrained": 4,
         "nrFlips": 3,
         "totalDays": 3,
-        "codeBatch": "89236"
+        "codeBatch": "89236",
+        "flips": [
+            {
+                "type": "time",
+                "time": 4,
+                "temp": 33,
+                "ambient": 30,
+                "humidity": 3
+            },
+            {
+                "type": "time",
+                "time": 4,
+                "temp": 35,
+                "ambient": 34,
+                "humidity": 3
+            },
+            {
+                "type": "time",
+                "time": 4,
+                "temp": 34,
+                "ambient": 33,
+                "humidity": 3
+            },
+            {
+                "type": "time",
+                "time": 4,
+                "temp": 34,
+                "ambient": 33,
+                "humidity": 3
+            }
+        ],
+        "dailyReports": [
+            {
+                "temperatureMass": 33,
+                "phMass": 33,
+                "phCotiledon": 30
+            },
+            {
+                "temperatureMass": 34,
+                "phMass": 32,
+                "phCotiledon": 29
+            },
+            {
+                "temperatureMass": 35,
+                "phMass": 33,
+                "phCotiledon": 30
+            },
+            {
+                "temperatureMass": 32,
+                "phMass": 33,
+                "phCotiledon": 30
+            },
+            {
+                "temperatureMass": 31,
+                "phMass": 33,
+                "phCotiledon": 30
+            }
+        ]
     },
     {
-        "id": 4,
         "cocoaType": "Perfect!",
         "startDate": "2023-05-09T03:25:17.511Z",
         "genetics": "2023-05-09T04:25:17.511Z",
@@ -49,10 +209,59 @@
         "hoursDrained": 4,
         "nrFlips": 3,
         "totalDays": 3,
-        "codeBatch": "32867"
+        "codeBatch": "32867",
+        "flips": [
+            {
+                "type": "time",
+                "time": 4,
+                "temp": 33,
+                "ambient": 30,
+                "humidity": 3
+            },
+            {
+                "type": "time",
+                "time": 4,
+                "temp": 35,
+                "ambient": 34,
+                "humidity": 3
+            },
+            {
+                "type": "time",
+                "time": 4,
+                "temp": 34,
+                "ambient": 33,
+                "humidity": 3
+            }
+        ],
+        "dailyReports": [
+            {
+                "temperatureMass": 33,
+                "phMass": 33,
+                "phCotiledon": 30
+            },
+            {
+                "temperatureMass": 34,
+                "phMass": 32,
+                "phCotiledon": 29
+            },
+            {
+                "temperatureMass": 35,
+                "phMass": 33,
+                "phCotiledon": 30
+            },
+            {
+                "temperatureMass": 32,
+                "phMass": 33,
+                "phCotiledon": 30
+            },
+            {
+                "temperatureMass": 31,
+                "phMass": 33,
+                "phCotiledon": 30
+            }
+        ]
     },
     {
-        "id": 5,
         "cocoaType": "Perfect!",
         "startDate": "2023-05-09T03:25:17.511Z",
         "genetics": "2023-05-09T04:25:17.511Z",
@@ -62,10 +271,59 @@
         "hoursDrained": 4,
         "nrFlips": 3,
         "totalDays": 3,
-        "codeBatch": "28937"
+        "codeBatch": "28937",
+        "flips": [
+            {
+                "type": "time",
+                "time": 4,
+                "temp": 33,
+                "ambient": 30,
+                "humidity": 3
+            },
+            {
+                "type": "time",
+                "time": 4,
+                "temp": 35,
+                "ambient": 34,
+                "humidity": 3
+            },
+            {
+                "type": "time",
+                "time": 4,
+                "temp": 34,
+                "ambient": 33,
+                "humidity": 3
+            }
+        ],
+        "dailyReports": [
+            {
+                "temperatureMass": 33,
+                "phMass": 33,
+                "phCotiledon": 30
+            },
+            {
+                "temperatureMass": 34,
+                "phMass": 32,
+                "phCotiledon": 29
+            },
+            {
+                "temperatureMass": 35,
+                "phMass": 33,
+                "phCotiledon": 30
+            },
+            {
+                "temperatureMass": 32,
+                "phMass": 33,
+                "phCotiledon": 30
+            },
+            {
+                "temperatureMass": 31,
+                "phMass": 33,
+                "phCotiledon": 30
+            }
+        ]
     },
     {
-        "id": 6,
         "cocoaType": "Perfect!",
         "startDate": "2023-05-09T03:25:17.511Z",
         "genetics": "2023-05-09T04:25:17.511Z",
@@ -75,6 +333,73 @@
         "hoursDrained": 4,
         "nrFlips": 3,
         "totalDays": 3,
-        "codeBatch": "82322"
+        "codeBatch": "82322",
+        "flips": [
+            {
+                "type": "time",
+                "time": 4,
+                "temp": 33,
+                "ambient": 30,
+                "humidity": 3
+            },
+            {
+                "type": "time",
+                "time": 4,
+                "temp": 35,
+                "ambient": 34,
+                "humidity": 3
+            },
+            {
+                "type": "time",
+                "time": 4,
+                "temp": 34,
+                "ambient": 33,
+                "humidity": 3
+            },
+            {
+                "type": "time",
+                "time": 4,
+                "temp": 34,
+                "ambient": 33,
+                "humidity": 3
+            }
+        ],
+        "dailyReports": [
+            {
+                "temperatureMass": 33,
+                "phMass": 33,
+                "phCotiledon": 30
+            },
+            {
+                "temperatureMass": 34,
+                "phMass": 32,
+                "phCotiledon": 29
+            },
+            {
+                "temperatureMass": 35,
+                "phMass": 33,
+                "phCotiledon": 30
+            },
+            {
+                "temperatureMass": 32,
+                "phMass": 33,
+                "phCotiledon": 30
+            },
+            {
+                "temperatureMass": 31,
+                "phMass": 33,
+                "phCotiledon": 30
+            },
+            {
+                "temperatureMass": 31,
+                "phMass": 27,
+                "phCotiledon": 28
+            },
+            {
+                "temperatureMass": 31,
+                "phMass": 30,
+                "phCotiledon": 29
+            }
+        ]
     }
 ]

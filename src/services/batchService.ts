@@ -8,6 +8,7 @@ import {
 } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime';
 
+import { APP_CONSTANTS } from '@/utils/constants';
 import {
     DryingPhaseUpdate,
     FermentationPhaseUpdate,
@@ -15,6 +16,12 @@ import {
     SalesPhaseUpdate,
     StoragePhaseUpdate,
 } from '@/utils/types/batch';
+import ApiError from '@/utils/types/errors/ApiError';
+import {
+    DayReport,
+    DayReportUpdate,
+} from '@/utils/types/fermentation/DayReport';
+import { Flip, FlipUpdate } from '@/utils/types/fermentation/Flip';
 import {
     MonthlyOrganicSoldPrice,
     MonthlyProductionOfCacao,
@@ -31,13 +38,15 @@ import {
  * @param {boolean} sold Available/sold status.
  * @param {boolean} onlyInternational Wether to filter for internationaly sold only.
  * @param {string} department Optional to filter by department of batch producers.
+ * @param {string} association Optional to filter by association of batch producers.
  * @returns {Promise<Decimal>}
  */
 export const getSumKGOfCocoaBySoldStatus = async (
     year: number = new Date().getFullYear(),
     sold: boolean = false,
     onlyInternational: boolean = false,
-    department: string = ''
+    department: string = '',
+    association: string = ''
 ): Promise<Decimal | null> => {
     const startDate = new Date(year, 0, 1);
     const endDate = new Date(year + 1, 0, 1);
@@ -64,12 +73,29 @@ export const getSumKGOfCocoaBySoldStatus = async (
                 {
                     batch: {
                         pulpsUsed: {
-                            some: {
+                            every: {
                                 pulp: {
                                     producer: {
                                         department: {
                                             name: {
                                                 contains: department,
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                {
+                    batch: {
+                        pulpsUsed: {
+                            every: {
+                                pulp: {
+                                    producer: {
+                                        association: {
+                                            name: {
+                                                contains: association,
                                             },
                                         },
                                     },
@@ -210,15 +236,17 @@ export const getUSDPriceOfOrganicCocoa = async (
     reports.forEach((_element, index) => {
         const filteredBatches = batches.filter(
             (batch) =>
-                batch.sale.negotiationDate.getFullYear() === year &&
-                batch.sale.negotiationDate.getMonth() === index
+                batch?.sale?.negotiationDate?.getFullYear() === year &&
+                batch?.sale?.negotiationDate?.getMonth() === index
+        );
+        const sales = filteredBatches.reduce(
+            (prev, current) => prev + current?.sale?.totalValue,
+            0
         );
 
-        reports[index].organicSoldPrice =
-            filteredBatches.reduce(
-                (prev, current) => prev + current.sale.totalValue,
-                0
-            ) / filteredBatches.length;
+        reports[index].organicSoldPrice = sales
+            ? sales / filteredBatches.length
+            : 0;
     });
 
     return reports;
@@ -251,11 +279,11 @@ export const getSalesInKgByAssociation = async (
                 },
                 {
                     producers: {
-                        some: {
+                        every: {
                             producedPulps: {
-                                some: {
+                                every: {
                                     batchesUsedFor: {
-                                        some: {
+                                        every: {
                                             batch: onlyInternational
                                                 ? {
                                                       sale: {
@@ -359,11 +387,11 @@ export const getSalesInKgByDepartment = async (
                 { name: departmentName },
                 {
                     producers: {
-                        some: {
+                        every: {
                             producedPulps: {
-                                some: {
+                                every: {
                                     batchesUsedFor: {
-                                        some: {
+                                        every: {
                                             batch: onlyInternational
                                                 ? {
                                                       sale: {
@@ -461,9 +489,16 @@ export const getMonthlySalesInUSD = async (
         where: {
             AND: [
                 {
-                    // THIS NEEDS CHANGING!
-                    association: {
-                        name: associationName,
+                    pulpsUsed: {
+                        every: {
+                            pulp: {
+                                producer: {
+                                    association: {
+                                        name: associationName,
+                                    },
+                                },
+                            },
+                        },
                     },
                 },
                 {
@@ -666,7 +701,7 @@ export const getBatchesBySoldStatus = (
             AND: [
                 {
                     pulpsUsed: {
-                        some: {
+                        every: {
                             pulp: {
                                 producer: {
                                     association: {
@@ -691,11 +726,7 @@ export const getBatchesBySoldStatus = (
         include: {
             sale: true,
             storage: true,
-            fermentationPhase: {
-                include: {
-                    flips: true,
-                },
-            },
+            fermentationPhase: true,
             pulpsUsed: {
                 include: {
                     pulp: {
@@ -723,12 +754,7 @@ export const getBatchByCode = (code: string): Promise<Batch | null> => {
             sale: true,
             storage: true,
             dryingPhase: true,
-            fermentationPhase: {
-                include: {
-                    flips: true,
-                    dailyReports: true,
-                },
-            },
+            fermentationPhase: true,
             pulpsUsed: {
                 include: {
                     pulp: {
@@ -748,6 +774,21 @@ export const getBatchByCode = (code: string): Promise<Batch | null> => {
 
 /**
  *
+ * Checks if a batch with the given code exists.
+ *
+ * @param {string} code Batch Code to filter for.
+ * @returns {Promise<boolean>}
+ */
+export const checkBatchExistsByCode = async (
+    code: string
+): Promise<boolean> => {
+    const batch = await prisma.batch.findUnique({ where: { code } });
+
+    return batch !== null;
+};
+
+/**
+ *
  * Fetches the Fermentation Model of a Batch.
  *
  * @param {string} code Batch Code.
@@ -758,7 +799,6 @@ export const getBatchFermentationModelByCode = (
 ): Promise<FermentationPhase | null> => {
     return prisma.fermentationPhase.findUnique({
         where: { codeBatch: code },
-        include: { flips: true, dailyReports: true },
     });
 };
 
@@ -832,7 +872,7 @@ export const searchBatches = async ({
                 },
                 {
                     pulpsUsed: {
-                        some: {
+                        every: {
                             pulp: {
                                 producer: {
                                     [filterField]: {
@@ -869,11 +909,7 @@ export const searchBatches = async ({
         include: {
             sale: true,
             storage: true,
-            fermentationPhase: {
-                include: {
-                    flips: true,
-                },
-            },
+            fermentationPhase: true,
             pulpsUsed: {
                 include: {
                     pulp: {
@@ -900,7 +936,7 @@ export const searchBatches = async ({
                 },
                 {
                     pulpsUsed: {
-                        some: {
+                        every: {
                             pulp: {
                                 producer: {
                                     [filterField]: {
@@ -942,6 +978,82 @@ export const searchBatches = async ({
         totalPages: Math.ceil(count / limit),
         page: index,
     };
+};
+
+/**
+ *
+ * Adds a flip report to the fermentation phase of a batch.
+ *
+ * @param fermentationId Id of the fermentation phase.
+ * @param flip Flip Details.
+ * @returns {Promise<FermentationPhase>}
+ */
+export const addBatchFermentationFlip = async (
+    fermentationId: number,
+    flip: Flip
+): Promise<FermentationPhase> => {
+    const fermentationPhase = await prisma.fermentationPhase.findUnique({
+        where: { id: fermentationId },
+        select: { flips: true },
+    });
+
+    const flips: Flip[] = fermentationPhase.flips.map((jsonFlip) => {
+        return {
+            type: jsonFlip['type'],
+            time: jsonFlip['time'],
+            temp: jsonFlip['temp'],
+            ambient: jsonFlip['ambient'],
+            humidity: jsonFlip['humidity'],
+        };
+    });
+
+    flips.push(flip);
+
+    flips.sort((a, b) => a.time - b.time);
+
+    return prisma.fermentationPhase.update({
+        where: { id: fermentationId },
+        data: {
+            flips,
+        },
+    });
+};
+
+/**
+ *
+ * Adds a day report to the fermentation phase of a batch.
+ *
+ * @param fermentationId Id of the fermentation phase.
+ * @param flip Day Report Details.
+ * @returns {Promise<FermentationPhase>}
+ */
+export const addBatchFermentationDayReport = async (
+    fermentationId: number,
+    dayReport: DayReport
+) => {
+    const fermentationPhase = await prisma.fermentationPhase.findUnique({
+        where: { id: fermentationId },
+        select: { dailyReports: true },
+    });
+
+    const dailyReports: DayReport[] = fermentationPhase.dailyReports.map(
+        (jsonDailyReport) => {
+            return {
+                temperatureMass: jsonDailyReport['temperatureMass'],
+                phMass: jsonDailyReport['phMass'],
+                phCotiledon: jsonDailyReport['phCotiledon'],
+            };
+        }
+    );
+
+    dailyReports.push(dayReport);
+
+    return prisma.fermentationPhase.update({
+        where: { id: fermentationId },
+        data: {
+            dailyReports,
+        },
+    });
 };
 
 /**
@@ -1014,4 +1126,183 @@ export const updateBatchFermentationPhase = async (
         where: { id },
         data: fermentationPhase,
     });
+};
+
+/**
+ *
+ * Updates the details of a batch fermentation phase flip.
+ *
+ * @param fermentationId Id of the Fermentation Phase.
+ * @param flipIndex Index of the Flip.
+ * @param flip New Flip Details.
+ * @returns {Promise<FermentationPhase>}
+ */
+export const updateBatchFermentationFlip = async (
+    fermentationId: number,
+    flipIndex: number,
+    flip: FlipUpdate
+): Promise<FermentationPhase> => {
+    const fermentationPhase = await prisma.fermentationPhase.findUnique({
+        where: {
+            id: fermentationId,
+        },
+    });
+
+    const flips: Flip[] = fermentationPhase.flips.map((jsonFlip) => {
+        return {
+            type: jsonFlip['type'],
+            time: jsonFlip['time'],
+            temp: jsonFlip['temp'],
+            ambient: jsonFlip['ambient'],
+            humidity: jsonFlip['humidity'],
+        };
+    });
+
+    if (!flips[flipIndex]) {
+        throw new ApiError(
+            404,
+            APP_CONSTANTS.RESPONSE.FERMENTATION.FLIP.NOT_FOUND
+        );
+    }
+
+    flips[flipIndex] = {
+        ...flips[flipIndex],
+        ...flip,
+    };
+
+    return await prisma.fermentationPhase.update({
+        where: { id: fermentationId },
+        data: {
+            flips,
+        },
+    });
+};
+
+/**
+ *
+ * Updates the details of a batch fermentation phase day report.
+ *
+ * @param fermentationId Id of the Fermentation Phase.
+ * @param dayIndex Index of the day.
+ * @param dayReport New Day Report Details.
+ * @returns {Promise<FermentationPhase>}
+ */
+export const updateBatchFermentationDayReport = async (
+    fermentationId: number,
+    dayIndex: number,
+    dayReport: DayReportUpdate
+): Promise<FermentationPhase> => {
+    const fermentationPhase = await prisma.fermentationPhase.findUnique({
+        where: {
+            id: fermentationId,
+        },
+    });
+
+    const dailyReports: DayReport[] = fermentationPhase.dailyReports.map(
+        (jsonDayReport) => {
+            return {
+                day: jsonDayReport['day'],
+                temperatureMass: jsonDayReport['temperatureMass'],
+                phMass: jsonDayReport['phMass'],
+                phCotiledon: jsonDayReport['phCotiledon'],
+            };
+        }
+    );
+
+    if (!dailyReports[dayIndex]) {
+        throw new ApiError(
+            404,
+            APP_CONSTANTS.RESPONSE.FERMENTATION.DAY_REPORT.NOT_FOUND
+        );
+    }
+
+    dailyReports[dayIndex] = {
+        ...dailyReports[dayIndex],
+        ...dayReport,
+    };
+
+    return await prisma.fermentationPhase.update({
+        where: { id: fermentationId },
+        data: {
+            dailyReports,
+        },
+    });
+};
+
+/**
+ *
+ * Removes a set of flip details from the fermentaion phase of a batch.
+ *
+ * @param fermentationId Id of the Fermentation Phase.
+ * @param flipIndex Index of the Flip.
+ * @returns {Promise<FermentationPhase>}
+ */
+export const removeBatchFermentationFlip = async (
+    fermentationId: number,
+    flipIndex: number
+): Promise<FermentationPhase> => {
+    const { flips } = await prisma.fermentationPhase.findUnique({
+        where: {
+            id: fermentationId,
+        },
+        select: {
+            flips: true,
+        },
+    });
+
+    if (flips[flipIndex]) {
+        flips.splice(flipIndex, 1);
+        return await prisma.fermentationPhase.update({
+            where: {
+                id: fermentationId,
+            },
+            data: {
+                flips,
+            },
+        });
+    } else {
+        throw new ApiError(
+            404,
+            APP_CONSTANTS.RESPONSE.FERMENTATION.FLIP.NOT_FOUND
+        );
+    }
+};
+
+/**
+ *
+ * Removes a set of day report details from the fermentaion phase of a batch.
+ *
+ * @param fermentationId Id of the Fermentation Phase.
+ * @param dayIndex Index of the Day.
+ * @returns {Promise<FermentationPhase>}
+ */
+export const removeBatchFermentationDayReport = async (
+    fermentationId: number,
+    dayIndex: number
+): Promise<FermentationPhase> => {
+    const { dailyReports } = await prisma.fermentationPhase.findUnique({
+        where: {
+            id: fermentationId,
+        },
+        select: {
+            dailyReports: true,
+        },
+    });
+
+    if (dailyReports[dayIndex]) {
+        dailyReports.splice(dayIndex, 1);
+        return await prisma.fermentationPhase.update({
+            where: {
+                id: fermentationId,
+            },
+            data: {
+                dailyReports,
+            },
+        });
+    } else {
+        throw new ApiError(
+            404,
+            APP_CONSTANTS.RESPONSE.FERMENTATION.DAY_REPORT.NOT_FOUND
+        );
+    }
 };

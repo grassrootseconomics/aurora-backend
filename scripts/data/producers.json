@@ -1,6 +1,5 @@
 [
     {
-        "id": 1,
         "code": "27321",
         "firstName": "Mary",
         "lastName": "Ann",
@@ -21,7 +20,6 @@
         "wildlife": "panthers"
     },
     {
-        "id": 2,
         "code": "74382",
         "firstName": "Jane",
         "lastName": "Ann",
@@ -42,7 +40,6 @@
         "wildlife": "panthers"
     },
     {
-        "id": 3,
         "code": "10292",
         "firstName": "John",
         "lastName": "Watson",
@@ -63,7 +60,6 @@
         "wildlife": "panthers"
     },
     {
-        "id": 4,
         "code": "92832",
         "firstName": "Rickard",
         "lastName": "Holmes",

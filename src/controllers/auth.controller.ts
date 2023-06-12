@@ -1,14 +1,19 @@
 import { NextFunction, Request, Response, Router } from 'express';
 
 import asyncMiddleware from '@/middleware/asyncMiddleware';
+import extractJWT from '@/middleware/extractJWT';
+import requiresAuth from '@/middleware/guards/requiresAuth';
+import requiresRoles from '@/middleware/guards/requiresRole';
 
 import {
     getAccessToken,
+    getAssociationOfUserProducerByWallet,
     getNonce,
     getRefreshToken,
 } from '@/services/authService';
 
 import ApiError from '@/utils/types/errors/ApiError';
+import { JWTToken } from '@/utils/types/server';
 
 const router = Router();
 
@@ -92,6 +97,28 @@ router.get(
         } else {
             return next(new ApiError(500, 'Internal Server Error'));
         }
+    })
+);
+
+router.get(
+    '/association',
+    extractJWT,
+    requiresAuth,
+    requiresRoles(['association']),
+    asyncMiddleware(async (_req: Request, res: Response) => {
+        const token: JWTToken = res.locals.jwt;
+
+        const association = await getAssociationOfUserProducerByWallet(
+            token.address
+        );
+
+        return res.status(200).json({
+            succes: true,
+            message: 'Successfully fetched User Association!',
+            data: {
+                association,
+            },
+        });
     })
 );
 

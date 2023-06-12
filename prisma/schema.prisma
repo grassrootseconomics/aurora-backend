@@ -20,6 +20,7 @@ model User {
   id            Int     @id @default(autoincrement())
   username      String?
   walletAddress String  @unique
+  emailAddress  String?
   role          Role    @relation(fields: [idRole], references: [id])
   idRole        Int     @default(1)
   nonces        Nonce?
@@ -77,11 +78,11 @@ model Association {
   name           String     @unique
   creationDate   DateTime
   description    String
+  emailAddress   String?
   nrOfAssociates Int
   fbSocialLink   String?
   instSocialLink String?
   producers      Producer[]
-  batches        Batch[]
 }
 
 // Departments or Counties of Associations
@@ -97,9 +98,6 @@ model Department {
 model Batch {
   id   Int    @id @default(autoincrement())
   code String @unique
-
-  idAssociation Int
-  association   Association @relation(fields: [idAssociation], references: [id])
 
   sale              Sale?
   storage           Storage?
@@ -165,36 +163,11 @@ model FermentationPhase {
   nrFlips      Decimal
   totalDays    Decimal
 
-  codeBatch    String                  @unique
-  batch        Batch                   @relation(fields: [codeBatch], references: [code])
-  flips        FermentationFlip[]
-  dailyReports FermentationDayReport[]
-}
+  codeBatch String @unique
+  batch     Batch  @relation(fields: [codeBatch], references: [code])
 
-// A fermentation flip or day of the fermentation process.
-model FermentationFlip {
-  id Int @id @default(autoincrement())
-
-  index    Int
-  type     String
-  time     Int
-  temp     Decimal
-  ambient  Decimal
-  humidity Decimal
-
-  idFermentationPhase Int
-  fermentationPhase   FermentationPhase @relation(fields: [idFermentationPhase], references: [id])
-}
-
-model FermentationDayReport {
-  id              Int     @id @default(autoincrement())
-  day             Int
-  temperatureMass Decimal
-  phMass          Decimal
-  phCotiledon     Decimal
-
-  idFermentationPhase Int
-  fermentationPhase   FermentationPhase @relation(fields: [idFermentationPhase], references: [id])
+  flips        Json[]
+  dailyReports Json[]
 }
 
 model Pulp {
@@ -217,8 +190,8 @@ model Pulp {
 model PulpBatch {
   id        Int    @id @default(autoincrement())
   codeBatch String
-  batch     Batch  @relation(fields: [codeBatch], references: [code])
+  batch     Batch  @relation(fields: [codeBatch], references: [code], onDelete: Cascade)
 
   idPulp Int
-  pulp   Pulp @relation(fields: [idPulp], references: [id])
+  pulp   Pulp @relation(fields: [idPulp], references: [id], onDelete: Cascade)
 }

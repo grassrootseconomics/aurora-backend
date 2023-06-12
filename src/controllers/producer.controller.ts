@@ -9,6 +9,7 @@ import requiresRoles from '@/middleware/guards/requiresRole';
 import validate from '@/middleware/validate';
 
 import { getAssociationById } from '@/services/associationService';
+import { getAssociationNameOfProducerByUserWallet } from '@/services/authService';
 import { getBatchesByPulpIds } from '@/services/batchService';
 import { getDepartmentById } from '@/services/departmentService';
 import {
@@ -57,14 +58,10 @@ router.get(
 
         let association: string | undefined = req.query.association?.toString();
         // Only users with the project role can filter by associations.
-        if (token.role === 'association') association = undefined;
-
-        const statistics: ProducersStatistics = {
-            nrCocoaProducers: 0,
-            nrYoungMen: 0,
-            nrWomen: 0,
-            haForestConservation: 0,
-        };
+        if (token.role === 'association')
+            association = await getAssociationNameOfProducerByUserWallet(
+                token.address
+            );
 
         const searchProducersResult = await searchProducers({
             search,
@@ -76,14 +73,33 @@ router.get(
 
         const producers = await getAllProducers({ association });
 
-        statistics.nrYoungMen = producers.filter(
-            (producer) =>
-                producer.gender.toLowerCase() === 'male' &&
-                new Date().getFullYear() - producer.birthYear < 30
-        ).length;
-        statistics.nrWomen = producers.filter(
-            (producer) => producer.gender === 'female'
-        ).length;
+        let nrMen = 0;
+        let nrYoungMen = 0;
+        let nrWomen = 0;
+        let haCocoa = 0;
+        let haForestConservation = 0;
+        producers.forEach((producer) => {
+            haCocoa += producer.nrCocoaHa.toNumber();
+            haForestConservation += producer.nrForestHa.toNumber();
+            if (producer.gender === 'female') {
+                nrWomen++;
+            } else {
+                if (
+                    producer.gender.toLowerCase() === 'male' &&
+                    new Date().getFullYear() - producer.birthYear < 30
+                )
+                    nrYoungMen++;
+                nrMen++;
+            }
+        });
+        const statistics: ProducersStatistics = {
+            nrMen,
+            nrWomen,
+            nrYoungMen,
+            haCocoa,
+            haForestConservation,
+            nrCocoaProducers: producers.length,
+        };
 
         return res.status(200).json({
             success: true,
@@ -126,7 +142,7 @@ router.get(
     '/:code/batches',
     extractJWT,
     requiresAuth,
-    requiresRoles(['project', 'association']),
+    requiresRoles(['association']),
     asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
         const { code } = req.params;
 
@@ -189,7 +205,7 @@ router.patch(
     `/:code`,
     extractJWT,
     requiresAuth,
-    requiresRoles(['project', 'association']),
+    requiresRoles(['association']),
     validate(updateProducerSchema),
     asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
         const { code } = req.params;
@@ -242,7 +258,7 @@ router.delete(
     `/:codeProducer/batches/:codeBatch`,
     extractJWT,
     requiresAuth,
-    requiresRoles(['project', 'association']),
+    requiresRoles(['association']),
     validate(changeProducerFromBatch),
     asyncMiddleware(async (req: Request, res: Response) => {
         const { codeProducer, codeBatch } = req.params;

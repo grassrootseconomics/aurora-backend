@@ -25,9 +25,16 @@ const ACCESS_TOKEN_ISSUER: string =
 
 const ODK_API_URL: string = process.env.ODK_API_URL || '';
 const ODK_PROJECT_ID: string = process.env.ODK_PROJECT_ID || '';
+const SMTP_KEY: string = process.env.SMTP_KEY || undefined;
+const SMTP_ACCOUNT: string = process.env.SMTP_ACCOUNT || undefined;
 
 const DB = {
     CONNECTION_URL,
+};
+
+const SMTP = {
+    KEY: SMTP_KEY,
+    ACCOUNT: SMTP_ACCOUNT,
 };
 
 const SERVER = {
@@ -49,4 +56,4 @@ const ODK = {
     PROJECT_ID: ODK_PROJECT_ID,
 };
 
-export { SERVER, DB, ODK };
+export { SERVER, DB, SMTP, ODK };

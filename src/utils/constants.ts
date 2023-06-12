@@ -6,8 +6,36 @@ export const APP_CONSTANTS = {
         },
         BATCH: {
             MISSING_CODE: 'Missing Code.',
+            NOT_FOUND: 'Batch with given code does not exist!',
             UPDATE_SUCCESS: 'Values Updated Successfully!',
             FETCH_SUCCESS: 'Successfully fetched the batches!',
+        },
+        PULP: {
+            INVALID_ID: 'Pulp Id is invalid!',
+            SAVE: {
+                SUCCESS: 'Successfully saved pulp!',
+            },
+            UPDATE: {
+                SUCCESS: 'Successfully updated pulp!',
+                MISSING_VALUES: 'Missing Update Details!',
+            },
+            DELETE: {
+                SUCCESS: 'Successfully removed pulp!',
+            },
+        },
+        FERMENTATION: {
+            INVALID_ID: 'Fermentation Phase Id is invalid!',
+            UPDATE_SUCCESS: 'Successfully updated fermentation detail!',
+            FLIP: {
+                SAVE_SUCCESS: 'Flip added successfully.',
+                INVALID_INDEX: 'Index for Flip is invalid!',
+                NOT_FOUND: 'Day Report does not exist!',
+            },
+            DAY_REPORT: {
+                SAVE_SUCCESS: 'Daily Report added successfully.',
+                INVALID_INDEX: 'Index for Day is invalid!',
+                NOT_FOUND: 'Day Report does not exist!',
+            },
         },
         STORAGE: {
             INVALID_ID: 'Storage Phase Id is invalid!',
@@ -20,6 +48,7 @@ export const APP_CONSTANTS = {
         },
         PRODUCER: {
             MISSING_CODE: 'Missing Code.',
+            NOT_FOUND: 'Producer with given code does not exist!',
             UPDATE_SUCCESS: 'Producer Updated Successfully!',
             LINK_BATCH_EXISTS: 'Producer is already linked to this Batch!',
             FAILED_BATCH_CHANGE: 'Could not update Batches!',
@@ -33,9 +62,6 @@ export const APP_CONSTANTS = {
         DEPARTMENT: {
             FETCH_SUCCESS: 'Successfully Fetched Department Data!',
             NOT_FOUND: 'Department Does Not Exist!',
-        },
-        FLIPS: {
-            SAVE_SUCCESS: 'Flip added successfully.',
         },
     },
 };

@@ -1,6 +1,6 @@
 import { SERVER } from '@/config';
 import { prisma } from '@/db';
-import { Nonce, User } from '@prisma/client';
+import { Association, Nonce, User } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 import { recoverMessageAddress } from 'viem';
 
@@ -156,4 +156,65 @@ export const getAccessToken = async (refreshToken: string): Promise<string> => {
         decoded['name'],
         decoded['role']
     );
+};
+
+/**
+ * Fetch a user by its wallet address.
+ *
+ * @param {string} address User Wallet Address
+ * @returns {Promise<User>}
+ */
+export const getUserByWalletAddress = async (
+    address: string
+): Promise<User> => {
+    return prisma.user.findUnique({
+        where: {
+            walletAddress: address,
+        },
+    });
+};
+
+/**
+ *
+ * Fetch a user's association by its wallet address.
+ *
+ * @param {string} address User Wallet Address.
+ * @returns {Promise<Association | null>}
+ */
+export const getAssociationOfUserProducerByWallet = async (
+    address: string
+): Promise<Association | null> => {
+    const user = await prisma.user.findUnique({
+        where: {
+            walletAddress: address,
+        },
+        include: {
+            producerDetails: {
+                include: {
+                    association: true,
+                },
+            },
+        },
+    });
+
+    return user
+        ? user.producerDetails
+            ? user.producerDetails.association
+            : null
+        : null;
+};
+
+/**
+ *
+ * Fetch a user's association name.
+ *
+ * @param {string} address Wallet Address of the User.
+ * @returns {Promise<string | undefined>}
+ */
+export const getAssociationNameOfProducerByUserWallet = async (
+    address: string
+): Promise<string | undefined> => {
+    const association = await getAssociationOfUserProducerByWallet(address);
+
+    return association?.name;
 };

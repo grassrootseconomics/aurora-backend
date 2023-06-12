@@ -2,7 +2,7 @@ import { prisma } from '@/db';
 import { Producer } from '@prisma/client';
 
 import { ISearchProducerParams, ProducerUpdate } from '@/utils/types/producer';
-import { ISearchParameters, ISearchResult } from '@/utils/types/server';
+import { ISearchResult } from '@/utils/types/server';
 
 /**
  *
@@ -71,6 +71,21 @@ export const getProducersWithBatchData = () => {
  */
 export const getProducerByCode = (code: string): Promise<Producer | null> => {
     return prisma.producer.findUnique({ where: { code } });
+};
+
+/**
+ *
+ * Checks if a producer with the given code exists.
+ *
+ * @param {string} code Producer Code to filter for.
+ * @returns {Promise<boolean>}
+ */
+export const checkProducerExistsByCode = async (
+    code: string
+): Promise<boolean> => {
+    const producer = await prisma.producer.findUnique({ where: { code } });
+
+    return producer !== null;
 };
 
 /**
@@ -274,9 +289,3 @@ export const linkProducerToBatch = async (
 
     return result.count > 0;
 };
-
-// export const getProducerStatistics = async (): Promise<ProducersStatistics> => {
-//     const producers = await prisma.producer.findMany();
-
-//     return statistics
-// };

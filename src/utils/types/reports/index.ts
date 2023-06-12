@@ -15,6 +15,8 @@ export type ProducersStatistics = {
     nrCocoaProducers: number;
     nrYoungMen?: number;
     nrWomen?: number;
+    nrMen?: number;
+    haCocoa?: number;
     haForestConservation: number;
 };
 

@@ -1,6 +1,5 @@
 [
     {
-        "id": 1,
         "codeProducer": "27321",
         "collectionDate": "2023-05-15T06:53:21.961Z",
         "quality": "healthy",
@@ -11,7 +10,6 @@
         "totalPrice": "10"
     },
     {
-        "id": 2,
         "codeProducer": "74382",
         "collectionDate": "2023-05-15T06:53:21.961Z",
         "quality": "healthy",
@@ -22,7 +20,6 @@
         "totalPrice": "10"
     },
     {
-        "id": 3,
         "codeProducer": "27321",
         "collectionDate": "2023-05-15T06:53:21.961Z",
         "quality": "healthy",
@@ -33,7 +30,6 @@
         "totalPrice": "10"
     },
     {
-        "id": 4,
         "codeProducer": "10292",
         "collectionDate": "2023-05-15T06:53:21.961Z",
         "quality": "healthy",
@@ -44,7 +40,6 @@
         "totalPrice": "10"
     },
     {
-        "id": 5,
         "codeProducer": "92832",
         "collectionDate": "2023-05-15T06:53:21.961Z",
         "quality": "healthy",
@@ -55,7 +50,6 @@
         "totalPrice": "10"
     },
     {
-        "id": 6,
         "codeProducer": "92832",
         "collectionDate": "2023-05-15T06:53:21.961Z",
         "quality": "healthy",
