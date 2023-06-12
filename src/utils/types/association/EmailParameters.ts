@@ -4,4 +4,5 @@ export type EmailParameters = {
     name: string;
     contactNumber: string;
     email: string;
+    message: string;
 };

@@ -43,7 +43,9 @@ export const getBatchRequestUserEmails = async (
             emailAddress: true,
         },
     });
+
     return userProjectEmails
         .concat(associationEmail)
-        .map((emailAccount) => emailAccount.emailAddress);
+        .map((emailAccount) => emailAccount.emailAddress)
+        .filter((email) => email !== null);
 };

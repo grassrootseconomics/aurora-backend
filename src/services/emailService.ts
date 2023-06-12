@@ -3,7 +3,7 @@ import { EmailParameters } from '@/utils/types/association/EmailParameters';
 
 export const sendBatchRequestEmails = (
     userEmails: string[],
-    { country, city, name, contactNumber, email }: EmailParameters,
+    { country, city, name, contactNumber, email, message }: EmailParameters,
     batchCode: string
 ) => {
     const subject = `New Batch ${batchCode} Request`;
@@ -11,6 +11,10 @@ export const sendBatchRequestEmails = (
     <h2 style="color: #fff; font-size: 32px; margin-top: 0"> Batch Request </h2>
     <p style="color: #fff; font-size: 18px;">
         New request for cacao batch ${batchCode} from a user on the Aurora Platform:
+        <br>
+        <div style="width: 50%;color: white;padding: 5px;background-color: #75360f;">
+            <i>"${message ?? ''}"</i>
+        </div>
         <br>
             <p style="color:white;"><b>Name: </b>${name}</p>
         <br>
@@ -22,6 +26,7 @@ export const sendBatchRequestEmails = (
         <br>
             <p style="color:white;"><b>City: </b>${city}</p>
         <br>
+            <p style="color:white;"><b>City: </b>${city}</p>
     </p>
   </div>
   `;
