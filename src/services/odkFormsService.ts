@@ -1,17 +1,33 @@
 import { ODK } from '@/config';
 import { prisma } from '@/db';
 import { odkAPI } from '@/plugins/axios';
-import { DryingPhase, Prisma, Producer, Pulp, Storage } from '@prisma/client';
+import {
+    DryingPhase,
+    FermentationPhase,
+    Prisma,
+    Producer,
+    Pulp,
+    Sale,
+    Storage,
+} from '@prisma/client';
 import { AxiosResponse } from 'axios';
 import JSZip from 'jszip';
 
+import { groupArrayOfObjectsByProp } from '@/utils/methods/arrays';
 import { stringIsValidDate } from '@/utils/methods/date';
 import { convertStringToDate } from '@/utils/methods/dates';
-import { convertStringToDecimal } from '@/utils/methods/numbers';
+import {
+    convertStringToDecimal,
+    convertStringToNumber,
+} from '@/utils/methods/numbers';
 import {
     parseCollectionFormSubmissions,
     parseDryingFormSubmissions,
+    parseFermentationFormSubmissions,
+    parseFermentationPHFormSubmissions,
+    parseFermentationVolteoFormSubmissions,
     parseProductionFormSubmissions,
+    parseSalesFormSubmissions,
     parseStorageFormSubmissions,
 } from '@/utils/methods/odkParsers';
 import { AuroraFormID } from '@/utils/types/odk/forms';
@@ -203,7 +219,159 @@ export const seedCollectionFormData = async () => {
  * Seeds Fermentation Phase Information from the Fermentation Submission Form
  */
 export const seedFermentationFormData = async () => {
-    console.log('Fermentation Phase Sync not yet implemented');
+    const csvFiles = await getODKFormSubmissionCSVFileContents(
+        'C-Fermentación'
+    );
+
+    const entries = parseFermentationFormSubmissions(csvFiles[0]);
+
+    for (let i = 0; i < entries.length; i++) {
+        if (!entries[i].batch_code) continue;
+        const batch = await prisma.batch.findUnique({
+            where: {
+                code: entries[i].batch_code,
+            },
+            include: {
+                fermentationPhase: true,
+            },
+        });
+        // Check if this batch exists or if fermentation was seeded for this batch.
+        if (!batch || batch.fermentationPhase) continue;
+
+        const fermentationPhaseEntries: Omit<FermentationPhase, 'id'> = {
+            cocoaType: entries[i].cacao_type,
+            startDate: convertStringToDate(entries[i].ferm_start_date),
+            genetics: entries[i].genetics,
+            weight: convertStringToDecimal(entries[i].batch_weight),
+            brixDegrees: convertStringToDecimal(entries[i].brix_degrees),
+            humidity: convertStringToDecimal(entries[i].flip_humidity),
+            hoursDrained: convertStringToDecimal(entries[i].hours_drained),
+            nrFlips: new Prisma.Decimal(0),
+            totalDays: new Prisma.Decimal(0),
+            codeBatch: entries[i].batch_code,
+            flips: [],
+            dailyReports: [],
+        };
+
+        await prisma.fermentationPhase.create({
+            data: fermentationPhaseEntries,
+        });
+    }
+};
+
+/**
+ * Adds Fermentation Daily Reports from the Fermentation PH Submission Form
+ */
+export const seedFermentationPHFormData = async () => {
+    const csvFiles = await getODKFormSubmissionCSVFileContents(
+        'C-Fermentación-PH'
+    );
+    const entries = parseFermentationPHFormSubmissions(csvFiles[0]);
+    const batchEntries = groupArrayOfObjectsByProp(entries, 'batch_code');
+    const batchKeys = Object.keys(batchEntries);
+    const seededReports = [];
+    for (let index = 0; index < batchKeys.length; index++) {
+        const batch = await prisma.batch.findUnique({
+            where: {
+                code: batchKeys[index],
+            },
+            include: {
+                fermentationPhase: true,
+            },
+        });
+        // Check if this batch exists or if drying phase was seeded for this batch.
+        if (
+            !batch ||
+            !batch.fermentationPhase ||
+            batch.fermentationPhase.dailyReports.length > 0
+        )
+            continue;
+        const reports = batchEntries[batchKeys[index]].sort((a, b) => {
+            return (
+                new Date(a.meassure_time).getTime() -
+                new Date(b.meassure_time).getTime()
+            );
+        });
+
+        const result = await prisma.fermentationPhase.update({
+            where: {
+                codeBatch: batchKeys[index],
+            },
+            data: {
+                dailyReports: reports.map((report) => {
+                    return {
+                        temperatureMass: convertStringToNumber(
+                            report.mass_temperature
+                        ),
+                        phMass: convertStringToNumber(report.mass),
+                        phCotiledon: convertStringToNumber(report.ph_cotiledom),
+                    };
+                }),
+            },
+        });
+
+        seededReports.push(result);
+    }
+    return seededReports;
+};
+
+/**
+ * Adds Fermentation Flips from the Fermentation Volteo Submission Form
+ */
+export const seedFermentationFlipsFormData = async () => {
+    const csvFiles = await getODKFormSubmissionCSVFileContents(
+        'C-Fermentación-Volteo'
+    );
+    const entries = parseFermentationVolteoFormSubmissions(csvFiles[0]);
+    const batchEntries = groupArrayOfObjectsByProp(entries, 'batch_code');
+    const batchKeys = Object.keys(batchEntries);
+
+    const seededFlips = [];
+
+    for (let index = 0; index < batchKeys.length; index++) {
+        const batch = await prisma.batch.findUnique({
+            where: {
+                code: batchKeys[index],
+            },
+            include: {
+                fermentationPhase: true,
+            },
+        });
+        // Check if this batch exists or if drying phase was seeded for this batch.
+        if (
+            !batch ||
+            !batch.fermentationPhase ||
+            batch.fermentationPhase.flips.length > 0
+        )
+            continue;
+        const flips = batchEntries[batchKeys[index]].sort((a, b) => {
+            return (
+                new Date(a.flip_time).getTime() -
+                new Date(b.flip_time).getTime()
+            );
+        });
+
+        const result = await prisma.fermentationPhase.update({
+            where: {
+                codeBatch: batchKeys[index],
+            },
+            data: {
+                flips: flips.map((flip) => {
+                    return {
+                        type: 'time',
+                        time: convertStringToNumber(flip.flip_time),
+                        temp: convertStringToNumber(flip.flip_temp),
+                        ambient: convertStringToNumber(flip.flip_ambient),
+                        humidity: convertStringToNumber(flip.flip_humidity),
+                    };
+                }),
+            },
+        });
+
+        seededFlips.push(result);
+    }
+
+    return seededFlips;
 };
 
 /**
@@ -223,7 +391,7 @@ export const seedDryingFormData = async () => {
                 dryingPhase: true,
             },
         });
-        // Check if this batch exists or if storage was seeded for this batch.
+        // Check if this batch exists or if drying phase was seeded for this batch.
         if (!batch || batch.dryingPhase) continue;
 
         const dryingPhaseData: Omit<DryingPhase, 'id'> = {
@@ -289,5 +457,42 @@ export const seedStorageFormData = async () => {
  * Seeds Sales Phase Information from the Sales Submission Form
  */
 export const seedSalesFormData = async () => {
-    console.log('Sales Sync not yet implemented');
+    const csvFiles = await getODKFormSubmissionCSVFileContents('F-Ventas');
+
+    const entries = parseSalesFormSubmissions(csvFiles[0]);
+
+    for (let i = 0; i < entries.length; i++) {
+        if (!entries[i].batch_code) continue;
+        const batch = await prisma.batch.findUnique({
+            where: {
+                code: entries[i].batch_code,
+            },
+            include: {
+                sale: true,
+            },
+        });
+
+        // Check if this batch exists or if storage was seeded for this batch.
+        if (!batch || batch.sale) continue;
+
+        const pricePerKg = parseInt(entries[i].val_kg);
+        const totalValue = parseInt(entries[i].batch_total_price);
+
+        const storageData: Omit<Sale, 'id'> = {
+            buyer: entries[i].buyer,
+            lotCode: entries[i].lot_code,
+            negotiation: entries[i].nego_type,
+            negotiationTerm: entries[i].nego_term,
+            negotiationDate: convertStringToDate(entries[i].nego_date),
+            destination: entries[i].dest_country,
+            currency: entries[i].currency,
+            pricePerKg: isNaN(pricePerKg) ? 0 : pricePerKg,
+            totalValue: isNaN(totalValue) ? 0 : totalValue,
+            codeBatch: entries[i].batch_code,
+        };
+
+        await prisma.sale.create({
+            data: storageData,
+        });
+    }
 };

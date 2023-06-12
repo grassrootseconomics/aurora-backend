@@ -22,7 +22,7 @@ router.get(
         async (_req: Request, res: Response, next: NextFunction) => {
             const response: AxiosResponse<ArrayBuffer> =
                 await axios.get<ArrayBuffer>(
-                    'http://localhost:8383/v1/projects/1/forms/B-Recolección/submissions.csv.zip?attachments=false&groupPaths=true&deletedFields=false&splitSelectMultiples=true&filter=',
+                    'http://localhost:8383/v1/projects/1/forms/C-Fermentación-Volteo/submissions.csv.zip?attachments=false&groupPaths=true&deletedFields=false&splitSelectMultiples=true&filter=',
                     {
                         responseType: 'arraybuffer',
                     }

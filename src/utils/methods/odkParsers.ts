@@ -2,6 +2,8 @@ import {
     AuroraAProductorForm,
     AuroraBColeccionForm,
     AuroraCFermentacionForm,
+    AuroraCFermentacionFormPH,
+    AuroraCFermentacionFormVolteo,
     AuroraDSecadoForm,
     AuroraEAlmacenamientoForm,
     AuroraFVentasForm,
@@ -20,10 +22,22 @@ export const parseCollectionFormSubmissions = (
     return csvToJSONArray(csvFile) as AuroraBColeccionForm[];
 };
 
-export const parseFermentationFormValues = (
+export const parseFermentationFormSubmissions = (
     csvFile: string
 ): AuroraCFermentacionForm[] => {
     return csvToJSONArray(csvFile) as AuroraCFermentacionForm[];
+};
+
+export const parseFermentationPHFormSubmissions = (
+    csvFile: string
+): AuroraCFermentacionFormPH[] => {
+    return csvToJSONArray(csvFile) as AuroraCFermentacionFormPH[];
+};
+
+export const parseFermentationVolteoFormSubmissions = (
+    csvFile: string
+): AuroraCFermentacionFormVolteo[] => {
+    return csvToJSONArray(csvFile) as AuroraCFermentacionFormVolteo[];
 };
 
 export const parseDryingFormSubmissions = (

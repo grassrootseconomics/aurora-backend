@@ -2,6 +2,8 @@ import {
     AuroraAProductorFormEntries,
     AuroraBColeccionFormEntries,
     AuroraCFermentacionFormEntries,
+    AuroraCFermentacionPHFormEntries,
+    AuroraCFermentacionVolteoFormEntries,
     AuroraDSecadoFormEntries,
     AuroraEAlmacenamientoFormEntries,
     AuroraFVentasFormEntries,
@@ -20,6 +22,14 @@ export type AuroraBColeccionForm = Record<
 
 export type AuroraCFermentacionForm = Record<
     (typeof AuroraCFermentacionFormEntries)[number],
+    string
+>;
+export type AuroraCFermentacionFormPH = Record<
+    (typeof AuroraCFermentacionPHFormEntries)[number],
+    string
+>;
+export type AuroraCFermentacionFormVolteo = Record<
+    (typeof AuroraCFermentacionVolteoFormEntries)[number],
     string
 >;
 

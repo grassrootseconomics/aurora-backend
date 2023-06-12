@@ -16,3 +16,17 @@ export const convertStringToDecimal = (str: string): Prisma.Decimal => {
         return new Prisma.Decimal(num);
     }
 };
+
+/**
+ * Converts and checks for isNaN.
+ *
+ * If the converted string is NaN, it returns 0 instead.
+ *
+ * @param {string} str Strigified Version of Number.
+ * @returns {number} Parsed Number;
+ */
+export const convertStringToNumber = (str: string): number => {
+    const int = parseFloat(str);
+
+    return isNaN(int) ? 0 : int;
+};
