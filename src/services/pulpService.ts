@@ -29,7 +29,10 @@ export const getPulpById = (id: number) => {
  * @returns {Promise<Pulp[]>}
  */
 export const getPulpsByProducerCode = (code: string): Promise<Pulp[]> => {
-    return prisma.pulp.findMany({ where: { codeProducer: code } });
+    return prisma.pulp.findMany({
+        where: { codeProducer: code },
+        include: { batchesUsedFor: true },
+    });
 };
 
 /**
