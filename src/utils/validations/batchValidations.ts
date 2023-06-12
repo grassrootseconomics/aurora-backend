@@ -145,6 +145,7 @@ export const sendBatchRequestEmailsSchema: DefaultValidation = {
             name: Joi.string().required(),
             contactNumber: Joi.string().required(),
             email: Joi.string().required(),
+            message: Joi.string().required(),
         }),
     }),
 };
