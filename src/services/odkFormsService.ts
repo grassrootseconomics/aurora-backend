@@ -443,7 +443,7 @@ export const seedStorageFormData = async () => {
             ),
             grainIndex: convertStringToDecimal(entries[i].grain_index),
             sensoryProfile: entries[i].sensorial,
-            score: convertStringToDecimal(entries[i].sensorial_score),
+            score: convertStringToNumber(entries[i].sensorial_score),
             codeBatch: entries[i].batch_code,
         };
 

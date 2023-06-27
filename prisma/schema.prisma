@@ -133,7 +133,7 @@ model Storage {
   fermentationPercentage Decimal
   grainIndex             Decimal
   sensoryProfile         String
-  score                  Decimal
+  score                  Int
 
   codeBatch String @unique
   batch     Batch  @relation(fields: [codeBatch], references: [code])
