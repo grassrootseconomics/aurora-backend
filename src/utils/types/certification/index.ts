@@ -28,6 +28,7 @@ export type CertificationNFT = {
         fermentationDays: number;
         fermentationModeL: string;
         conversionFactor: string;
+        score: number;
         sensoryProfile: string;
     };
     traceDetails: {
