@@ -1,0 +1,145 @@
+[
+    {
+        "assocDetails": {
+            "name": "ABC Cooperative",
+            "department": "Production",
+            "town": "Cocoa Town",
+            "nrOfAssociates": 50,
+            "nrOfWomen": 10,
+            "nrOfYoungPeople": 5,
+            "story": "ABC Cooperative is dedicated to producing high-quality cocoa.",
+            "yearsOfExistence": 20,
+            "certifications": 3,
+            "regionInformationL": "Region X"
+        },
+        "batchDetails": {
+            "code": "BATCH001",
+            "cocoaType": "Dark Cocoa",
+            "totalNetWeight": 1000,
+            "processingDate": "2023-06-26T00:00:00.000Z",
+            "humidityPercentage": 12,
+            "grainIndex": 85,
+            "fermentationDays": 4,
+            "fermentationModeL": "Traditional",
+            "conversionFactor": "1:1",
+            "sensoryProfile": "Rich and bold flavor with hints of nuts."
+        },
+        "traceDetails": {
+            "producers": {
+                "haCocoa": 100,
+                "haConservationForest": 50,
+                "identifiedVarieties": [
+                    "Variety A",
+                    "Variety B",
+                    "Variety C"
+                ],
+                "nrMen": 20,
+                "nrWomen": 10
+            },
+            "harvesting": {
+                "date": "2023-06-15T00:00:00.000Z",
+                "pricePerKgCocoaPulp": 5.5
+            },
+            "fermentation": {
+                "startDate": "2023-06-16T00:00:00.000Z",
+                "genetics": "Genetics X",
+                "netWeight": 800,
+                "hoursDrained": 48,
+                "bxDegrees": 5,
+                "nrOfFlips": 6,
+                "days": 5,
+                "flips": [
+                    {
+                        "type": "Type A",
+                        "time": 10,
+                        "temp": 30,
+                        "ambient": 25,
+                        "humidity": 80
+                    },
+                    {
+                        "type": "Type B",
+                        "time": 15,
+                        "temp": 32,
+                        "ambient": 24,
+                        "humidity": 82
+                    },
+                    {
+                        "type": "Type C",
+                        "time": 15,
+                        "temp": 30,
+                        "ambient": 24,
+                        "humidity": 82
+                    },
+                    {
+                        "type": "Type D",
+                        "time": 15,
+                        "temp": 28,
+                        "ambient": 24,
+                        "humidity": 82
+                    },
+                    {
+                        "type": "Type E",
+                        "time": 15,
+                        "temp": 33,
+                        "ambient": 24,
+                        "humidity": 82
+                    },
+                    {
+                        "type": "Type F",
+                        "time": 15,
+                        "temp": 35,
+                        "ambient": 24,
+                        "humidity": 82
+                    }
+                ],
+                "dailyReports": [
+                    {
+                        "temperatureMass": 30,
+                        "phMass": 5.5,
+                        "phCotiledon": 4.8
+                    },
+                    {
+                        "temperatureMass": 28,
+                        "phMass": 5.2,
+                        "phCotiledon": 4.6
+                    },
+                    {
+                        "temperatureMass": 30,
+                        "phMass": 5.3,
+                        "phCotiledon": 4.8
+                    },
+                    {
+                        "temperatureMass": 28,
+                        "phMass": 5.7,
+                        "phCotiledon": 4.2
+                    },
+                    {
+                        "temperatureMass": 30,
+                        "phMass": 6,
+                        "phCotiledon": 4.7
+                    }
+                ]
+            },
+            "drying": {
+                "startDate": "2023-06-18T00:00:00.000Z",
+                "nrOfDays": 5,
+                "finalHumidity": 7
+            },
+            "storage": {
+                "startDate": "2023-06-23T00:00:00.000Z",
+                "batchNetWeight": 750,
+                "conversionFactor": "1:1",
+                "fermentationPercentage": 80,
+                "grainIndex": "Grade A"
+            },
+            "sales": {
+                "buyer": "XYZ Chocolates",
+                "negotiationTerm": "FOB",
+                "pricePerKg": 10,
+                "lot": "LOT001",
+                "country": "Chocoland",
+                "negotiationDate": "2023-06-25T00:00:00.000Z"
+            }
+        }
+    }
+]

@@ -745,9 +745,8 @@ export const getBatchesBySoldStatus = (
  * Fetches a batch by its code.
  *
  * @param {string} code Batch Code.
- * @returns {Promise<Batch | null>}
  */
-export const getBatchByCode = (code: string): Promise<Batch | null> => {
+export const getBatchByCode = (code: string) => {
     return prisma.batch.findUnique({
         where: { code },
         include: {

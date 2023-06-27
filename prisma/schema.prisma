@@ -104,6 +104,7 @@ model Batch {
   dryingPhase       DryingPhase?
   fermentationPhase FermentationPhase?
   pulpsUsed         PulpBatch[]
+  certifications    Certification[]
 }
 
 // Sales Phase of a Batch
@@ -194,4 +195,20 @@ model PulpBatch {
 
   idPulp Int
   pulp   Pulp @relation(fields: [idPulp], references: [id], onDelete: Cascade)
+}
+
+model Certification {
+  id           Int     @id @default(autoincrement())
+  key          String? @unique
+  signerWallet String
+
+  codeBatch String
+  batch     Batch  @relation(fields: [codeBatch], references: [code], onDelete: Cascade)
+
+  dateFingerprint DateTime
+  dateSigned      DateTime?
+  algoFingerprint String
+  dataFingerprint String    @unique
+
+  signedDataFingerprint String? @unique
 }

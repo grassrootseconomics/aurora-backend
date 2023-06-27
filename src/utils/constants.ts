@@ -63,6 +63,16 @@ export const APP_CONSTANTS = {
             FETCH_SUCCESS: 'Successfully Fetched Department Data!',
             NOT_FOUND: 'Department Does Not Exist!',
         },
+        CERTIFICATION: {
+            FIND_SUCCESS:
+                'Successfully fetched Batch Details via Nft Metadata Certification Key!',
+            GENERATE_SUCCESS: 'Successfully generated fingerprint for Data',
+            BATCH_NOT_SOLD: 'The batch for the certification was not sold!',
+            NOT_FOUND:
+                'Could not find certification with the specified fingerprint!',
+            FINGERPRINT_EXISTS:
+                'Fingerprint for this batch data already exists!',
+        },
     },
 };
 
