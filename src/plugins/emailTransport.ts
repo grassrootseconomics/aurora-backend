@@ -2,8 +2,8 @@ import { SMTP } from '@/config';
 import nodemailer from 'nodemailer';
 
 const emailTransport = nodemailer.createTransport({
-    host: 'smtp-relay.sendinblue.com',
-    port: 587,
+    host: SMTP.HOST,
+    port: SMTP.PORT,
     secure: false,
     auth: {
         user: SMTP.ACCOUNT,
