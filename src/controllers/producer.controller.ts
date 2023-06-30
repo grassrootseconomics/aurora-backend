@@ -32,6 +32,7 @@ import {
     changeProducerFromBatch,
     updateProducerSchema,
 } from '@/utils/validations/producerValidations';
+import { generateExcel } from '@/services/excelService';
 
 const router = Router();
 
@@ -279,4 +280,40 @@ router.delete(
     })
 );
 
-export default router;
+router.get(
+    '/download/all',
+    extractJWT,
+    requiresAuth,
+    requiresRoles(['association']),
+    asyncMiddleware(async (req: Request, res: Response) => {    
+        const token: JWTToken = res.locals.jwt;
+
+        let association = null;
+
+        if (token.role === 'association')
+            association = await getAssociationNameOfProducerByUserWallet(
+                token.address
+        );
+
+        // Fetch producers using the fetchProducers function
+        const producers = await getAllProducers({ association });
+    
+        // Generate the Excel file using the generateExcel function
+        const workbook = generateExcel(producers);
+    
+        // Set the response headers for Excel download
+        res.setHeader(
+            'Content-Type',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        );
+        res.setHeader(
+            'Content-Disposition',
+            'attachment; filename=producers.xlsx'
+        );
+    
+        // Write the workbook to the response and end the response
+        await workbook.xlsx.write(res);
+        res.end();
+  }));
+
+  export default router;
