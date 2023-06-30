@@ -2,87 +2,133 @@ import { Certification } from '@prisma/client';
 
 export type BaseCertification = Omit<
     Certification,
-    'id' | 'dateSigned' | 'signedDataFingerprint' | 'key'
+    | 'id'
+    | 'key'
+    | 'dateSigned'
+    | 'signedDataFingerprint'
+    | 'minterWallet'
+    | 'buyerWallet'
+    | 'tokenId'
 >;
 
+export type CertificationSignedLink = {
+    fingerprintHash: string;
+    hasSignature: string;
+};
+
+export type CertificationAssocDetails = {
+    name: string; // from assoc
+    department: string; // from prod.department
+    town: string; // from first producer
+    nrOfAssociates: number; // form assoc
+    nrOfWomen: number; // count from producers
+    nrOfYoungPeople: number; // count from young people
+    story: string; // assoc description
+    yearsOfExistence: number; // from assoc
+    // Unsure, but coudl be form assoc
+    certifications: number;
+    regionInformation: string; // from department description.
+};
+
+export type CertificationBatchDetails = {
+    code: string;
+    // From fermentation
+    cocoaType: string;
+    // From storage
+    totalNetWeight: number;
+    // Unsure, should
+    processingDate: Date | string;
+    // From drying phase
+    humidityPercentage: number;
+    // From storage phase
+    grainIndex: number;
+    // From fermentation
+    fermentationDays: number;
+    fermentationModel: string;
+    // From Storage Phase
+    conversionFactor: string;
+    score: number;
+    sensoryProfile: string;
+};
+
+export type CertificationProducersInfo = {
+    haCocoa: number;
+    haConservationForest: number;
+    identifiedVarieties: string[];
+    // Count men and women
+    nrMen: number;
+    nrWomen: number;
+};
+
+export type CertificationHarvestingInfo = {
+    // Take the earliest pulp.
+    date: Date | string;
+    // Make an average of this.
+    pricePerKgCocoaPulp: number;
+};
+
+export type CertificationFermentationInfo = {
+    startDate: Date | string;
+    genetics: string;
+    netWeight: number;
+    hoursDrained: number;
+    bxDegrees: number;
+    nrOfFlips: number;
+    days: number;
+    flips: {
+        type: string;
+        time: number;
+        temp: number;
+        ambient: number;
+        humidity: number;
+    }[];
+    dailyReports: {
+        temperatureMass: number;
+        phMass: number;
+        phCotiledon: number;
+    }[];
+};
+
+export type CertificationDryingInfo = {
+    startDate: Date | string;
+    nrOfDays: number;
+    finalHumidity: number;
+};
+
+export type CertificationStorageInfo = {
+    // Not sure about startDate, I have dayEntry
+    // Should change it to storage_date
+    startDate: Date | string;
+    batchNetWeight: number;
+    conversionFactor: string;
+    fermentationPercentage: number;
+    grainIndex: string;
+};
+
+export type CertificationSaleInfo = {
+    buyer: string;
+    negotiationTerm: string;
+    pricePerKg: number;
+    lot: string;
+    country: string; //This is destiu
+    negotiationDate: Date | string;
+};
+
 export type CertificationNFT = {
-    assocDetails: {
-        name: string;
-        department: string;
-        town: string;
-        nrOfAssociates: number;
-        nrOfWomen: number;
-        nrOfYoungPeople: number;
-        story: string;
-        yearsOfExistence: number;
-        certifications: number;
-        regionInformationL: string;
-    };
-    batchDetails: {
-        code: string;
-        cocoaType: string;
-        totalNetWeight: number;
-        processingDate: Date;
-        humidityPercentage: number;
-        grainIndex: number;
-        fermentationDays: number;
-        fermentationModeL: string;
-        conversionFactor: string;
-        score: number;
-        sensoryProfile: string;
-    };
+    assocDetails: CertificationAssocDetails;
+    batchDetails: CertificationBatchDetails;
     traceDetails: {
-        producers: {
-            haCocoa: number;
-            haConservationForest: number;
-            identifiedVarieties: string[];
-            nrMen: number;
-            nrWomen: number;
-        };
-        harvesting: {
-            date: Date;
-            pricePerKgCocoaPulp: number;
-        };
-        fermentation: {
-            startDate: Date;
-            genetics: string;
-            netWeight: number;
-            hoursDrained: number;
-            bxDegrees: number;
-            nrOfFlips: number;
-            days: number;
-            flips: {
-                type: string;
-                time: number;
-                temp: number;
-                ambient: number;
-                humidity: number;
-            }[];
-            dailyReports: {
-                temperatureMass: number;
-                phMass: number;
-                phCotiledon: number;
-            }[];
-        };
-        drying: {
-            startDate: Date;
-            nrOfDays: number;
-            finalHumidity: number;
-        };
-        storage: {
-            startDate: Date;
-            batchNetWeight: number;
-            conversionFactor: string;
-            fermentationPercentage: number;
-            grainIndex: string;
-        };
-        sales: {
-            buyer: string;
-            negotiationTerm: string;
-            pricePerKg: number;
-            lot: string;
-            country: string;
-            negotiationDate: Date;
-        };
+        // Sum up from all producers
+        producers: CertificationProducersInfo;
+        // Everything from Pulp
+        harvesting: CertificationHarvestingInfo;
+        // Everything from FermentationPhase
+        fermentation: CertificationFermentationInfo;
+        // Everything from DryingPhase
+        drying: CertificationDryingInfo;
+        // Everything from StoragePhase
+        storage: CertificationStorageInfo;
+        // Everything from SalePhase
+        sales: CertificationSaleInfo;
     };
 };

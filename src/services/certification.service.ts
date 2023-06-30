@@ -20,6 +20,21 @@ export const getCertificationByFingerprint = (fingerprint: string) => {
 
 /**
  *
+ * Get a certificatino by its key.
+ *
+ * @param {string} key Certification Key.
+ * @returns
+ */
+export const getCertificationByKey = (key: string) => {
+    return prisma.certification.findUnique({
+        where: {
+            key,
+        },
+    });
+};
+
+/**
+ *
  * Create a new Certification
  *
  * @param {BaseCertification | Certification} certification Required and Optional Certification Data.
@@ -35,10 +50,41 @@ export const createCertification = (
     });
 };
 
+type MintActionFields = {
+    minterWallet: string;
+    buyerWallet: string;
+    tokenId: string;
+};
+
+/**
+ *
+ * Update a certification with signed details.
+ *
+ * @param {string} key Access Key of the certification signature link.
+ * @param {MintActionFields} mintedData New Minted Details.
+ * @returns
+ */
+export const updateCertificationWithMintedData = (
+    key: string,
+    { minterWallet, buyerWallet, tokenId }: MintActionFields
+) => {
+    return prisma.certification.update({
+        where: {
+            key,
+        },
+        data: {
+            minterWallet,
+            buyerWallet,
+            tokenId,
+        },
+    });
+};
+
 type SignActionFields = {
     signedDataFingerprint: string;
     dateSigned: Date;
     signerWallet: string;
+    key: string;
 };
 
 /**
@@ -51,7 +97,7 @@ type SignActionFields = {
  */
 export const updateCertificationWithSignedData = (
     dataFingerprint: string,
-    { signedDataFingerprint, dateSigned }: SignActionFields
+    { signedDataFingerprint, dateSigned, signerWallet, key }: SignActionFields
 ) => {
     return prisma.certification.update({
         where: {
@@ -59,7 +105,23 @@ export const updateCertificationWithSignedData = (
         },
         data: {
             signedDataFingerprint,
+            signerWallet,
             dateSigned,
+            key,
+        },
+    });
+};
+
+export const updateCertificationFingerprintByCode = (
+    oldFingerprint: string,
+    newFingerprint: string
+) => {
+    return prisma.certification.update({
+        where: {
+            dataFingerprint: oldFingerprint,
+        },
+        data: {
+            dataFingerprint: newFingerprint,
         },
     });
 };

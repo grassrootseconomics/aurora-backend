@@ -198,17 +198,20 @@ model PulpBatch {
 }
 
 model Certification {
-  id           Int     @id @default(autoincrement())
-  key          String? @unique
-  signerWallet String
+  id  Int     @id @default(autoincrement())
+  key String? @unique
 
   codeBatch String
   batch     Batch  @relation(fields: [codeBatch], references: [code], onDelete: Cascade)
 
   dateFingerprint DateTime
-  dateSigned      DateTime?
-  algoFingerprint String
-  dataFingerprint String    @unique
+  dataFingerprint String   @unique
 
-  signedDataFingerprint String? @unique
+  dateSigned            DateTime?
+  signedDataFingerprint String?   @unique
+  signerWallet          String
+
+  minterWallet String?
+  buyerWallet  String?
+  tokenId      String?
 }

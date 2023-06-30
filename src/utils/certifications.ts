@@ -1,6 +1,8 @@
 import { Batch } from '@prisma/client';
 import crypto from 'crypto';
 
+import { CertificationNFT } from './types/certification';
+
 type AllowedAlgorythms = 'sha256';
 
 type FingerprintHashResult = {
@@ -12,19 +14,21 @@ type FingerprintHashResult = {
  *
  * Fingerprints a received string data.
  *
- * @param {Batch} data Batch Info to hash.
+ * @param {Batch | string} data Batch Info to hash.
  * @param {AllowedAlgorythms} algo Algorithm chosen.
  * @returns
  */
 export const fingerprintBatchData = (
-    data: Batch,
+    data: CertificationNFT | string,
     algo: AllowedAlgorythms
 ): FingerprintHashResult => {
-    const stringifiedBatch = JSON.stringify(data);
+    let stringifiedContent: string;
+    if (typeof data === 'string') stringifiedContent = data;
+    else stringifiedContent = JSON.stringify(data);
 
     const hash = crypto.createHash(algo);
 
-    hash.update(stringifiedBatch, 'utf8');
+    hash.update(stringifiedContent, 'utf8');
 
     const fingerprint = hash.digest('hex');
 

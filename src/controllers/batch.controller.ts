@@ -13,6 +13,7 @@ import {
     addBatchFermentationDayReport,
     addBatchFermentationFlip,
     getBatchByCode,
+    getBatchCertificateSnapshotByCode,
     getBatchFermentationModelByCode,
     getMonthlyCocoaPulp,
     getMonthlySalesInUSD,
@@ -429,6 +430,7 @@ router.get(
         }
 
         const batch = await getBatchByCode(code);
+        // const batch = await getBatchCertificateSnapshotByCode(code);
 
         return res.status(200).json({
             success: true,
