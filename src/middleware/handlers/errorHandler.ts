@@ -28,7 +28,6 @@ export const errorHandler = (
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _next: NextFunction
 ) => {
-    console.log(err);
     const apiError = convertErrorToApiError(err);
     return res.status(apiError.statusCode).json({
         success: false,

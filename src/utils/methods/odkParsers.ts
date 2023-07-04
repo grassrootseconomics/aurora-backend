@@ -1,5 +1,6 @@
 import {
     AuroraAProductorForm,
+    AuroraAProductorGPSForm,
     AuroraBColeccionForm,
     AuroraCFermentacionForm,
     AuroraCFermentacionFormPH,
@@ -10,17 +11,13 @@ import {
 } from '../types/odk/forms';
 import { csvToJSONArray } from './csv';
 
-export const parseProductionFormSubmissions = (
-    csvFile: string
-): AuroraAProductorForm[] => {
-    return csvToJSONArray(csvFile) as AuroraAProductorForm[];
-};
+export const parseCSVFileToJSONArray = <T>(csvfile: string): T[] =>
+    csvToJSONArray(csvfile) as T[];
 
-export const parseCollectionFormSubmissions = (
+export const parseProductionGPSFormSubmissions = (
     csvFile: string
-): AuroraBColeccionForm[] => {
-    return csvToJSONArray(csvFile) as AuroraBColeccionForm[];
-};
+): AuroraAProductorGPSForm[] =>
+    csvToJSONArray(csvFile) as AuroraAProductorGPSForm[];
 
 export const parseFermentationFormSubmissions = (
     csvFile: string
