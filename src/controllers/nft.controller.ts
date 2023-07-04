@@ -115,9 +115,8 @@ router.post(
                         APP_CONSTANTS.RESPONSE.CERTIFICATION.FINGERPRINT_EXISTS
                     )
                 );
-
             // Check if the data exists on wala.
-            const data = getDataByHash(
+            const data = await getDataByHash(
                 existingFingerprintCertification.dataFingerprint
             );
             // If it does, send the existing certification.
@@ -239,25 +238,28 @@ router.patch(
         // Check If it was already signed
         if (certification.key) {
             const data = await getDataByHash(certification.key);
-
-            const signedLink: CertificationSignedLink = convertXmlToObject(
-                data
-            ) as CertificationSignedLink;
-
-            // Check if the data is valid
-            if (
-                signedLink &&
-                signedLink.fingerprintHash === certification.dataFingerprint &&
-                signedLink.hasSignature === certification.signedDataFingerprint
-            ) {
-                return res.status(200).json({
-                    success: true,
-                    message:
-                        APP_CONSTANTS.RESPONSE.CERTIFICATION.GENERATE_SUCCESS,
-                    data: {
-                        key: certification.key,
-                    },
-                });
+            if (data) {
+                const signedLink: CertificationSignedLink = convertXmlToObject(
+                    data
+                ) as CertificationSignedLink;
+                // Check if the data is valid
+                if (
+                    signedLink &&
+                    signedLink.fingerprintHash ===
+                        certification.dataFingerprint &&
+                    signedLink.hasSignature ===
+                        certification.signedDataFingerprint
+                ) {
+                    return res.status(200).json({
+                        success: true,
+                        message:
+                            APP_CONSTANTS.RESPONSE.CERTIFICATION
+                                .GENERATE_SUCCESS,
+                        data: {
+                            key: certification.key,
+                        },
+                    });
+                }
             }
         }
 
@@ -266,7 +268,6 @@ router.patch(
             message: dataFingerprint,
             signature: signedDataFingerprint,
         });
-
         if (
             recoveredAddress.toString().toLowerCase() !==
             token.address.toLowerCase()
