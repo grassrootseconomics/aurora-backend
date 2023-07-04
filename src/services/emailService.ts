@@ -1,4 +1,5 @@
-import emailTransport from '@/utils/emailTransport';
+import emailTransport from '@/plugins/emailTransport';
+
 import { EmailParameters } from '@/utils/types/association/EmailParameters';
 
 export const sendBatchRequestEmails = (
@@ -23,8 +24,6 @@ export const sendBatchRequestEmails = (
             <p style="color:white;"><b>Email: </b>${email}</p>
         <br>
             <p style="color:white;"><b>Country: </b>${country}</p>
-        <br>
-            <p style="color:white;"><b>City: </b>${city}</p>
         <br>
             <p style="color:white;"><b>City: </b>${city}</p>
     </p>

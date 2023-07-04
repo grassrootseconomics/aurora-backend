@@ -10,7 +10,7 @@
             "story": "ABC Cooperative is dedicated to producing high-quality cocoa.",
             "yearsOfExistence": 20,
             "certifications": 3,
-            "regionInformationL": "Region X"
+            "regionInformation": "Region X"
         },
         "batchDetails": {
             "code": "BATCH001",
@@ -20,7 +20,7 @@
             "humidityPercentage": 12,
             "grainIndex": 85,
             "fermentationDays": 4,
-            "fermentationModeL": "Traditional",
+            "fermentationModel": "Traditional",
             "conversionFactor": "1:1",
             "score": 8,
             "sensoryProfile": "Rich and bold flavor with hints of nuts."

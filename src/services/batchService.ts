@@ -3,12 +3,14 @@ import {
     Batch,
     DryingPhase,
     FermentationPhase,
+    Producer,
     Sale,
     Storage,
 } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime';
 
 import { APP_CONSTANTS } from '@/utils/constants';
+import { getAgeByBirthDate } from '@/utils/methods/date';
 import {
     DryingPhaseUpdate,
     FermentationPhaseUpdate,
@@ -16,6 +18,17 @@ import {
     SalesPhaseUpdate,
     StoragePhaseUpdate,
 } from '@/utils/types/batch';
+import {
+    CertificationAssocDetails,
+    CertificationBatchDetails,
+    CertificationDryingInfo,
+    CertificationFermentationInfo,
+    CertificationHarvestingInfo,
+    CertificationNFT,
+    CertificationProducersInfo,
+    CertificationSaleInfo,
+    CertificationStorageInfo,
+} from '@/utils/types/certification';
 import ApiError from '@/utils/types/errors/ApiError';
 import {
     DayReport,
@@ -738,6 +751,211 @@ export const getBatchesBySoldStatus = (
             },
         },
     });
+};
+
+export const getBatchCertificateSnapshotByCode = async (
+    code: string
+): Promise<CertificationNFT> => {
+    const batchInfo = await prisma.batch.findUnique({
+        where: {
+            code,
+        },
+        include: {
+            sale: true,
+            storage: true,
+            dryingPhase: true,
+            fermentationPhase: true,
+            pulpsUsed: {
+                include: {
+                    pulp: {
+                        include: {
+                            producer: {
+                                include: {
+                                    association: true,
+                                    department: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    });
+
+    const assoc = batchInfo.pulpsUsed[0]?.pulp.producer.association;
+
+    const dep = batchInfo.pulpsUsed[0]?.pulp.producer.department;
+
+    const firstProd = batchInfo.pulpsUsed[0]?.pulp.producer;
+
+    const batchProducers: Producer[] = [];
+
+    batchInfo.pulpsUsed.forEach((pulpUsed) => {
+        const prodFound = batchProducers.find((prod) => {
+            return prod.code === pulpUsed.pulp.codeProducer;
+        });
+        if (!prodFound) batchProducers.push(pulpUsed.pulp.producer);
+    });
+
+    const assocDetails: CertificationAssocDetails = {
+        name: assoc ? assoc.name : '',
+        department: dep ? dep.name : '',
+        town: firstProd ? firstProd.municipiality : '',
+        nrOfAssociates: assoc ? assoc.nrOfAssociates : 0,
+        nrOfWomen: 0,
+        nrOfYoungPeople: 0,
+        story: assoc ? assoc.description : '',
+        yearsOfExistence: assoc ? getAgeByBirthDate(assoc.creationDate) : 0,
+        certifications: assoc ? getAgeByBirthDate(assoc.creationDate) : 0,
+        regionInformation: dep ? dep.description : '',
+    };
+
+    const batchDetails: CertificationBatchDetails = {
+        code: batchInfo.code,
+        cocoaType: batchInfo.fermentationPhase
+            ? batchInfo.fermentationPhase.cocoaType
+            : '',
+        totalNetWeight: batchInfo.storage
+            ? batchInfo.storage.netWeight.toNumber()
+            : undefined,
+        processingDate: batchInfo.storage
+            ? batchInfo.storage.dayEntry.toISOString()
+            : undefined,
+        humidityPercentage: batchInfo.fermentationPhase
+            ? batchInfo.fermentationPhase.humidity.toNumber()
+            : undefined,
+        grainIndex: batchInfo.storage
+            ? batchInfo.storage.grainIndex.toNumber()
+            : undefined,
+        fermentationDays: batchInfo.fermentationPhase
+            ? batchInfo.fermentationPhase.totalDays.toNumber()
+            : undefined,
+        fermentationModel: '',
+        conversionFactor: batchInfo.storage
+            ? batchInfo.storage.conversionFaction.toString()
+            : '',
+        score: batchInfo.storage ? batchInfo.storage.score : undefined,
+        sensoryProfile: batchInfo.storage
+            ? batchInfo.storage.sensoryProfile
+            : '',
+    };
+    const producers: CertificationProducersInfo = {
+        haCocoa: 0,
+        haConservationForest: 0,
+        identifiedVarieties: [],
+        nrMen: 0,
+        nrWomen: 0,
+    };
+
+    const identifiedVarieties: string[] = [];
+
+    batchProducers.forEach((prod) => {
+        producers.haCocoa += prod.nrCocoaHa.toNumber();
+        producers.haConservationForest += prod.nrForestHa.toNumber();
+        if (prod.gender === 'male') producers.nrMen++;
+        else producers.nrWomen++;
+
+        if (!identifiedVarieties.find((variety) => variety === prod.wildlife)) {
+            identifiedVarieties.push(prod.wildlife);
+        }
+    });
+
+    const harvesting: CertificationHarvestingInfo = {
+        date: batchInfo.pulpsUsed
+            ? batchInfo.pulpsUsed[0]
+                ? batchInfo.pulpsUsed[0].pulp.collectionDate.toISOString()
+                : undefined
+            : undefined,
+        pricePerKgCocoaPulp: batchInfo.pulpsUsed
+            ? batchInfo.pulpsUsed[0]
+                ? batchInfo.pulpsUsed[0].pulp.pricePerKg.toNumber()
+                : undefined
+            : undefined,
+    };
+    const fermentation: CertificationFermentationInfo = {
+        startDate: batchInfo.fermentationPhase
+            ? batchInfo.fermentationPhase.startDate.toISOString()
+            : undefined,
+        genetics: batchInfo.fermentationPhase
+            ? batchInfo.fermentationPhase.genetics
+            : '',
+        netWeight: batchInfo.fermentationPhase
+            ? batchInfo.fermentationPhase.weight.toNumber()
+            : undefined,
+        hoursDrained: batchInfo.fermentationPhase
+            ? batchInfo.fermentationPhase.hoursDrained.toNumber()
+            : undefined,
+        bxDegrees: batchInfo.fermentationPhase
+            ? batchInfo.fermentationPhase.brixDegrees.toNumber()
+            : undefined,
+        nrOfFlips: batchInfo.fermentationPhase
+            ? batchInfo.fermentationPhase.flips.length
+            : undefined,
+        days: batchInfo.fermentationPhase
+            ? batchInfo.fermentationPhase.totalDays.toNumber()
+            : undefined,
+        flips: batchInfo.fermentationPhase
+            ? batchInfo.fermentationPhase.flips.map((flip) => {
+                  return flip as Flip;
+              })
+            : [],
+        dailyReports: batchInfo.fermentationPhase
+            ? batchInfo.fermentationPhase.dailyReports.map((report) => {
+                  return report as DayReport;
+              })
+            : [],
+    };
+    const drying: CertificationDryingInfo = {
+        startDate: batchInfo.dryingPhase
+            ? batchInfo.dryingPhase.startDate.toISOString()
+            : undefined,
+        nrOfDays: batchInfo.dryingPhase
+            ? batchInfo.dryingPhase.totalDryingDays
+            : undefined,
+        finalHumidity: batchInfo.dryingPhase
+            ? batchInfo.dryingPhase.finalGrainHumidity
+            : undefined,
+    };
+    const storage: CertificationStorageInfo = {
+        startDate: batchInfo.storage
+            ? batchInfo.storage.dayEntry.toISOString()
+            : undefined,
+        batchNetWeight: batchInfo.storage
+            ? batchInfo.storage.netWeight.toNumber()
+            : undefined,
+        conversionFactor: batchInfo.storage
+            ? batchInfo.storage.conversionFaction.toString()
+            : '',
+        fermentationPercentage: batchInfo.storage
+            ? batchInfo.storage.fermentationPercentage.toNumber()
+            : undefined,
+        grainIndex: batchInfo.storage
+            ? batchInfo.storage.grainIndex.toString()
+            : '',
+    };
+    const sales: CertificationSaleInfo = {
+        buyer: batchInfo.sale ? batchInfo.sale.buyer : '',
+        negotiationTerm: batchInfo.sale ? batchInfo.sale.negotiationTerm : '',
+        pricePerKg: batchInfo.sale ? batchInfo.sale.pricePerKg : undefined,
+        lot: batchInfo.sale ? batchInfo.sale.lotCode : '',
+        country: batchInfo.sale ? batchInfo.sale.destination : '',
+        negotiationDate: batchInfo.sale
+            ? batchInfo.sale.negotiationDate.toISOString()
+            : undefined,
+    };
+
+    return {
+        assocDetails,
+        batchDetails,
+        traceDetails: {
+            producers,
+            harvesting,
+            fermentation,
+            drying,
+            storage,
+            sales,
+        },
+    };
 };
 
 /**

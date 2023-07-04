@@ -66,7 +66,13 @@ export const APP_CONSTANTS = {
         CERTIFICATION: {
             FIND_SUCCESS:
                 'Successfully fetched Batch Details via Nft Metadata Certification Key!',
-            GENERATE_SUCCESS: 'Successfully generated fingerprint for Data',
+            GENERATE_SUCCESS: 'Successfully generated fingerprint for Data!',
+            SIGN_SUCCESS: 'Successfully added Signature Fingerprint Data!',
+            MINT_SUCCESS: 'Successfully added Minted Signature Data!',
+            GENERATE_UPDATE_CERT:
+                'Successfully generated new cert for Snapshot Data!',
+            RETURN_EXISTING_CERT:
+                'Certification Hash already generated for Snapshot Data!',
             BATCH_NOT_SOLD: 'The batch for the certification was not sold!',
             NOT_FOUND:
                 'Could not find certification with the specified fingerprint!',

@@ -25,14 +25,21 @@ const ACCESS_TOKEN_ISSUER: string =
 
 const ODK_API_URL: string = process.env.ODK_API_URL || '';
 const ODK_PROJECT_ID: string = process.env.ODK_PROJECT_ID || '';
+
+const CERT_API_URL: string = process.env.CERT_API_URL || '';
+
 const SMTP_KEY: string = process.env.SMTP_KEY || undefined;
 const SMTP_ACCOUNT: string = process.env.SMTP_ACCOUNT || undefined;
+const SMTP_PORT: string = process.env.SMTP_PORT || undefined;
+const SMTP_HOST: string = process.env.SMTP_HOST || undefined;
 
 const DB = {
     CONNECTION_URL,
 };
 
 const SMTP = {
+    PORT: isNaN(parseInt(SMTP_PORT)) ? undefined : parseInt(SMTP_PORT),
+    HOST: SMTP_HOST,
     KEY: SMTP_KEY,
     ACCOUNT: SMTP_ACCOUNT,
 };
@@ -56,4 +63,8 @@ const ODK = {
     PROJECT_ID: ODK_PROJECT_ID,
 };
 
-export { SERVER, DB, SMTP, ODK };
+const WALA = {
+    URL: CERT_API_URL,
+};
+
+export { SERVER, DB, SMTP, ODK, WALA };
