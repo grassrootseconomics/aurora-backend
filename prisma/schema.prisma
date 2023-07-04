@@ -39,8 +39,8 @@ model Nonce {
 }
 
 model Producer {
-  id          Int    @id @default(autoincrement())
-  code        String @unique
+  id          Int     @id @default(autoincrement())
+  code        String? @unique
   firstName   String
   lastName    String
   phoneNumber String

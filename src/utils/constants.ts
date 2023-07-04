@@ -86,6 +86,14 @@ export const DB_CONSTANTS = {
     ROLES: ['buyer', 'association', 'project'] as const,
 };
 
+export const ASSOCIATION_CODE_TO_NAME = {
+    ASG: 'Asogigante',
+    APG: 'Aprocalg',
+    ASP: 'Asopeca',
+    ACS: 'Asoacasan',
+    CMP: 'Comcap',
+};
+
 export const SYNC_ODK_FORM_IDS = [
     'A-Productor',
     'A-Productor-Finca',
@@ -114,6 +122,7 @@ export const AuroraAProductorFormEntries = [
     'grp_a_noconsent-noconsentwhy',
     'grp_a_noconsent-noconsentwhyoth',
     'a-mobile',
+    'a-mobile/smartphone',
     'a-resp_gender',
     'a-age',
     'a-department',
@@ -157,6 +166,25 @@ export const AuroraAProductorFormEntries = [
     'Edits',
     'FormVersion',
 ] as const;
+
+export const AuroraAProductorGPSEntries = [
+    'A1_lots_repeat_num',
+    'lot_age',
+    'lot_area',
+    'genetic_id',
+    'variety',
+    'variety/FBO-1',
+    'variety/FLE-2',
+    'variety/FLE-3',
+    'variety/Hybrid',
+    'variety/ICS-1',
+    'variety/ICS-39',
+    'variety/ICS-60',
+    'variety/ICS-95',
+    'variety/TSH-565',
+    'PARENT_KEY',
+    'KEY',
+];
 
 export const AuroraBColeccionFormEntries = [
     'SubmissionDate',
@@ -243,6 +271,13 @@ export const AuroraCFermentacionFormEntries = [
     'Edits',
     'FormVersion',
 ] as const;
+
+export const AuroraCFermentacionProducersFormEntries = [
+    'code_r_repeat_num',
+    'prod_code',
+    'PARENT_KEY',
+    'KEY',
+];
 
 export const AuroraCFermentacionPHFormEntries = [
     'SubmissionDate',

@@ -8,6 +8,7 @@ export const getDataByHash = async (certification: string) => {
 
         return response.data;
     } catch (err) {
+        console.log(err);
         return undefined;
     }
 };

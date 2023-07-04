@@ -25,6 +25,7 @@ const ACCESS_TOKEN_ISSUER: string =
 
 const ODK_API_URL: string = process.env.ODK_API_URL || '';
 const ODK_PROJECT_ID: string = process.env.ODK_PROJECT_ID || '';
+const ODK_AUTH_BASIC_TOKEN: string = process.env.ODK_AUTH_BASIC_TOKEN || '';
 
 const CERT_API_URL: string = process.env.CERT_API_URL || '';
 
@@ -61,6 +62,7 @@ const SERVER = {
 const ODK = {
     API_URL: ODK_API_URL,
     PROJECT_ID: ODK_PROJECT_ID,
+    BASIC_AUTH_TOKEN: ODK_AUTH_BASIC_TOKEN,
 };
 
 const WALA = {
