@@ -69,6 +69,9 @@ import {
     updateBatchSalesSchema,
     updateBatchStorageSchema,
 } from '@/utils/validations/batchValidations';
+import { generateExcel } from '@/services/excelService';
+import { BasicAvailableBatch } from '@/utils/types/batch/available';
+import { BasicSoldBatch } from '@/utils/types/batch/sold';
 
 const router = Router();
 
@@ -845,5 +848,103 @@ router.delete(
         });
     })
 );
+
+router.get(
+    '/download/all',
+    extractJWT,
+    requiresAuth,
+    requiresRoles(['association']),
+    asyncMiddleware(async (req: Request, res: Response) => {    
+
+        try {
+            const token: JWTToken = res.locals.jwt;
+
+            // To filter by sold
+            const sold: boolean = Boolean(req.query.sold);
+
+            const year: number | undefined = isNaN(
+                parseInt(req.query.year?.toString())
+            )
+                ? undefined
+                : parseInt(req.query.year?.toString());
+
+            // For pagination
+            const index: number | undefined = isNaN(
+                parseInt(req.query.index?.toString())
+            )
+                ? undefined
+                : parseInt(req.query.index?.toString());
+            
+            const limit: number | undefined = isNaN(
+                parseInt(req.query.limit?.toString())
+            )
+                ? undefined
+                : parseInt(req.query.limit?.toString());
+
+            let association = null;
+
+            if (token.role === 'association')
+                association = await getAssociationNameOfProducerByUserWallet(
+                    token.address
+            );
+            
+            // Fetch batches available batches
+            const searchBatchesResult = await searchBatches({
+                search: '',
+                index,
+                limit,
+                filterField: 'association',
+                filterValue: association,
+                internationallySold: sold,
+                year,
+            });
+
+            const batchesForExcel = sold ? 
+                searchBatchesResult.data.filter(b => b.sale != null).map(
+                    (b) =>
+                    new BasicSoldBatch(
+                        b.code,
+                        b.sale.buyer,
+                        b.sale.destination,
+                        b.sale.pricePerKg,
+                        b.sale.totalValue,
+                        b.sale.negotiationTerm,
+                        b.fermentationPhase.cocoaType
+                    )
+                ) :
+                searchBatchesResult.data.filter(b => b.sale == null).map(
+                    (b) =>
+                    new BasicAvailableBatch(
+                        b.code,
+                        Number(b.storage.netWeight),
+                        b.fermentationPhase.cocoaType,
+                        b.fermentationPhase.startDate.toDateString(),
+                        Number(b.fermentationPhase.humidity),
+                        Number(b.storage.grainIndex),
+                        b.storage.sensoryProfile
+                    )
+                );
+                    
+            const workbook = generateExcel(batchesForExcel);
+        
+            // Set the response headers for Excel download
+            res.setHeader(
+                'Content-Type',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            );
+            res.setHeader(
+                'Content-Disposition',
+                'attachment; filename=producers.xlsx'
+            );
+        
+            // Write the workbook to the response and end the response
+            await workbook.xlsx.write(res);
+            res.end();
+        } catch (error)
+        {
+            console.log(error)
+        }
+
+  }));
 
 export default router;
