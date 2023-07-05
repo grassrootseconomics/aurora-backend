@@ -24,12 +24,7 @@ import {
     convertStringToDecimal,
     convertStringToNumber,
 } from '@/utils/methods/numbers';
-import {
-    parseCSVFileToJSONArray,
-    parseDryingFormSubmissions,
-    parseSalesFormSubmissions,
-    parseStorageFormSubmissions,
-} from '@/utils/methods/odkParsers';
+import { parseCSVFileToJSONArray } from '@/utils/methods/odkParsers';
 import {
     AuroraAProductorForm,
     AuroraBColeccionForm,
@@ -37,6 +32,9 @@ import {
     AuroraCFermentacionFormPH,
     AuroraCFermentacionFormVolteo,
     AuroraCFermentacionProducersForm,
+    AuroraDSecadoForm,
+    AuroraEAlmacenamientoForm,
+    AuroraFVentasForm,
     AuroraFormID,
 } from '@/utils/types/odk/forms';
 
@@ -162,7 +160,6 @@ export const seedProducersFormData = async () => {
                     ],
                 },
             });
-            console.log(producer);
             if (producer) {
                 continue;
             }
@@ -340,7 +337,7 @@ export const seedFermentationFormData = async () => {
         });
 
         // Create the batch
-        const newBatch = await prisma.batch.create({
+        await prisma.batch.create({
             data: {
                 code: entries[i].batch_code,
             },
@@ -385,7 +382,7 @@ export const seedFermentationFormData = async () => {
         }
     }
     console.log(
-        `Successfully seeded ${fermentationSeeded} fermentation phase and batch!`
+        `Successfully seeded ${fermentationSeeded} fermentation phases and batches!`
     );
 };
 
@@ -401,7 +398,8 @@ export const seedFermentationPHFormData = async () => {
     );
     const batchEntries = groupArrayOfObjectsByProp(entries, 'batch_code');
     const batchKeys = Object.keys(batchEntries);
-    const seededReports = [];
+
+    let updatedFermentationPhases = 0;
     for (let index = 0; index < batchKeys.length; index++) {
         const batch = await prisma.batch.findUnique({
             where: {
@@ -418,33 +416,41 @@ export const seedFermentationPHFormData = async () => {
             batch.fermentationPhase.dailyReports.length > 0
         )
             continue;
+
         const reports = batchEntries[batchKeys[index]].sort((a, b) => {
             return (
                 new Date(a.meassure_time).getTime() -
                 new Date(b.meassure_time).getTime()
             );
         });
-
-        const result = await prisma.fermentationPhase.update({
-            where: {
-                codeBatch: batchKeys[index],
-            },
-            data: {
-                dailyReports: reports.map((report) => {
-                    return {
-                        temperatureMass: convertStringToNumber(
-                            report.mass_temperature
-                        ),
-                        phMass: convertStringToNumber(report.mass),
-                        phCotiledon: convertStringToNumber(report.ph_cotiledom),
-                    };
-                }),
-            },
-        });
-
-        seededReports.push(result);
+        try {
+            await prisma.fermentationPhase.update({
+                where: {
+                    codeBatch: batchKeys[index],
+                },
+                data: {
+                    dailyReports: reports.map((report) => {
+                        return {
+                            temperatureMass: convertStringToNumber(
+                                report.mass_temperature
+                            ),
+                            phMass: convertStringToNumber(report.mass),
+                            phCotiledon: convertStringToNumber(
+                                report.ph_cotiledom
+                            ),
+                        };
+                    }),
+                },
+            });
+            updatedFermentationPhases++;
+        } catch (err) {
+            console.log(err);
+        }
     }
-    return seededReports;
+
+    console.log(
+        `Successfully updated ${updatedFermentationPhases} fermentation phases!`
+    );
 };
 
 /**
@@ -460,7 +466,7 @@ export const seedFermentationFlipsFormData = async () => {
     const batchEntries = groupArrayOfObjectsByProp(entries, 'batch_code');
     const batchKeys = Object.keys(batchEntries);
 
-    const seededFlips = [];
+    let updatedFermentationPhases = 0;
 
     for (let index = 0; index < batchKeys.length; index++) {
         const batch = await prisma.batch.findUnique({
@@ -485,27 +491,32 @@ export const seedFermentationFlipsFormData = async () => {
             );
         });
 
-        const result = await prisma.fermentationPhase.update({
-            where: {
-                codeBatch: batchKeys[index],
-            },
-            data: {
-                flips: flips.map((flip) => {
-                    return {
-                        type: 'time',
-                        time: convertStringToNumber(flip.flip_time),
-                        temp: convertStringToNumber(flip.flip_temp),
-                        ambient: convertStringToNumber(flip.flip_ambient),
-                        humidity: convertStringToNumber(flip.flip_humidity),
-                    };
-                }),
-            },
-        });
-
-        seededFlips.push(result);
+        try {
+            await prisma.fermentationPhase.update({
+                where: {
+                    codeBatch: batchKeys[index],
+                },
+                data: {
+                    flips: flips.map((flip) => {
+                        return {
+                            type: 'time',
+                            time: convertStringToNumber(flip.flip_time),
+                            temp: convertStringToNumber(flip.flip_temp),
+                            ambient: convertStringToNumber(flip.flip_ambient),
+                            humidity: convertStringToNumber(flip.flip_humidity),
+                        };
+                    }),
+                },
+            });
+            updatedFermentationPhases++;
+        } catch (err) {
+            console.log(err);
+        }
     }
 
-    return seededFlips;
+    console.log(
+        `Successfully updated ${updatedFermentationPhases} fermentation phases!`
+    );
 };
 
 /**
@@ -514,7 +525,9 @@ export const seedFermentationFlipsFormData = async () => {
 export const seedDryingFormData = async () => {
     const csvFiles = await getODKFormSubmissionCSVFileContents('D-Secado');
 
-    const entries = parseDryingFormSubmissions(csvFiles[0]);
+    const entries = parseCSVFileToJSONArray<AuroraDSecadoForm>(csvFiles[0]);
+
+    let seededDryingPhases = 0;
     for (let i = 0; i < entries.length; i++) {
         if (!entries[i].batch_code) continue;
         const batch = await prisma.batch.findUnique({
@@ -528,20 +541,29 @@ export const seedDryingFormData = async () => {
         // Check if this batch exists or if drying phase was seeded for this batch.
         if (!batch || batch.dryingPhase) continue;
 
+        const startDate = convertStringToDate(entries[i].dry_start_date);
+        const endDate = convertStringToDate(entries[i].dry_end_date);
+
         const dryingPhaseData: Omit<DryingPhase, 'id'> = {
-            startDate: convertStringToDate(entries[i].dry_start_date),
-            endDate: convertStringToDate(entries[i].dry_end_date),
-            totalDryingDays: isNaN(parseInt(entries[i].dry_end_date))
+            startDate,
+            endDate,
+            totalDryingDays: isNaN(parseInt(entries[i].dry_days))
                 ? 0
-                : parseInt(entries[i].dry_end_date),
+                : parseInt(entries[i].dry_days),
             finalGrainHumidity: parseInt(entries[i].moisture_final),
             codeBatch: entries[i].batch_code,
         };
 
-        await prisma.dryingPhase.create({
-            data: dryingPhaseData,
-        });
+        try {
+            await prisma.dryingPhase.create({
+                data: dryingPhaseData,
+            });
+            seededDryingPhases++;
+        } catch (err) {
+            console.log(err);
+        }
     }
+    console.log(`Successfully seeded ${seededDryingPhases} drying phases!`);
 };
 
 /**
@@ -552,8 +574,11 @@ export const seedStorageFormData = async () => {
         'E-Almacenamiento'
     );
 
-    const entries = parseStorageFormSubmissions(csvFiles[0]);
+    const entries = parseCSVFileToJSONArray<AuroraEAlmacenamientoForm>(
+        csvFiles[0]
+    );
 
+    let seededStoragePhases = 0;
     for (let i = 0; i < entries.length; i++) {
         if (!entries[i].batch_code) continue;
         const batch = await prisma.batch.findUnique({
@@ -581,10 +606,16 @@ export const seedStorageFormData = async () => {
             codeBatch: entries[i].batch_code,
         };
 
-        await prisma.storage.create({
-            data: storageData,
-        });
+        try {
+            await prisma.storage.create({
+                data: storageData,
+            });
+            seededStoragePhases++;
+        } catch (err) {
+            console.log(err);
+        }
     }
+    console.log(`Successfully seeded ${seededStoragePhases} storage phases!`);
 };
 
 /**
@@ -593,8 +624,9 @@ export const seedStorageFormData = async () => {
 export const seedSalesFormData = async () => {
     const csvFiles = await getODKFormSubmissionCSVFileContents('F-Ventas');
 
-    const entries = parseSalesFormSubmissions(csvFiles[0]);
+    const entries = parseCSVFileToJSONArray<AuroraFVentasForm>(csvFiles[0]);
 
+    let seededSalesPhases = 0;
     for (let i = 0; i < entries.length; i++) {
         if (!entries[i].batch_code) continue;
         const batch = await prisma.batch.findUnique({
@@ -625,8 +657,14 @@ export const seedSalesFormData = async () => {
             codeBatch: entries[i].batch_code,
         };
 
-        await prisma.sale.create({
-            data: storageData,
-        });
+        try {
+            await prisma.sale.create({
+                data: storageData,
+            });
+            seededSalesPhases++;
+        } catch (err) {
+            console.log(err);
+        }
     }
+    console.log(`Successfully seeded ${seededSalesPhases} sales phases!`);
 };
