@@ -87,9 +87,12 @@ model Association {
 
 // Departments or Counties of Associations
 model Department {
-  id             Int        @id @default(autoincrement())
-  name           String     @unique
-  description    String
+  id          Int    @id @default(autoincrement())
+  name        String @unique
+  description String
+
+  nextHarvest DateTime @default(dbgenerated("now() + interval '1 month'"))
+
   nrOfAssociates Decimal
   producers      Producer[]
 }

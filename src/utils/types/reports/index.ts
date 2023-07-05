@@ -8,6 +8,11 @@ export type MonthlySalesInKg = { [owner: string]: number }[];
 
 export type MonthlyPulpCollected = { pulpKg: number }[];
 
+export type DepartmentHarvestDate = {
+    department: string;
+    harvestDate: Date;
+};
+
 /**
  * Statistics regarding producer data.
  */
@@ -18,6 +23,7 @@ export type ProducersStatistics = {
     nrMen?: number;
     haCocoa?: number;
     haForestConservation: number;
+    departmentHarvestDates?: DepartmentHarvestDate[];
 };
 
 /**
