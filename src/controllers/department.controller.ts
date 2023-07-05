@@ -20,9 +20,6 @@ const router = Router();
 
 router.get(
     '/',
-    extractJWT,
-    requiresAuth,
-    requiresRoles(['project', 'association']),
     asyncMiddleware(async (_req: Request, res: Response) => {
         const departments = await getAllDepartments();
         return res.status(200).json({
