@@ -33,7 +33,9 @@ import {
     updateBatchSalesPhase,
     updateBatchStoragePhase,
 } from '@/services/batchService';
+import { getDepartmentsHarvestDatesByName } from '@/services/departmentService';
 import { sendBatchRequestEmails } from '@/services/emailService';
+import { generateExcel } from '@/services/excelService';
 import { getAllProducers } from '@/services/producerService';
 import { getBatchRequestUserEmails } from '@/services/userService';
 
@@ -45,6 +47,8 @@ import {
     SalesPhaseUpdate,
     StoragePhaseUpdate,
 } from '@/utils/types/batch';
+import { BasicAvailableBatch } from '@/utils/types/batch/available';
+import { BasicSoldBatch } from '@/utils/types/batch/sold';
 import ApiError from '@/utils/types/errors/ApiError';
 import {
     DayReport,
@@ -69,9 +73,6 @@ import {
     updateBatchSalesSchema,
     updateBatchStorageSchema,
 } from '@/utils/validations/batchValidations';
-import { generateExcel } from '@/services/excelService';
-import { BasicAvailableBatch } from '@/utils/types/batch/available';
-import { BasicSoldBatch } from '@/utils/types/batch/sold';
 
 const router = Router();
 
@@ -111,6 +112,7 @@ router.get(
             nrYoungMen: 0,
             nrWomen: 0,
             haForestConservation: 0,
+            departmentHarvestDates: [],
         };
 
         let producers: Producer[] = [];
@@ -147,6 +149,8 @@ router.get(
             statistics.kgDryCocoaAvailable = kgAvailableCocoa
                 ? kgAvailableCocoa.toNumber()
                 : 0;
+            statistics.departmentHarvestDates =
+                await getDepartmentsHarvestDatesByName(department);
             report['productionByOrigin'] = productionByOrigin;
             report['internationalSalesInKg'] = internationalSalesInKg;
         } else {
@@ -854,8 +858,7 @@ router.get(
     extractJWT,
     requiresAuth,
     requiresRoles(['association']),
-    asyncMiddleware(async (req: Request, res: Response) => {    
-
+    asyncMiddleware(async (req: Request, res: Response) => {
         try {
             const token: JWTToken = res.locals.jwt;
 
@@ -874,7 +877,7 @@ router.get(
             )
                 ? undefined
                 : parseInt(req.query.index?.toString());
-            
+
             const limit: number | undefined = isNaN(
                 parseInt(req.query.limit?.toString())
             )
@@ -886,8 +889,8 @@ router.get(
             if (token.role === 'association')
                 association = await getAssociationNameOfProducerByUserWallet(
                     token.address
-            );
-            
+                );
+
             // Fetch batches available batches
             const searchBatchesResult = await searchBatches({
                 search: '',
@@ -899,34 +902,38 @@ router.get(
                 year,
             });
 
-            const batchesForExcel = sold ? 
-                searchBatchesResult.data.filter(b => b.sale != null).map(
-                    (b) =>
-                    new BasicSoldBatch(
-                        b.code,
-                        b.sale.buyer,
-                        b.sale.destination,
-                        b.sale.pricePerKg,
-                        b.sale.totalValue,
-                        b.sale.negotiationTerm,
-                        b.fermentationPhase.cocoaType
-                    )
-                ) :
-                searchBatchesResult.data.filter(b => b.sale == null).map(
-                    (b) =>
-                    new BasicAvailableBatch(
-                        b.code,
-                        Number(b.storage.netWeight),
-                        b.fermentationPhase.cocoaType,
-                        b.fermentationPhase.startDate.toDateString(),
-                        Number(b.fermentationPhase.humidity),
-                        Number(b.storage.grainIndex),
-                        b.storage.sensoryProfile
-                    )
-                );
-                    
+            const batchesForExcel = sold
+                ? searchBatchesResult.data
+                      .filter((b) => b.sale != null)
+                      .map(
+                          (b) =>
+                              new BasicSoldBatch(
+                                  b.code,
+                                  b.sale.buyer,
+                                  b.sale.destination,
+                                  b.sale.pricePerKg,
+                                  b.sale.totalValue,
+                                  b.sale.negotiationTerm,
+                                  b.fermentationPhase.cocoaType
+                              )
+                      )
+                : searchBatchesResult.data
+                      .filter((b) => b.sale == null)
+                      .map(
+                          (b) =>
+                              new BasicAvailableBatch(
+                                  b.code,
+                                  Number(b.storage.netWeight),
+                                  b.fermentationPhase.cocoaType,
+                                  b.fermentationPhase.startDate.toDateString(),
+                                  Number(b.fermentationPhase.humidity),
+                                  Number(b.storage.grainIndex),
+                                  b.storage.sensoryProfile
+                              )
+                      );
+
             const workbook = generateExcel(batchesForExcel);
-        
+
             // Set the response headers for Excel download
             res.setHeader(
                 'Content-Type',
@@ -936,15 +943,14 @@ router.get(
                 'Content-Disposition',
                 'attachment; filename=producers.xlsx'
             );
-        
+
             // Write the workbook to the response and end the response
             await workbook.xlsx.write(res);
             res.end();
-        } catch (error)
-        {
-            console.log(error)
+        } catch (error) {
+            console.log(error);
         }
-
-  }));
+    })
+);
 
 export default router;
