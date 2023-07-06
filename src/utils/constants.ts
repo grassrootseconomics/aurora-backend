@@ -78,6 +78,7 @@ export const APP_CONSTANTS = {
                 'Could not find certification with the specified fingerprint!',
             FINGERPRINT_EXISTS:
                 'Fingerprint for this batch data already exists!',
+            NOT_OWNED: 'You do not own the certification for this batch!',
         },
     },
 };

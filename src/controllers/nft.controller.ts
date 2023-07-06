@@ -13,19 +13,18 @@ import {
     getBatchCertificateSnapshotByCode,
 } from '@/services/batchService';
 import {
+    getCertificateBySignedFingerprint,
+    saveNFTCertificateOwnership,
+} from '@/services/certificateOwnerService';
+import {
     createCertification,
-    getCertificationByFingerprint,
     getCertificationByKey,
-    updateCertificationFingerprintByCode,
-    updateCertificationWithMintedData,
-    updateCertificationWithSignedData,
 } from '@/services/certification.service';
+import { getTokenMetadata } from '@/services/nftService';
 import { getDataByHash, sendXMLDataToWala } from '@/services/walaService';
 
-import { fingerprintBatchData } from '@/utils/certifications';
 import { APP_CONSTANTS } from '@/utils/constants';
 import { convertObjectToXml, convertXmlToObject } from '@/utils/methods/xml';
-import { CertificationSignedLink } from '@/utils/types/certification';
 import ApiError from '@/utils/types/errors/ApiError';
 import { JWTToken } from '@/utils/types/server';
 import {
@@ -41,10 +40,59 @@ const router = Router();
 
 // Get Batch Details from wala via Signature key from NFT Metadata.
 router.get(
-    '/:key',
+    '/metadata/:id',
+    // extractJWT,
+    // requiresAuth,
+    // requiresRoles(['project', 'association', 'buyer']),
     validate(getBatchCertificateNFTDetailsSchema),
-    asyncMiddleware(async (req: Request, res: Response) => {
-        const { key } = req.params;
+    asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
+        const { id } = req.params;
+
+        // const token: JWTToken = res.locals.jwt;
+
+        // Check if the nft id is valid.
+        // try {
+        //     const metadata = await getTokenMetadata(id);
+
+        //     if (!metadata) {
+        //         return next(
+        //             new ApiError(
+        //                 400,
+        //                 APP_CONSTANTS.RESPONSE.CERTIFICATION.NOT_OWNED
+        //             )
+        //         );
+        //     }
+        // } catch (err) {
+        //     return next(
+        //         new ApiError(
+        //             400,
+        //             APP_CONSTANTS.RESPONSE.CERTIFICATION.NOT_OWNED
+        //         )
+        //     );
+        // }
+        // if (token.address !== certification.buyerWallet) {
+        //     return next(
+        //         new ApiError(
+        //             400,
+        //             APP_CONSTANTS.RESPONSE.CERTIFICATION.NOT_OWNED
+        //         )
+        //     );
+        // }
+        // Check if certification is valid for this buyer.
+        // const certification = await getCertificationByKey(key);
+
+        // Fetch the certification link.
+        // const certificationLink = await getDataByHash(key);
+
+        // const JSONCertLink = convertXmlToObject(certificationLink);
+
+        // Convert to json.
+
+        // Check if the fingerprint is valid.
+
+        // Fetch the data fingerprint.
+
+        // Convert to json.
 
         return res.status(200).json({
             success: true,
@@ -59,15 +107,13 @@ router.get(
 // Step #1
 // Create new Base Certification for Batch.
 router.post(
-    '/:code',
-    extractJWT,
-    requiresAuth,
-    requiresRoles(['project', 'association']),
+    '/snapshot/:code',
+    // extractJWT,
+    // requiresAuth,
+    // requiresRoles(['project', 'association']),
     validate(createBatchBaseCertificateSchema),
     asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
         const { code } = req.params;
-
-        const token: JWTToken = res.locals.jwt;
 
         if (!code) {
             return next(
@@ -91,97 +137,31 @@ router.post(
                 )
             );
         }
+
         // Get Snapshot
         const batchSnapshotData = await getBatchCertificateSnapshotByCode(code);
         // Convert to XML
         const xmlVersion = convertObjectToXml({ batchSnapshotData });
-        // Hash it first
-        const fingerprintHash = fingerprintBatchData(xmlVersion, 'sha256');
-        // When doing this, should check if exists and send that instead for signing if it was not signed or minted.
-        const existingFingerprintCertification =
-            await getCertificationByFingerprint(fingerprintHash.fingerprint);
 
-        // Check if the certification already exists.
-        if (existingFingerprintCertification) {
-            // Check if this fingerprint was already minted
-            if (
-                existingFingerprintCertification.minterWallet ||
-                existingFingerprintCertification.buyerWallet ||
-                existingFingerprintCertification.tokenId
-            )
-                return next(
-                    new ApiError(
-                        400,
-                        APP_CONSTANTS.RESPONSE.CERTIFICATION.FINGERPRINT_EXISTS
-                    )
-                );
-            // Check if the data exists on wala.
-            const data = await getDataByHash(
-                existingFingerprintCertification.dataFingerprint
-            );
-            // If it does, send the existing certification.
-            if (data) {
-                return res.status(200).json({
-                    success: true,
-                    message:
-                        APP_CONSTANTS.RESPONSE.CERTIFICATION
-                            .RETURN_EXISTING_CERT,
-                    data: {
-                        fingerprint:
-                            existingFingerprintCertification.dataFingerprint,
-                    },
-                });
-            } else {
-                // If not, recreate and update with a new certification from wala.
-                const batchSnapshotData =
-                    await getBatchCertificateSnapshotByCode(code);
+        // Hash of Data does not exist
+        // This means that the batch info changed.
+        // Generate a new certification.
+        const certificationHash = await sendXMLDataToWala(xmlVersion);
 
-                const xmlVersion = convertObjectToXml({ batchSnapshotData });
-                const certificationHash = await sendXMLDataToWala(xmlVersion);
-
-                await updateCertificationFingerprintByCode(
-                    existingFingerprintCertification.dataFingerprint,
-                    certificationHash
-                );
-
-                return res.status(200).json({
-                    success: true,
-                    message:
-                        APP_CONSTANTS.RESPONSE.CERTIFICATION
-                            .GENERATE_UPDATE_CERT,
-                    data: {
-                        fingerprint: certificationHash,
-                    },
-                });
-            }
-        } else {
-            // Hash of Data does not exist
-            // This means that the batch info changed.
-            // Generate a new certification.
-            const certificationHash = await sendXMLDataToWala(xmlVersion);
-            const dateFingerprint = new Date();
-            const certification = await createCertification({
-                codeBatch: code,
-                dateFingerprint: dateFingerprint,
-                dataFingerprint: certificationHash,
-                signerWallet: token.address,
-            });
-
-            return res.status(200).json({
-                success: true,
-                message: APP_CONSTANTS.RESPONSE.CERTIFICATION.SIGN_SUCCESS,
-                data: {
-                    fingerprint: certification.dataFingerprint,
-                },
-            });
-        }
+        return res.status(200).json({
+            success: true,
+            message: APP_CONSTANTS.RESPONSE.CERTIFICATION.SIGN_SUCCESS,
+            data: {
+                fingerprint: certificationHash,
+            },
+        });
     })
 );
 
 // Step #2
 // Update Base Certification with signed Details.
-router.patch(
-    '/:code',
+router.post(
+    '/signing/:code',
     extractJWT,
     requiresAuth,
     requiresRoles(['project', 'association']),
@@ -220,95 +200,79 @@ router.patch(
                 )
             );
         }
-        // CHECK BATCH DETAILS END
 
-        const certification = await getCertificationByFingerprint(
-            dataFingerprint
+        const data = await getDataByHash(dataFingerprint);
+
+        if (!data) {
+            return next(
+                new ApiError(404, 'Snapshot Fingerprint Does not Exist!')
+            );
+        }
+
+        const existingCertification = await getCertificateBySignedFingerprint(
+            signedDataFingerprint
         );
 
-        if (!certification) {
-            return next(
-                new ApiError(
-                    400,
-                    APP_CONSTANTS.RESPONSE.CERTIFICATION.NOT_FOUND
-                )
-            );
-        }
+        // Check if the signed data fingerprint exists.
+        if (existingCertification) {
+            return res.status(200).json({
+                success: true,
+                message: APP_CONSTANTS.RESPONSE.CERTIFICATION.GENERATE_SUCCESS,
+                data: {
+                    key: existingCertification.key,
+                },
+            });
+        } else {
+            // Proceed with creating a new certification.
 
-        // Check If it was already signed
-        if (certification.key) {
-            const data = await getDataByHash(certification.key);
-            if (data) {
-                const signedLink: CertificationSignedLink = convertXmlToObject(
-                    data
-                ) as CertificationSignedLink;
-                // Check if the data is valid
-                if (
-                    signedLink &&
-                    signedLink.fingerprintHash ===
-                        certification.dataFingerprint &&
-                    signedLink.hasSignature ===
-                        certification.signedDataFingerprint
-                ) {
-                    return res.status(200).json({
-                        success: true,
-                        message:
-                            APP_CONSTANTS.RESPONSE.CERTIFICATION
-                                .GENERATE_SUCCESS,
-                        data: {
-                            key: certification.key,
-                        },
-                    });
-                }
+            // START CHECK AUTHENTICATED WALLET TO HAVE SIGNED FINGERPRINT
+            const recoveredAddress = await recoverMessageAddress({
+                message: dataFingerprint,
+                signature: signedDataFingerprint,
+            });
+            if (
+                recoveredAddress.toString().toLowerCase() !==
+                token.address.toLowerCase()
+            ) {
+                return next(
+                    new ApiError(
+                        401,
+                        `You did not sign for this certification!`
+                    )
+                );
             }
-        }
+            // END CHECK AUTHENTICATED WALLET TO HAVE SIGNED FINGERPRINT
 
-        // START CHECK AUTHENTICATED WALLET TO HAVE SIGNED FINGERPRINT
-        const recoveredAddress = await recoverMessageAddress({
-            message: dataFingerprint,
-            signature: signedDataFingerprint,
-        });
-        if (
-            recoveredAddress.toString().toLowerCase() !==
-            token.address.toLowerCase()
-        ) {
-            return next(
-                new ApiError(401, `You did not sign for this certification!`)
-            );
-        }
-        // END CHECK AUTHENTICATED WALLET TO HAVE SIGNED FINGERPRINT
+            // Create link between signature and fingerprintHash of Data Snapshot.
+            const xmlSignatureLink = convertObjectToXml({
+                fingerprintHash: dataFingerprint,
+                hasSignature: signedDataFingerprint,
+            });
 
-        // Create link between signature and fingerprintHash of Data Snapshot.
-        const xmlSignatureLink = convertObjectToXml({
-            fingerprintHash: dataFingerprint,
-            hasSignature: signedDataFingerprint,
-        });
+            const key = await sendXMLDataToWala(xmlSignatureLink);
 
-        const key = await sendXMLDataToWala(xmlSignatureLink);
-
-        const updatedCert = await updateCertificationWithSignedData(
-            dataFingerprint,
-            {
-                signedDataFingerprint,
+            const createdCert = await createCertification({
+                codeBatch: code,
                 dateSigned,
-                signerWallet: token.address,
+                signedDataFingerprint,
+                signerWallet: recoveredAddress,
                 key,
-            }
-        );
+            });
 
-        return res.status(200).json({
-            success: true,
-            message: APP_CONSTANTS.RESPONSE.CERTIFICATION.GENERATE_SUCCESS,
-            data: {
-                key: updatedCert.key,
-            },
-        });
+            return res.status(200).json({
+                success: true,
+                message: APP_CONSTANTS.RESPONSE.CERTIFICATION.GENERATE_SUCCESS,
+                data: {
+                    key: createdCert.key,
+                },
+            });
+        }
     })
 );
 
 // Step #3
 // Update Base Certification with minted NFT ID and receiver Details.
-router.patch(
+router.post(
     '/mint/:code',
     extractJWT,
     requiresAuth,
@@ -357,15 +321,19 @@ router.patch(
                 )
             );
         } else {
-            await updateCertificationWithMintedData(certificateKey, {
+            const ownership = await saveNFTCertificateOwnership({
                 minterWallet,
                 buyerWallet,
                 tokenId,
+                certificationKey: certificateKey,
             });
 
             return res.status(200).json({
                 success: true,
                 message: APP_CONSTANTS.RESPONSE.CERTIFICATION.MINT_SUCCESS,
+                data: {
+                    ownership,
+                },
             });
         }
     })

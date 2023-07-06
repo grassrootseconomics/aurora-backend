@@ -1,16 +1,5 @@
 import { Certification } from '@prisma/client';
 
-export type BaseCertification = Omit<
-    Certification,
-    | 'id'
-    | 'key'
-    | 'dateSigned'
-    | 'signedDataFingerprint'
-    | 'minterWallet'
-    | 'buyerWallet'
-    | 'tokenId'
->;
-
 export type CertificationSignedLink = {
     fingerprintHash: string;
     hasSignature: string;
