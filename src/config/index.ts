@@ -34,6 +34,8 @@ const SMTP_ACCOUNT: string = process.env.SMTP_ACCOUNT || undefined;
 const SMTP_PORT: string = process.env.SMTP_PORT || undefined;
 const SMTP_HOST: string = process.env.SMTP_HOST || undefined;
 
+const NFT_CONTRACT: string = process.env.NFT_CONTRACT || undefined;
+
 const DB = {
     CONNECTION_URL,
 };
@@ -69,4 +71,8 @@ const WALA = {
     URL: CERT_API_URL,
 };
 
-export { SERVER, DB, SMTP, ODK, WALA };
+const NFT = {
+    CONTRACT: NFT_CONTRACT,
+};
+
+export { SERVER, DB, SMTP, ODK, WALA, NFT };

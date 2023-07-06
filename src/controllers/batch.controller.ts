@@ -298,7 +298,6 @@ router.get(
             association = await getAssociationNameOfProducerByUserWallet(
                 token.address
             );
-
         // Fetch batches to calculate internationally sold.
         const searchBatchesResult = await searchBatches({
             search,
@@ -309,11 +308,6 @@ router.get(
             internationallySold: true,
             year,
         });
-
-        // const kgDryCocoaInternationallySold = searchBatchesResult.data.reduce(
-        //     (prev, current) => prev + current.storage.netWeight.toNumber(),
-        //     0
-        // );
 
         const [salesInKg, monthlySalesInUSD, kgDryCocoaInternationallySold] =
             await Promise.all([

@@ -201,20 +201,25 @@ model PulpBatch {
 }
 
 model Certification {
-  id  Int     @id @default(autoincrement())
-  key String? @unique
+  id  Int    @id @default(autoincrement())
+  key String @unique
 
   codeBatch String
   batch     Batch  @relation(fields: [codeBatch], references: [code], onDelete: Cascade)
 
-  dateFingerprint DateTime
-  dataFingerprint String   @unique
-
-  dateSigned            DateTime?
-  signedDataFingerprint String?   @unique
+  dateSigned            DateTime
+  signedDataFingerprint String             @unique
   signerWallet          String
+  attachedNfts          CertificateOwner[]
+}
 
-  minterWallet String?
-  buyerWallet  String?
-  tokenId      String?
+model CertificateOwner {
+  id Int @id @default(autoincrement())
+
+  certificationKey String
+  certification    Certification @relation(fields: [certificationKey], references: [key], onDelete: Cascade)
+
+  minterWallet String
+  buyerWallet  String
+  tokenId      String
 }
