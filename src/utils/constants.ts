@@ -74,8 +74,7 @@ export const APP_CONSTANTS = {
             RETURN_EXISTING_CERT:
                 'Certification Hash already generated for Snapshot Data!',
             BATCH_NOT_SOLD: 'The batch for the certification was not sold!',
-            NOT_FOUND:
-                'Could not find certification with the specified fingerprint!',
+            NOT_FOUND: 'Could not find certificate!',
             FINGERPRINT_EXISTS:
                 'Fingerprint for this batch data already exists!',
             NOT_OWNED: 'You do not own the certification for this batch!',

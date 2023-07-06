@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response, Router } from 'express';
 
 import { recoverMessageAddress } from 'viem';
+import { xml2js } from 'xml-js';
 
 import asyncMiddleware from '@/middleware/asyncMiddleware';
 import extractJWT from '@/middleware/extractJWT';
@@ -13,18 +14,24 @@ import {
     getBatchCertificateSnapshotByCode,
 } from '@/services/batchService';
 import {
+    checkOwnerOfCertification,
     getCertificateBySignedFingerprint,
     saveNFTCertificateOwnership,
 } from '@/services/certificateOwnerService';
 import {
     createCertification,
     getCertificationByKey,
+    getLatestSignedCertificationForBatch,
 } from '@/services/certification.service';
-import { getTokenMetadata } from '@/services/nftService';
 import { getDataByHash, sendXMLDataToWala } from '@/services/walaService';
 
 import { APP_CONSTANTS } from '@/utils/constants';
 import { convertObjectToXml, convertXmlToObject } from '@/utils/methods/xml';
+import {
+    CertificationNFT,
+    CertificationSignedLink,
+    FromXmlCertificationSignedLink,
+} from '@/utils/types/certification';
 import ApiError from '@/utils/types/errors/ApiError';
 import { JWTToken } from '@/utils/types/server';
 import {
@@ -34,71 +41,90 @@ import {
     saveBatchSignedCertificationSchema,
 } from '@/utils/validations/nftValidation';
 
-import certNFTs from '../../scripts/data/certificationNFT.json';
-
 const router = Router();
 
 // Get Batch Details from wala via Signature key from NFT Metadata.
 router.get(
-    '/metadata/:id',
-    // extractJWT,
-    // requiresAuth,
-    // requiresRoles(['project', 'association', 'buyer']),
+    '/metadata/:code',
+    extractJWT,
+    requiresAuth,
+    requiresRoles(['project', 'association', 'buyer']),
     validate(getBatchCertificateNFTDetailsSchema),
     asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-        const { id } = req.params;
+        const { code } = req.params;
 
-        // const token: JWTToken = res.locals.jwt;
+        if (!code) {
+            return next(
+                new ApiError(400, APP_CONSTANTS.RESPONSE.BATCH.MISSING_CODE)
+            );
+        }
 
-        // Check if the nft id is valid.
-        // try {
-        //     const metadata = await getTokenMetadata(id);
+        const batch = await getBatchByCode(code);
 
-        //     if (!metadata) {
-        //         return next(
-        //             new ApiError(
-        //                 400,
-        //                 APP_CONSTANTS.RESPONSE.CERTIFICATION.NOT_OWNED
-        //             )
-        //         );
-        //     }
-        // } catch (err) {
-        //     return next(
-        //         new ApiError(
-        //             400,
-        //             APP_CONSTANTS.RESPONSE.CERTIFICATION.NOT_OWNED
-        //         )
-        //     );
-        // }
-        // if (token.address !== certification.buyerWallet) {
-        //     return next(
-        //         new ApiError(
-        //             400,
-        //             APP_CONSTANTS.RESPONSE.CERTIFICATION.NOT_OWNED
-        //         )
-        //     );
-        // }
-        // Check if certification is valid for this buyer.
-        // const certification = await getCertificationByKey(key);
+        if (!batch) {
+            return next(
+                new ApiError(404, APP_CONSTANTS.RESPONSE.BATCH.NOT_FOUND)
+            );
+        }
 
-        // Fetch the certification link.
-        // const certificationLink = await getDataByHash(key);
+        if (!batch.sale) {
+            return next(
+                new ApiError(
+                    400,
+                    APP_CONSTANTS.RESPONSE.CERTIFICATION.BATCH_NOT_SOLD
+                )
+            );
+        }
 
-        // const JSONCertLink = convertXmlToObject(certificationLink);
+        const token: JWTToken = res.locals.jwt;
 
-        // Convert to json.
+        const certification = await getLatestSignedCertificationForBatch(code);
 
-        // Check if the fingerprint is valid.
+        if (!certification) {
+            return next(
+                new ApiError(
+                    400,
+                    APP_CONSTANTS.RESPONSE.CERTIFICATION.NOT_FOUND
+                )
+            );
+        }
+        // For buyers, we check the ownership
+        if (token.role === 'buyer') {
+            // Check if the authenticated user truly owns the certification
+            const isOwnerInDB = checkOwnerOfCertification(
+                token.address,
+                certification.key
+            );
 
-        // Fetch the data fingerprint.
+            if (!isOwnerInDB) {
+                return next(
+                    new ApiError(
+                        400,
+                        APP_CONSTANTS.RESPONSE.CERTIFICATION.NOT_OWNED
+                    )
+                );
+            }
 
-        // Convert to json.
+            // Should also check the NFT on the blockchain.
+        }
+
+        const signedLinkXml: string = await getDataByHash(certification.key);
+
+        const { root: signedLink }: { root: CertificationSignedLink } =
+            convertXmlToObject(`<root>${signedLinkXml}</root>`) as any;
+
+        const xmlBatchMetadata = await getDataByHash(
+            signedLink.fingerprintHash
+        );
+
+        const jsonBatchMetadata: { batchSnapshotData: CertificationNFT } =
+            convertXmlToObject(xmlBatchMetadata);
 
         return res.status(200).json({
             success: true,
             message: APP_CONSTANTS.RESPONSE.CERTIFICATION.FIND_SUCCESS,
             data: {
-                certificationNFT: certNFTs[0],
+                batchMetadata: jsonBatchMetadata.batchSnapshotData,
             },
         });
     })
@@ -141,18 +167,19 @@ router.post(
         // Get Snapshot
         const batchSnapshotData = await getBatchCertificateSnapshotByCode(code);
         // Convert to XML
-        const xmlVersion = convertObjectToXml({ batchSnapshotData });
+        // const xmlVersion = convertObjectToXml({ batchSnapshotData });
 
-        // Hash of Data does not exist
-        // This means that the batch info changed.
-        // Generate a new certification.
-        const certificationHash = await sendXMLDataToWala(xmlVersion);
+        // // Hash of Data does not exist
+        // // This means that the batch info changed.
+        // // Generate a new certification.
+        // const certificationHash = await sendXMLDataToWala(xmlVersion);
 
         return res.status(200).json({
             success: true,
             message: APP_CONSTANTS.RESPONSE.CERTIFICATION.SIGN_SUCCESS,
             data: {
-                fingerprint: certificationHash,
+                // fingerprint: certificationHash,
+                batchSnapshotData,
             },
         });
     })

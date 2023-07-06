@@ -18,6 +18,25 @@ export const getCertificationByKey = (key: string) => {
 
 /**
  *
+ * Fetches the latest certification of a batch
+ *
+ * @param {string} code Code of the Batch.
+ * @returns
+ */
+export const getLatestSignedCertificationForBatch = (code: string) => {
+    return prisma.certification.findFirst({
+        where: {
+            codeBatch: code,
+        },
+        orderBy: {
+            dateSigned: 'desc',
+        },
+        take: 1,
+    });
+};
+
+/**
+ *
  * Create a new Certification
  *
  * @param {BaseCertification | Certification} certification Required and Optional Certification Data.
