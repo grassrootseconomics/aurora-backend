@@ -797,6 +797,15 @@ export const getBatchCertificateSnapshotByCode = async (
         if (!prodFound) batchProducers.push(pulpUsed.pulp.producer);
     });
 
+    const association = await prisma.association.findUnique({
+        where: {
+            id: assoc.id,
+        },
+        include: {
+            producers: true,
+        },
+    });
+
     const assocDetails: CertificationAssocDetails = {
         name: assoc ? assoc.name : '',
         department: dep ? dep.name : '',
@@ -809,6 +818,12 @@ export const getBatchCertificateSnapshotByCode = async (
         certifications: assoc ? getAgeByBirthDate(assoc.creationDate) : 0,
         regionInformation: dep ? dep.description : '',
     };
+
+    association.producers.forEach((prod) => {
+        if (new Date().getFullYear() - prod.birthYear < 30)
+            assocDetails.nrOfYoungPeople++;
+        if (prod.gender === 'female') assocDetails.nrOfWomen++;
+    });
 
     const batchDetails: CertificationBatchDetails = {
         code: batchInfo.code,

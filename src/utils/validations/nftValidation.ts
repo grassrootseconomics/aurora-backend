@@ -4,7 +4,7 @@ import { DefaultValidation } from '../types/server';
 
 export const getBatchCertificateNFTDetailsSchema: DefaultValidation = {
     params: Joi.object().keys({
-        id: Joi.string().required(),
+        code: Joi.string().required(),
     }),
 };
 

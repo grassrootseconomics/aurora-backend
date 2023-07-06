@@ -21,6 +21,20 @@ export const getCertificateBySignedFingerprint = (
     });
 };
 
+export const checkOwnerOfCertification = async (
+    buyerWallet: string,
+    certKey: string
+) => {
+    const certOwners = await prisma.certificateOwner.findMany({
+        where: {
+            buyerWallet,
+            certificationKey: certKey,
+        },
+    });
+
+    return certOwners.length > 0;
+};
+
 /**
  *
  * Save a new Certificate NFT Owner.

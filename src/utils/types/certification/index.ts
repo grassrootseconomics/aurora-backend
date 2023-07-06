@@ -5,6 +5,15 @@ export type CertificationSignedLink = {
     hasSignature: string;
 };
 
+export type FromXmlCertificationSignedLink = {
+    fingerprintHash: {
+        _text: string;
+    };
+    hasSignature: {
+        _text: string;
+    };
+};
+
 export type CertificationAssocDetails = {
     name: string; // from assoc
     department: string; // from prod.department
