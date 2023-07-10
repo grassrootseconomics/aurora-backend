@@ -134,9 +134,9 @@ router.get(
 // Create new Base Certification for Batch.
 router.post(
     '/snapshot/:code',
-    // extractJWT,
-    // requiresAuth,
-    // requiresRoles(['project', 'association']),
+    extractJWT,
+    requiresAuth,
+    requiresRoles(['project', 'association']),
     validate(createBatchBaseCertificateSchema),
     asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
         const { code } = req.params;
@@ -167,19 +167,18 @@ router.post(
         // Get Snapshot
         const batchSnapshotData = await getBatchCertificateSnapshotByCode(code);
         // Convert to XML
-        // const xmlVersion = convertObjectToXml({ batchSnapshotData });
+        const xmlVersion = convertObjectToXml({ batchSnapshotData });
 
         // // Hash of Data does not exist
         // // This means that the batch info changed.
         // // Generate a new certification.
-        // const certificationHash = await sendXMLDataToWala(xmlVersion);
+        const certificationHash = await sendXMLDataToWala(xmlVersion);
 
         return res.status(200).json({
             success: true,
             message: APP_CONSTANTS.RESPONSE.CERTIFICATION.SIGN_SUCCESS,
             data: {
-                // fingerprint: certificationHash,
-                batchSnapshotData,
+                fingerprint: certificationHash,
             },
         });
     })
