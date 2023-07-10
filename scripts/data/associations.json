@@ -1,0 +1,38 @@
+[
+    {
+        "name": "Association #1",
+        "creationDate": "2023-05-12T08:20:37.902Z",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur convallis massa in tellus bibendum eleifend. Nam tristique suscipit ante tempor porta. Aenean sed dui arcu.",
+        "nrOfAssociates": 10
+    },
+    {
+        "name": "Association #2",
+        "creationDate": "2023-05-04T13:42:37.902Z",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur convallis massa in tellus bibendum eleifend. Nam tristique suscipit ante tempor porta. Aenean sed dui arcu.",
+        "nrOfAssociates": 10
+    },
+    {
+        "name": "Association #3",
+        "creationDate": "2023-05-05T09:42:37.902Z",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur convallis massa in tellus bibendum eleifend. Nam tristique suscipit ante tempor porta. Aenean sed dui arcu.",
+        "nrOfAssociates": 10
+    },
+    {
+        "name": "Association #4",
+        "creationDate": "2023-05-11T16:42:37.902Z",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur convallis massa in tellus bibendum eleifend. Nam tristique suscipit ante tempor porta. Aenean sed dui arcu.",
+        "nrOfAssociates": 10
+    },
+    {
+        "name": "Association #5",
+        "creationDate": "2023-05-10T14:42:37.902Z",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur convallis massa in tellus bibendum eleifend. Nam tristique suscipit ante tempor porta. Aenean sed dui arcu.",
+        "nrOfAssociates": 10
+    },
+    {
+        "name": "Association #6",
+        "creationDate": "2023-05-11T13:42:37.902Z",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur convallis massa in tellus bibendum eleifend. Nam tristique suscipit ante tempor porta. Aenean sed dui arcu.",
+        "nrOfAssociates": 10
+    }
+]

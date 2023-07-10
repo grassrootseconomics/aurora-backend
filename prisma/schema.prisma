@@ -20,9 +20,13 @@ model User {
   id            Int     @id @default(autoincrement())
   username      String?
   walletAddress String  @unique
+  emailAddress  String?
   role          Role    @relation(fields: [idRole], references: [id])
-  idRole        Int
+  idRole        Int     @default(1)
   nonces        Nonce?
+
+  idProducer      Int?      @unique
+  producerDetails Producer? @relation(fields: [idProducer], references: [id])
 }
 
 model Nonce {
@@ -30,6 +34,192 @@ model Nonce {
   substance  String
   expiration DateTime
 
-  user   User @relation(fields: [idUser], references: [id])
-  idUser Int  @unique
+  user       User   @relation(fields: [userWallet], references: [walletAddress])
+  userWallet String @unique
+}
+
+model Producer {
+  id          Int     @id @default(autoincrement())
+  code        String? @unique
+  firstName   String
+  lastName    String
+  phoneNumber String
+  gender      String
+  birthYear   Int
+
+  // DEPARTMENT FOREGIN KEY
+  idDepartment Int
+  department   Department @relation(fields: [idDepartment], references: [id])
+
+  municipiality String
+  village       String
+
+  // ASSOCIATION FOREIGN KEY
+  idAssociation Int
+  association   Association @relation(fields: [idAssociation], references: [id])
+
+  farmName String
+  location String
+
+  nrOfHa         Decimal
+  nrCocoaHa      Decimal
+  nrForestHa     Decimal
+  nrCocoaLots    Decimal
+  nrWaterSources Decimal
+  wildlife       String
+
+  producedPulps Pulp[]
+  platformUser  User?
+}
+
+// An Association, otherwise known as groups of Producers.
+model Association {
+  id             Int        @id @default(autoincrement())
+  name           String     @unique
+  creationDate   DateTime
+  description    String
+  emailAddress   String?
+  nrOfAssociates Int
+  fbSocialLink   String?
+  instSocialLink String?
+  producers      Producer[]
+}
+
+// Departments or Counties of Associations
+model Department {
+  id          Int    @id @default(autoincrement())
+  name        String @unique
+  description String
+
+  nextHarvest DateTime @default(dbgenerated("now() + interval '1 month'"))
+
+  nrOfAssociates Decimal
+  producers      Producer[]
+}
+
+// Batches produced and sold
+model Batch {
+  id   Int    @id @default(autoincrement())
+  code String @unique
+
+  sale              Sale?
+  storage           Storage?
+  dryingPhase       DryingPhase?
+  fermentationPhase FermentationPhase?
+  pulpsUsed         PulpBatch[]
+  certifications    Certification[]
+}
+
+// Sales Phase of a Batch
+model Sale {
+  id              Int      @id @default(autoincrement())
+  buyer           String
+  lotCode         String
+  negotiation     String
+  negotiationTerm String
+  negotiationDate DateTime
+  destination     String
+  currency        String
+  pricePerKg      Int
+  totalValue      Int
+
+  codeBatch String @unique
+  batch     Batch  @relation(fields: [codeBatch], references: [code])
+}
+
+// Storage Phase of a Batch
+model Storage {
+  id                     Int      @id @default(autoincrement())
+  dayEntry               DateTime
+  netWeight              Decimal
+  conversionFaction      Decimal
+  fermentationPercentage Decimal
+  grainIndex             Decimal
+  sensoryProfile         String
+  score                  Int
+
+  codeBatch String @unique
+  batch     Batch  @relation(fields: [codeBatch], references: [code])
+}
+
+// Drying Phase of a Batch
+model DryingPhase {
+  id                 Int      @id @default(autoincrement())
+  startDate          DateTime
+  endDate            DateTime
+  totalDryingDays    Int
+  finalGrainHumidity Int
+
+  codeBatch String @unique
+  batch     Batch  @relation(fields: [codeBatch], references: [code])
+}
+
+// Fermentation Phase of a Batch
+model FermentationPhase {
+  id           Int      @id @default(autoincrement())
+  cocoaType    String
+  startDate    DateTime
+  genetics     String
+  weight       Decimal
+  brixDegrees  Decimal
+  humidity     Decimal
+  hoursDrained Decimal
+  nrFlips      Decimal
+  totalDays    Decimal
+
+  codeBatch String @unique
+  batch     Batch  @relation(fields: [codeBatch], references: [code])
+
+  flips        Json[]
+  dailyReports Json[]
+}
+
+model Pulp {
+  id Int @id @default(autoincrement())
+
+  codeProducer String
+  producer     Producer @relation(fields: [codeProducer], references: [code])
+
+  collectionDate DateTime
+  quality        String
+  status         String
+  genetics       String
+  totalPulpKg    Decimal
+  pricePerKg     Decimal
+  totalPrice     Decimal
+  batchesUsedFor PulpBatch[]
+}
+
+// Connects multiple pulps to multiple batches.
+model PulpBatch {
+  id        Int    @id @default(autoincrement())
+  codeBatch String
+  batch     Batch  @relation(fields: [codeBatch], references: [code], onDelete: Cascade)
+
+  idPulp Int
+  pulp   Pulp @relation(fields: [idPulp], references: [id], onDelete: Cascade)
+}
+
+model Certification {
+  id  Int    @id @default(autoincrement())
+  key String @unique
+
+  codeBatch String
+  batch     Batch  @relation(fields: [codeBatch], references: [code], onDelete: Cascade)
+
+  dateSigned            DateTime
+  signedDataFingerprint String             @unique
+  signerWallet          String
+  attachedNfts          CertificateOwner[]
+}
+
+model CertificateOwner {
+  id Int @id @default(autoincrement())
+
+  certificationKey String
+  certification    Certification @relation(fields: [certificationKey], references: [key], onDelete: Cascade)
+
+  minterWallet String
+  buyerWallet  String
+  tokenId      String
 }

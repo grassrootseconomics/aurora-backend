@@ -1,0 +1,27 @@
+[
+    {
+        "name": "Department #1",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur convallis massa in tellus bibendum eleifend. Nam tristique suscipit ante tempor porta. Aenean sed dui arcu.",
+        "nrOfAssociates": 15
+    },
+    {
+        "name": "Department #2",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur convallis massa in tellus bibendum eleifend. Nam tristique suscipit ante tempor porta. Aenean sed dui arcu.",
+        "nrOfAssociates": 12
+    },
+    {
+        "name": "Department #3",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur convallis massa in tellus bibendum eleifend. Nam tristique suscipit ante tempor porta. Aenean sed dui arcu.",
+        "nrOfAssociates": 17
+    },
+    {
+        "name": "Department #4",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur convallis massa in tellus bibendum eleifend. Nam tristique suscipit ante tempor porta. Aenean sed dui arcu.",
+        "nrOfAssociates": 11
+    },
+    {
+        "name": "Department #5",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur convallis massa in tellus bibendum eleifend. Nam tristique suscipit ante tempor porta. Aenean sed dui arcu.",
+        "nrOfAssociates": 10
+    }
+]

@@ -1,0 +1,62 @@
+[
+    {
+        "dayEntry": "2023-05-15T07:18:31.100Z",
+        "netWeight": 4,
+        "conversionFaction": 3,
+        "fermentationPercentage": 2,
+        "grainIndex": 2.2,
+        "sensoryProfile": "Profile #1",
+        "score": 8.7,
+        "codeBatch": "12672"
+    },
+    {
+        "dayEntry": "2023-05-15T07:18:31.100Z",
+        "netWeight": 4,
+        "conversionFaction": 3,
+        "fermentationPercentage": 2,
+        "grainIndex": 2.2,
+        "sensoryProfile": "Profile #2",
+        "score": 8.7,
+        "codeBatch": "72132"
+    },
+    {
+        "dayEntry": "2023-05-15T07:18:31.100Z",
+        "netWeight": 4,
+        "conversionFaction": 3,
+        "fermentationPercentage": 2,
+        "grainIndex": 2.2,
+        "sensoryProfile": "Profile #3",
+        "score": 8.7,
+        "codeBatch": "89236"
+    },
+    {
+        "dayEntry": "2023-05-15T07:18:31.100Z",
+        "netWeight": 4,
+        "conversionFaction": 3,
+        "fermentationPercentage": 2,
+        "grainIndex": 2.2,
+        "sensoryProfile": "Profile #2",
+        "score": 8.7,
+        "codeBatch": "32867"
+    },
+    {
+        "dayEntry": "2023-05-15T07:18:31.100Z",
+        "netWeight": 4,
+        "conversionFaction": 3,
+        "fermentationPercentage": 2,
+        "grainIndex": 2.2,
+        "sensoryProfile": "Profile #1",
+        "score": 8.7,
+        "codeBatch": "28937"
+    },
+    {
+        "dayEntry": "2023-05-15T07:18:31.100Z",
+        "netWeight": 4,
+        "conversionFaction": 3,
+        "fermentationPercentage": 2,
+        "grainIndex": 2.2,
+        "sensoryProfile": "Profile #1",
+        "score": 8.7,
+        "codeBatch": "82322"
+    }
+]

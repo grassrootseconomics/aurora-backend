@@ -1,0 +1,62 @@
+[
+    {
+        "codeProducer": "27321",
+        "collectionDate": "2023-05-15T06:53:21.961Z",
+        "quality": "healthy",
+        "status": "Transitional",
+        "genetics": "hybrid",
+        "totalPulpKg": "2.3",
+        "pricePerKg": "4.2",
+        "totalPrice": "10"
+    },
+    {
+        "codeProducer": "74382",
+        "collectionDate": "2023-05-15T06:53:21.961Z",
+        "quality": "healthy",
+        "status": "Conventional",
+        "genetics": "hybrid",
+        "totalPulpKg": "2.3",
+        "pricePerKg": "4.2",
+        "totalPrice": "10"
+    },
+    {
+        "codeProducer": "27321",
+        "collectionDate": "2023-05-15T06:53:21.961Z",
+        "quality": "healthy",
+        "status": "Transitional",
+        "genetics": "hybrid",
+        "totalPulpKg": "2.3",
+        "pricePerKg": "4.2",
+        "totalPrice": "10"
+    },
+    {
+        "codeProducer": "10292",
+        "collectionDate": "2023-05-15T06:53:21.961Z",
+        "quality": "healthy",
+        "status": "Conventional",
+        "genetics": "hybrid",
+        "totalPulpKg": "2.3",
+        "pricePerKg": "4.2",
+        "totalPrice": "10"
+    },
+    {
+        "codeProducer": "92832",
+        "collectionDate": "2023-05-15T06:53:21.961Z",
+        "quality": "healthy",
+        "status": "Conventional",
+        "genetics": "hybrid",
+        "totalPulpKg": "2.3",
+        "pricePerKg": "4.2",
+        "totalPrice": "10"
+    },
+    {
+        "codeProducer": "92832",
+        "collectionDate": "2023-05-15T06:53:21.961Z",
+        "quality": "healthy",
+        "status": "Conventional",
+        "genetics": "hybrid",
+        "totalPulpKg": "2.3",
+        "pricePerKg": "4.2",
+        "totalPrice": "10"
+    }
+]

@@ -9,6 +9,10 @@
   "prisma": {
     "seed": "ts-node scripts/seed.ts"
   },
+  "_moduleAliases": {
+    "@modules": "build/modules",
+    "@core": "build/core"
+  },
   "scripts": {
     "start:docker": "yarn build && node ./dist/src/index.js",
     "docker:db:migrate": "docker compose run cacao-api yarn prisma migrate dev",
@@ -22,14 +26,28 @@
   },
   "dependencies": {
     "@prisma/client": "^4.14.0",
+    "@types/node-cron": "^3.0.7",
+    "axios": "^1.4.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
-    "express": "^4.18.2"
+    "ethers": "^6.6.2",
+    "exceljs": "^4.3.0",
+    "express": "^4.18.2",
+    "joi": "^17.9.2",
+    "jsonwebtoken": "^9.0.0",
+    "jszip": "^3.10.1",
+    "node-cron": "^3.0.2",
+    "nodemailer": "^6.9.3",
+    "viem": "^0.3.30",
+    "xml-js": "^1.6.11"
   },
   "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^4.1.1",
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
+    "@types/jsonwebtoken": "^9.0.2",
     "@types/node": "^20.1.1",
+    "@types/nodemailer": "^6.4.8",
     "@types/nodemon": "^1.19.2",
     "@typescript-eslint/eslint-plugin": "^5.59.5",
     "@typescript-eslint/parser": "^5.59.5",
@@ -40,6 +58,7 @@
     "prettier": "^2.8.8",
     "prisma": "^4.14.0",
     "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.0.4"
   }
 }

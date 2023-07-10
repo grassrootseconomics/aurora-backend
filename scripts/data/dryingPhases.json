@@ -1,0 +1,44 @@
+[
+    {
+        "startDate": "2023-05-10T06:23:16.944Z",
+        "endDate": "2023-05-15T06:23:16.944Z",
+        "totalDryingDays": 5,
+        "finalGrainHumidity": 2,
+        "codeBatch": "12672"
+    },
+    {
+        "startDate": "2023-05-10T06:23:16.944Z",
+        "endDate": "2023-05-15T06:23:16.944Z",
+        "totalDryingDays": 5,
+        "finalGrainHumidity": 2,
+        "codeBatch": "72132"
+    },
+    {
+        "startDate": "2023-05-10T06:23:16.944Z",
+        "endDate": "2023-05-15T06:23:16.944Z",
+        "totalDryingDays": 5,
+        "finalGrainHumidity": 2,
+        "codeBatch": "89236"
+    },
+    {
+        "startDate": "2023-05-10T06:23:16.944Z",
+        "endDate": "2023-05-15T06:23:16.944Z",
+        "totalDryingDays": 5,
+        "finalGrainHumidity": 2,
+        "codeBatch": "32867"
+    },
+    {
+        "startDate": "2023-05-10T06:23:16.944Z",
+        "endDate": "2023-05-15T06:23:16.944Z",
+        "totalDryingDays": 5,
+        "finalGrainHumidity": 2,
+        "codeBatch": "28937"
+    },
+    {
+        "startDate": "2023-05-10T06:23:16.944Z",
+        "endDate": "2023-05-15T06:23:16.944Z",
+        "totalDryingDays": 5,
+        "finalGrainHumidity": 2,
+        "codeBatch": "82322"
+    }
+]

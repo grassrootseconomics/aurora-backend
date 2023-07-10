@@ -1,4 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
+
 import { IResponseStructure } from '../utils/types/server';
 
 type FnContent = (
