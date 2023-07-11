@@ -1,27 +1,12 @@
 [
     {
-        "name": "Department #1",
-        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur convallis massa in tellus bibendum eleifend. Nam tristique suscipit ante tempor porta. Aenean sed dui arcu.",
-        "nrOfAssociates": 15
+        "name": "Huila",
+        "description": "Huila has a strategic location, between the central and eastern mountain ranges and including the Magdalena River valley, which contributes to the great biodiversity within it. The presence of different thermal floors and soil types lead to a considerable nutrient flow and diversity of ecosystems. This has generated great interest in the agricultural production of the department, since historically it has been an area characterized by food production and over time strategies have been developed to enhance crops. One of the outstanding products is Cocoa, which is part of the region from the pre-Columbian communities until today and is cultivated in 35 of the 37 municipalities of Huila by more than 3,300 families. This positions Huila in the top 4 departments with cocoa production, contributing an approximate of 7% to the country. In 2020 4,197 tons were registered, cultivated in 7000 ha of the department. Cocoa production has been an important economic alternative for people, who have replaced illicit crops with a product that has opened its doors to fairtrade and economic development in the department and with international buyers. Cocoa from this region is characterized by having a dominant flavor of cocoa and nut, with acetic acidity that is mixed with attributes of dried fruits.",
+        "nrOfAssociates": 0
     },
     {
-        "name": "Department #2",
-        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur convallis massa in tellus bibendum eleifend. Nam tristique suscipit ante tempor porta. Aenean sed dui arcu.",
-        "nrOfAssociates": 12
-    },
-    {
-        "name": "Department #3",
-        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur convallis massa in tellus bibendum eleifend. Nam tristique suscipit ante tempor porta. Aenean sed dui arcu.",
-        "nrOfAssociates": 17
-    },
-    {
-        "name": "Department #4",
-        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur convallis massa in tellus bibendum eleifend. Nam tristique suscipit ante tempor porta. Aenean sed dui arcu.",
-        "nrOfAssociates": 11
-    },
-    {
-        "name": "Department #5",
-        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur convallis massa in tellus bibendum eleifend. Nam tristique suscipit ante tempor porta. Aenean sed dui arcu.",
-        "nrOfAssociates": 10
+        "name": "Caqueta",
+        "description": "Caquetá is a department located in the Amazon region, characterized by a tropical jungle ecosystem, high humidity, superior water supply, diversity of flora and fauna, soil fertility, especially those that descend from the eastern mountain range. In the last decade, the department had a productive transformation, where currently agricultural activity is prioritized, including cocoa. In 2022, Caquetá is in charge of 75% of cocoa production in the amazonian region of Colombia, around 500 families are involved, producing 768 tons annually. By being an Amazon origin fruit, Caquetá contributes its ancestral characteristics, highlighting the flavors of the region. Its production has replaced deforestation and crops for illicit use, which has promoted economic development with responsible and sustainable trade that contributes to reforestation, food security and the persistence of traditional flavors. Cocoa from this region typically has a lactic acid and fruity profile, complemented by berries, yellow pulp and caramel flavors.",
+        "nrOfAssociates": 0
     }
 ]

@@ -74,12 +74,19 @@ model Producer {
 
 // An Association, otherwise known as groups of Producers.
 model Association {
-  id             Int        @id @default(autoincrement())
-  name           String     @unique
-  creationDate   DateTime
-  description    String
-  emailAddress   String?
-  nrOfAssociates Int
+  id Int @id @default(autoincrement())
+
+  name          String   @unique
+  creationDate  DateTime
+  description   String
+  emailAddress  String?
+  municipiality String?
+
+  nrOfAssociates Int     @default(0)
+  nrWomen        Decimal @default(0)
+  nrYoungPeople  Decimal @default(0)
+
+  sensoryProfile String?
   fbSocialLink   String?
   instSocialLink String?
   producers      Producer[]
