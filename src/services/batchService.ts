@@ -880,10 +880,10 @@ export const getBatchCertificateSnapshotByCode = async (
 
         // Split the each producer's wildlife collection into separate varieties
         const prodWildlifeVarieties = prod.wildlife.split(' ');
-
         // Check each variety if it exists.
         prodWildlifeVarieties.forEach((prodVariety) => {
             if (
+                prodVariety &&
                 !identifiedVarieties.find((variety) => variety === prodVariety)
             ) {
                 identifiedVarieties.push(prod.wildlife);
