@@ -877,9 +877,18 @@ export const getBatchCertificateSnapshotByCode = async (
         producers.haConservationForest += prod.nrForestHa.toNumber();
         if (prod.gender === 'male') producers.nrMen++;
         else producers.nrWomen++;
-        if (!identifiedVarieties.find((variety) => variety === prod.wildlife)) {
-            identifiedVarieties.push(prod.wildlife);
-        }
+
+        // Split the each producer's wildlife collection into separate varieties
+        const prodWildlifeVarieties = prod.wildlife.split(' ');
+
+        // Check each variety if it exists.
+        prodWildlifeVarieties.forEach((prodVariety) => {
+            if (
+                !identifiedVarieties.find((variety) => variety === prodVariety)
+            ) {
+                identifiedVarieties.push(prod.wildlife);
+            }
+        });
     });
 
     producers.identifiedVarieties = identifiedVarieties;
