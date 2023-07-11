@@ -865,7 +865,7 @@ export const getBatchCertificateSnapshotByCode = async (
     const producers: CertificationProducersInfo = {
         haCocoa: 0,
         haConservationForest: 0,
-        identifiedVarieties: [],
+        identifiedVarieties: '',
         nrMen: 0,
         nrWomen: 0,
     };
@@ -891,7 +891,7 @@ export const getBatchCertificateSnapshotByCode = async (
         });
     });
 
-    producers.identifiedVarieties = identifiedVarieties;
+    producers.identifiedVarieties = identifiedVarieties.join(', ');
 
     const harvesting: CertificationHarvestingInfo = {
         date: batchInfo.pulpsUsed

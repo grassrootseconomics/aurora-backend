@@ -52,7 +52,7 @@ export type CertificationBatchDetails = {
 export type CertificationProducersInfo = {
     haCocoa: number;
     haConservationForest: number;
-    identifiedVarieties: string[];
+    identifiedVarieties: string;
     // Count men and women
     nrMen: number;
     nrWomen: number;
