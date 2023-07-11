@@ -753,6 +753,14 @@ export const getBatchesBySoldStatus = (
     });
 };
 
+/**
+ *
+ * Generate an information snapshot of a batch by its code.
+ *
+ * @param {string} code Code of the Batch
+ *
+ * @returns {Promise<CertificationNFT>}
+ */
 export const getBatchCertificateSnapshotByCode = async (
     code: string
 ): Promise<CertificationNFT> => {
@@ -869,11 +877,12 @@ export const getBatchCertificateSnapshotByCode = async (
         producers.haConservationForest += prod.nrForestHa.toNumber();
         if (prod.gender === 'male') producers.nrMen++;
         else producers.nrWomen++;
-
         if (!identifiedVarieties.find((variety) => variety === prod.wildlife)) {
             identifiedVarieties.push(prod.wildlife);
         }
     });
+
+    producers.identifiedVarieties = identifiedVarieties;
 
     const harvesting: CertificationHarvestingInfo = {
         date: batchInfo.pulpsUsed
@@ -887,6 +896,7 @@ export const getBatchCertificateSnapshotByCode = async (
                 : undefined
             : undefined,
     };
+
     const fermentation: CertificationFermentationInfo = {
         startDate: batchInfo.fermentationPhase
             ? batchInfo.fermentationPhase.startDate.toISOString()
