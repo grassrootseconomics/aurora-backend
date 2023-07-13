@@ -386,11 +386,6 @@ router.get(
             year,
         });
 
-        // const kgDryCocoaAvailable = searchBatchesResult.data.reduce(
-        //     (prev, current) => prev + current.storage.netWeight.toNumber(),
-        //     0
-        // );
-
         const [monthlyCocoaPulp, productionOfDryCocoa, kgDryCocoaAvailable] =
             await Promise.all([
                 getMonthlyCocoaPulp(year, association),

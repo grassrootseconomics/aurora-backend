@@ -43,6 +43,9 @@ import {
     MonthlySalesInUSD,
 } from '@/utils/types/reports';
 
+import assocInfo from '../utils/assocDetails.json';
+import depInfo from '../utils/depDetails.json';
+
 /**
  *
  * Calculates the total kg of available/sold cocoa.
@@ -292,11 +295,11 @@ export const getSalesInKgByAssociation = async (
                 },
                 {
                     producers: {
-                        every: {
+                        some: {
                             producedPulps: {
-                                every: {
+                                some: {
                                     batchesUsedFor: {
-                                        every: {
+                                        some: {
                                             batch: onlyInternational
                                                 ? {
                                                       sale: {
@@ -335,7 +338,6 @@ export const getSalesInKgByAssociation = async (
             },
         },
     });
-
     const reports: MonthlySalesInKg = [...Array(12)].map(() => {
         const associationReport = {};
         associationsWithBatches.forEach((assoc) => {
@@ -344,29 +346,37 @@ export const getSalesInKgByAssociation = async (
 
         return associationReport;
     });
-
+    const checkedBatchCodes: string[] = [];
     reports.forEach((_element, index) => {
         Object.keys(reports[index]).map((association) => {
             const associationData = associationsWithBatches.find(
                 (assoc) => assoc.name === association
             );
-
+            checkedBatchCodes.splice(0, checkedBatchCodes.length);
             // Add all kgs in storage of batches of an association
             associationData.producers.forEach((producer) => {
                 producer.producedPulps.forEach((pulp) => {
                     reports[index][association] += pulp.batchesUsedFor.reduce(
                         (prev, current) => {
-                            if (!current.batch.sale) return prev + 0;
-                            const dayEntry = current.batch.sale.negotiationDate;
                             if (
-                                dayEntry.getFullYear() === year &&
-                                dayEntry.getMonth() === index
-                            )
-                                return (
-                                    prev +
-                                    current.batch.storage.netWeight.toNumber()
-                                );
-                            else return prev + 0;
+                                checkedBatchCodes.includes(current.batch.code)
+                            ) {
+                                return prev + 0;
+                            } else {
+                                checkedBatchCodes.push(current.batch.code);
+                                if (!current.batch.sale) return prev + 0;
+                                const dayEntry =
+                                    current.batch.sale.negotiationDate;
+                                if (
+                                    dayEntry.getFullYear() === year &&
+                                    dayEntry.getMonth() === index
+                                ) {
+                                    return (
+                                        prev +
+                                        current.batch.storage.netWeight.toNumber()
+                                    );
+                                } else return prev + 0;
+                            }
                         },
                         0
                     );
@@ -375,6 +385,7 @@ export const getSalesInKgByAssociation = async (
         });
     });
 
+    // console.log(reports);
     return reports;
 };
 
@@ -400,11 +411,11 @@ export const getSalesInKgByDepartment = async (
                 { name: departmentName },
                 {
                     producers: {
-                        every: {
+                        some: {
                             producedPulps: {
-                                every: {
+                                some: {
                                     batchesUsedFor: {
-                                        every: {
+                                        some: {
                                             batch: onlyInternational
                                                 ? {
                                                       sale: {
@@ -453,26 +464,36 @@ export const getSalesInKgByDepartment = async (
         return departmentReport;
     });
 
+    const checkedBatchCodes: string[] = [];
     reports.forEach((_el, index) => {
         Object.keys(reports[index]).map((department) => {
             const departmentData = regionsWithSale.find(
                 (dep) => dep.name === department
             );
 
+            checkedBatchCodes.splice(0, checkedBatchCodes.length);
             departmentData.producers.forEach((producer) => {
                 producer.producedPulps.forEach((pulp) => {
                     reports[index][department] += pulp.batchesUsedFor.reduce(
                         function (prev, current) {
-                            const dayEntry = current.batch.sale.negotiationDate;
                             if (
-                                dayEntry.getFullYear() === year &&
-                                dayEntry.getMonth() === index
+                                checkedBatchCodes.includes(current.batch.code)
                             ) {
-                                return (
-                                    prev +
-                                    current.batch.storage.netWeight.toNumber()
-                                );
-                            } else return prev + 0;
+                                return prev + 0;
+                            } else {
+                                checkedBatchCodes.push(current.batch.code);
+                                const dayEntry =
+                                    current.batch.sale.negotiationDate;
+                                if (
+                                    dayEntry.getFullYear() === year &&
+                                    dayEntry.getMonth() === index
+                                ) {
+                                    return (
+                                        prev +
+                                        current.batch.storage.netWeight.toNumber()
+                                    );
+                                } else return prev + 0;
+                            }
                         },
                         0
                     );
@@ -816,15 +837,41 @@ export const getBatchCertificateSnapshotByCode = async (
 
     const assocDetails: CertificationAssocDetails = {
         name: assoc ? assoc.name : '',
-        department: dep ? dep.name : '',
-        town: firstProd ? firstProd.municipiality : '',
+        department: assoc ? assoc.department : '',
+        town: assoc ? assoc.municipiality : '',
         nrOfAssociates: assoc ? assoc.nrOfAssociates : 0,
-        nrOfWomen: 0,
-        nrOfYoungPeople: 0,
-        story: assoc ? assoc.description : '',
+        nrOfWomen: assoc ? assoc.nrWomen.toNumber() : 0,
+        nrOfYoungPeople: assoc ? assoc.nrYoungPeople.toNumber() : 0,
+        story: assoc
+            ? assocInfo[assoc.name]
+                ? {
+                      en: assocInfo[assoc.name].description.en,
+                      es: assocInfo[assoc.name].description.es,
+                  }
+                : {
+                      en: assoc ? assoc.description : '',
+                      es: assoc ? assoc.description : '',
+                  }
+            : {
+                  es: '',
+                  en: '',
+              },
         yearsOfExistence: assoc ? getAgeByBirthDate(assoc.creationDate) : 0,
         certifications: assoc ? getAgeByBirthDate(assoc.creationDate) : 0,
-        regionInformation: dep ? dep.description : '',
+        regionInformation: dep
+            ? depInfo[dep.name]
+                ? {
+                      en: depInfo[dep.name].description.en,
+                      es: depInfo[dep.name].description.es,
+                  }
+                : {
+                      en: dep.description,
+                      es: dep.description,
+                  }
+            : {
+                  en: '',
+                  es: '',
+              },
     };
 
     association.producers.forEach((prod) => {
@@ -858,9 +905,20 @@ export const getBatchCertificateSnapshotByCode = async (
             ? batchInfo.storage.conversionFaction.toString()
             : '',
         score: batchInfo.storage ? batchInfo.storage.score : undefined,
-        sensoryProfile: batchInfo.storage
-            ? batchInfo.storage.sensoryProfile
-            : '',
+        sensoryProfile: assoc
+            ? assocInfo[assoc.name]
+                ? {
+                      en: assocInfo[assoc.name].sensoryProfile.en,
+                      es: assocInfo[assoc.name].sensoryProfile.es,
+                  }
+                : {
+                      en: assoc ? assoc.sensoryProfile : '',
+                      es: assoc ? assoc.sensoryProfile : '',
+                  }
+            : {
+                  es: '',
+                  en: '',
+              },
     };
     const producers: CertificationProducersInfo = {
         haCocoa: 0,
