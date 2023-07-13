@@ -411,11 +411,11 @@ export const getSalesInKgByDepartment = async (
                 { name: departmentName },
                 {
                     producers: {
-                        some: {
+                        every: {
                             producedPulps: {
-                                some: {
+                                every: {
                                     batchesUsedFor: {
-                                        some: {
+                                        every: {
                                             batch: onlyInternational
                                                 ? {
                                                       sale: {
@@ -677,18 +677,20 @@ export const getProductionOfDryCocoa = async (
                 producer.producedPulps.forEach((pulp) => {
                     reports[index][association] += pulp.batchesUsedFor.reduce(
                         (prev, current) => {
-                            const dayEntry = current.batch.storage.dayEntry;
-                            if (
-                                dayEntry.getFullYear() === year &&
-                                dayEntry.getMonth() === index
-                            ) {
-                                return (
-                                    prev +
-                                    current.batch.storage.netWeight.toNumber()
-                                );
-                            } else {
-                                return prev + 0;
-                            }
+                            if (current.batch.storage) {
+                                const dayEntry = current.batch.storage.dayEntry;
+                                if (
+                                    dayEntry.getFullYear() === year &&
+                                    dayEntry.getMonth() === index
+                                ) {
+                                    return (
+                                        prev +
+                                        current.batch.storage.netWeight.toNumber()
+                                    );
+                                } else {
+                                    return prev + 0;
+                                }
+                            } else return prev + 0;
                         },
                         0
                     );
