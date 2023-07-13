@@ -21,11 +21,19 @@ export type CertificationAssocDetails = {
     nrOfAssociates: number; // form assoc
     nrOfWomen: number; // count from producers
     nrOfYoungPeople: number; // count from young people
-    story: string; // assoc description
+    // assoc description
+    story: {
+        en: string;
+        es: string;
+    };
     yearsOfExistence: number; // from assoc
     // Unsure, but coudl be form assoc
     certifications: number;
-    regionInformation: string; // from department description.
+    // from department description.
+    regionInformation: {
+        en: string;
+        es: string;
+    };
 };
 
 export type CertificationBatchDetails = {
@@ -46,7 +54,10 @@ export type CertificationBatchDetails = {
     // From Storage Phase
     conversionFactor: string;
     score: number;
-    sensoryProfile: string;
+    sensoryProfile: {
+        en: string;
+        es: string;
+    };
 };
 
 export type CertificationProducersInfo = {

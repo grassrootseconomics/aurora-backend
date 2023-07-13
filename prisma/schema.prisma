@@ -80,6 +80,7 @@ model Association {
   creationDate  DateTime
   description   String
   emailAddress  String?
+  department    String?
   municipiality String?
 
   nrOfAssociates Int     @default(0)
