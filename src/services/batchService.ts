@@ -837,7 +837,7 @@ export const getBatchCertificateSnapshotByCode = async (
 
     const assocDetails: CertificationAssocDetails = {
         name: assoc ? assoc.name : '',
-        department: assoc ? assoc.department : '',
+        department: assoc ? assoc.department ?? '' : '',
         town: assoc ? assoc.municipiality : '',
         nrOfAssociates: assoc ? assoc.nrOfAssociates : 0,
         nrOfWomen: assoc ? assoc.nrWomen.toNumber() : 0,
