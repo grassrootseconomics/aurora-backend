@@ -188,6 +188,7 @@ model Pulp {
   codeProducer String
   producer     Producer @relation(fields: [codeProducer], references: [code])
 
+  code           String?     @unique
   collectionDate DateTime
   quality        String
   status         String

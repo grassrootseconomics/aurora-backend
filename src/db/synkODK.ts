@@ -11,7 +11,7 @@ import {
     seedStorageFormData,
 } from '@/services/odkFormsService';
 
-export const syncODKForms = () => {
+export const syncODKForms = async () => {
     if (!ODK.API_URL) {
         console.log('Sync Process Aborted... Missing ODK API URL Param.');
     }
@@ -23,28 +23,28 @@ export const syncODKForms = () => {
     console.log(`Sync Process Start: ${new Date().toISOString()}`);
 
     // Seed producers
-    seedProducersFormData();
+    await seedProducersFormData();
 
     // Seed batches pulps
-    seedCollectionFormData();
+    await seedCollectionFormData();
 
     // Seed fermentation phases
-    seedFermentationFormData();
+    await seedFermentationFormData();
 
     // Seed Fermentation PH Form Data
-    seedFermentationPHFormData();
+    await seedFermentationPHFormData();
 
     // Seed Fermentation Flips Form Data
-    seedFermentationFlipsFormData();
+    await seedFermentationFlipsFormData();
 
     // Seed drying phases
-    seedDryingFormData();
+    await seedDryingFormData();
 
     // Seed storage phases
-    seedStorageFormData();
+    await seedStorageFormData();
 
     // Seed sales phases
-    seedSalesFormData();
+    await seedSalesFormData();
 
     console.log(`Sync Process End: ${new Date().toISOString()}`);
 };

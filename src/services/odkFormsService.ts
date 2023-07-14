@@ -2,7 +2,6 @@ import { ODK } from '@/config';
 import { prisma } from '@/db';
 import { odkAPI } from '@/plugins/axios';
 import {
-    Batch,
     DryingPhase,
     FermentationPhase,
     Prisma,
@@ -12,7 +11,6 @@ import {
     Sale,
     Storage,
 } from '@prisma/client';
-import { Decimal } from '@prisma/client/runtime/library';
 import { AxiosResponse } from 'axios';
 import JSZip from 'jszip';
 
@@ -30,8 +28,9 @@ import {
     AuroraBColeccionForm,
     AuroraCFermentacionForm,
     AuroraCFermentacionFormPH,
-    AuroraCFermentacionFormVolteo,
-    AuroraCFermentacionProducersForm,
+    AuroraCFermentacionFormProdCodes,
+    AuroraCFermentacionFormProdPulpCodes,
+    AuroraCFermentacionFormVolteo, // AuroraCFermentacionProducersForm,
     AuroraDSecadoForm,
     AuroraEAlmacenamientoForm,
     AuroraFVentasForm,
@@ -117,9 +116,10 @@ export const getODKFormSubmissionCSVFileContents = async (
 };
 
 /**
- * SeedsProducers Information from the Producer Submission Form
+ * Seeds Producers Information from the Producer Submission Form
  */
 export const seedProducersFormData = async () => {
+    console.log(`Syncing producers!`);
     const csvFiles = await getODKFormSubmissionCSVFileContents('A-Productor');
 
     const entries: AuroraAProductorForm[] =
@@ -248,12 +248,12 @@ export const seedProducersFormData = async () => {
  * Seeds Pulp Collection Information from the Pulp Collection Submission Form
  */
 export const seedCollectionFormData = async () => {
+    console.log(`Syncing pulps!`);
     const csvFiles = await getODKFormSubmissionCSVFileContents('B-Recolección');
 
     const entries = parseCSVFileToJSONArray<AuroraBColeccionForm>(csvFiles[0]);
 
     let pulpsSeeded = 0;
-
     for (let i = 0; i < entries.length; i++) {
         if (!entries[i].prod_code) continue;
 
@@ -263,31 +263,140 @@ export const seedCollectionFormData = async () => {
 
         if (!producer) continue;
 
-        const pricePerKg = convertStringToNumber(entries[i].batch_kg_price);
+        const pulps: Omit<Pulp, 'id'>[] = [];
+        if (entries[i].pulp_code_mez) {
+            const existingPulp = await prisma.pulp.findUnique({
+                where: {
+                    code: entries[i].pulp_code_mez,
+                },
+            });
 
-        const totalPrice = convertStringToNumber(entries[i].batch_total_price);
+            if (!existingPulp) {
+                pulpsSeeded++;
+                pulps.push({
+                    codeProducer: entries[i].prod_code,
+                    code: entries[i].pulp_code_mez,
+                    collectionDate: stringIsValidDate(
+                        entries[i].collection_date
+                    )
+                        ? new Date(entries[i].collection_date)
+                        : new Date(),
+                    quality: entries[i].batch_quality_mixed,
+                    status: entries[i].batch_status_mixed,
+                    genetics: 'mixed',
+                    totalPulpKg: convertStringToDecimal(
+                        entries[i].batch_weight_mixed
+                    ),
+                    pricePerKg: convertStringToDecimal(
+                        entries[i].batch_kg_price
+                    ),
+                    totalPrice: convertStringToDecimal(
+                        entries[i].batch_total_price
+                    ),
+                });
+            }
+        }
+        if (entries[i].pulp_code_arm) {
+            const existingPulp = await prisma.pulp.findUnique({
+                where: {
+                    code: entries[i].pulp_code_mez,
+                },
+            });
 
-        const pulpData: Omit<Pulp, 'id'> = {
-            codeProducer: entries[i].prod_code,
-            collectionDate: stringIsValidDate(entries[i].collection_date)
-                ? new Date(entries[i].collection_date)
-                : new Date(),
-            quality: entries[i].batch_quality,
-            status: entries[i].batch_status,
-            genetics: 'mixed',
-            totalPulpKg:
-                pricePerKg !== 0
-                    ? new Decimal(totalPrice / pricePerKg)
-                    : new Decimal(0),
-            pricePerKg: convertStringToDecimal(entries[i].batch_kg_price),
-            totalPrice: convertStringToDecimal(entries[i].batch_total_price),
-        };
+            if (!existingPulp) {
+                pulpsSeeded++;
+                pulps.push({
+                    codeProducer: entries[i].prod_code,
+                    code: entries[i].pulp_code_arm,
+                    collectionDate: stringIsValidDate(
+                        entries[i].collection_date
+                    )
+                        ? new Date(entries[i].collection_date)
+                        : new Date(),
+                    quality: entries[i].batch_quality_aromatic,
+                    status: entries[i].batch_status_aromatic,
+                    genetics: 'aromatic',
+                    totalPulpKg: convertStringToDecimal(
+                        entries[i].batch_weight_aromatic
+                    ),
+                    pricePerKg: convertStringToDecimal(
+                        entries[i].batch_kg_price
+                    ),
+                    totalPrice: convertStringToDecimal(
+                        entries[i].batch_total_price
+                    ),
+                });
+            }
+        }
+        if (entries[i].pulp_code_hbr) {
+            const existingPulp = await prisma.pulp.findUnique({
+                where: {
+                    code: entries[i].pulp_code_mez,
+                },
+            });
+
+            if (!existingPulp) {
+                pulpsSeeded++;
+                pulps.push({
+                    codeProducer: entries[i].prod_code,
+                    code: entries[i].pulp_code_hbr,
+                    collectionDate: stringIsValidDate(
+                        entries[i].collection_date
+                    )
+                        ? new Date(entries[i].collection_date)
+                        : new Date(),
+                    quality: entries[i].batch_quality_hybrid,
+                    status: entries[i].batch_status_hybrid,
+                    genetics: 'hybrid',
+                    totalPulpKg: convertStringToDecimal(
+                        entries[i].batch_weight_hybrid
+                    ),
+                    pricePerKg: convertStringToDecimal(
+                        entries[i].batch_kg_price
+                    ),
+                    totalPrice: convertStringToDecimal(
+                        entries[i].batch_total_price
+                    ),
+                });
+            }
+        }
+        if (entries[i].pulp_code_ccn) {
+            const existingPulp = await prisma.pulp.findUnique({
+                where: {
+                    code: entries[i].pulp_code_mez,
+                },
+            });
+
+            if (!existingPulp) {
+                pulpsSeeded++;
+                pulps.push({
+                    codeProducer: entries[i].prod_code,
+                    code: entries[i].pulp_code_ccn,
+                    collectionDate: stringIsValidDate(
+                        entries[i].collection_date
+                    )
+                        ? new Date(entries[i].collection_date)
+                        : new Date(),
+                    quality: entries[i].batch_quality_ccn,
+                    status: entries[i].batch_statust_ccn,
+                    genetics: 'CCN-TSH',
+                    totalPulpKg: convertStringToDecimal(
+                        entries[i].batch_weight_ccn
+                    ),
+                    pricePerKg: convertStringToDecimal(
+                        entries[i].batch_kg_price
+                    ),
+                    totalPrice: convertStringToDecimal(
+                        entries[i].batch_total_price
+                    ),
+                });
+            }
+        }
 
         try {
-            await prisma.pulp.create({
-                data: pulpData,
+            await prisma.pulp.createMany({
+                data: pulps,
             });
-            pulpsSeeded++;
         } catch (err) {
             console.log(err);
         }
@@ -300,18 +409,30 @@ export const seedCollectionFormData = async () => {
  * Seeds Fermentation Phase Information from the Fermentation Submission Form
  */
 export const seedFermentationFormData = async () => {
+    console.log(`Syncing fermentation phases!`);
     const csvFiles = await getODKFormSubmissionCSVFileContents(
         'C-Fermentación'
     );
-
     const entries = parseCSVFileToJSONArray<AuroraCFermentacionForm>(
         csvFiles[0]
     );
     const producerEntries =
-        parseCSVFileToJSONArray<AuroraCFermentacionProducersForm>(csvFiles[1]);
+        parseCSVFileToJSONArray<AuroraCFermentacionFormProdCodes>(csvFiles[1]);
+    const pulpEntries =
+        parseCSVFileToJSONArray<AuroraCFermentacionFormProdPulpCodes>(
+            csvFiles[2]
+        );
 
     let fermentationSeeded = 0;
 
+    // Go through each entry
+    // Loop through each producer and get the ones that helped this fermentation
+    // Also attach each pulp contributed by each producer
+    // Check if the producer code exists and the producer exists
+    // Check if the pulps exists
+    // Create the batch
+    // Create the fermentation phase
+    // Save the pulpBatch connection
     for (let i = 0; i < entries.length; i++) {
         const batch = await prisma.batch.findUnique({
             where: {
@@ -335,29 +456,44 @@ export const seedFermentationFormData = async () => {
                 },
             },
         });
+        // const nrOfPulps = producerPulps.length;
 
         // Create the batch
+
+        const pulpsUsed: Omit<PulpBatch, 'id'>[] = [];
+
+        const fermentationPulpCodes = pulpEntries
+            .filter((entry) => entry['PARENT_KEY'] === entries[i].KEY)
+            .map((entry) => entry['pulp_codes']);
+
+        producerPulps.forEach((pulp) => {
+            if (fermentationPulpCodes.includes(pulp.code))
+                pulpsUsed.push({
+                    codeBatch: entries[i].batch_code,
+                    idPulp: pulp.id,
+                });
+        });
+
+        // console.log(
+        //     `Fermentation (${
+        //         entries[i].batch_code
+        //     }): Producers (${producers.join(', ')}) with pulps (${pulpsUsed
+        //         .map((pulp) => pulp.idPulp)
+        //         .join(', ')})`
+        // );
+
         await prisma.batch.create({
             data: {
                 code: entries[i].batch_code,
             },
         });
 
-        const pulpsUsed: Omit<PulpBatch, 'id'>[] = [];
-
-        producerPulps.forEach((pulp) => {
-            pulpsUsed.push({
-                codeBatch: entries[i].batch_code,
-                idPulp: pulp.id,
-            });
-        });
-
-        // Link pulps with batches.
+        // // Link pulps with batches.
         await prisma.pulpBatch.createMany({
             data: [...pulpsUsed],
         });
 
-        // Create the fermentation phase and link with batch.
+        // // Create the fermentation phase and link with batch.
         const fermentationPhaseEntries: Omit<FermentationPhase, 'id'> = {
             cocoaType: entries[i].cacao_type,
             startDate: convertStringToDate(entries[i].ferm_start_date),
@@ -390,6 +526,7 @@ export const seedFermentationFormData = async () => {
  * Adds Fermentation Daily Reports from the Fermentation PH Submission Form
  */
 export const seedFermentationPHFormData = async () => {
+    console.log(`Syncing fermentation phase reports!`);
     const csvFiles = await getODKFormSubmissionCSVFileContents(
         'C-Fermentación-PH'
     );
@@ -457,6 +594,7 @@ export const seedFermentationPHFormData = async () => {
  * Adds Fermentation Flips from the Fermentation Volteo Submission Form
  */
 export const seedFermentationFlipsFormData = async () => {
+    console.log(`Syncing fermentation phase flips!`);
     const csvFiles = await getODKFormSubmissionCSVFileContents(
         'C-Fermentación-Volteo'
     );
@@ -523,6 +661,7 @@ export const seedFermentationFlipsFormData = async () => {
  * Seeds Drying Phase Information from the Drying Submission Form
  */
 export const seedDryingFormData = async () => {
+    console.log(`Syncing drying phases!`);
     const csvFiles = await getODKFormSubmissionCSVFileContents('D-Secado');
 
     const entries = parseCSVFileToJSONArray<AuroraDSecadoForm>(csvFiles[0]);
@@ -570,10 +709,10 @@ export const seedDryingFormData = async () => {
  * Seeds Storage Phase Information from the Storage Submission Form
  */
 export const seedStorageFormData = async () => {
+    console.log(`Syncing storage phases!`);
     const csvFiles = await getODKFormSubmissionCSVFileContents(
         'E-Almacenamiento'
     );
-
     const entries = parseCSVFileToJSONArray<AuroraEAlmacenamientoForm>(
         csvFiles[0]
     );
@@ -622,16 +761,17 @@ export const seedStorageFormData = async () => {
  * Seeds Sales Phase Information from the Sales Submission Form
  */
 export const seedSalesFormData = async () => {
+    console.log(`Syncing sales phases!`);
     const csvFiles = await getODKFormSubmissionCSVFileContents('F-Ventas');
 
     const entries = parseCSVFileToJSONArray<AuroraFVentasForm>(csvFiles[0]);
 
     let seededSalesPhases = 0;
     for (let i = 0; i < entries.length; i++) {
-        if (!entries[i].batch_code) continue;
+        if (!entries[i].prod_code) continue;
         const batch = await prisma.batch.findUnique({
             where: {
-                code: entries[i].batch_code,
+                code: entries[i].prod_code,
             },
             include: {
                 sale: true,
@@ -654,7 +794,7 @@ export const seedSalesFormData = async () => {
             currency: entries[i].currency,
             pricePerKg: isNaN(pricePerKg) ? 0 : pricePerKg,
             totalValue: isNaN(totalValue) ? 0 : totalValue,
-            codeBatch: entries[i].batch_code,
+            codeBatch: entries[i].prod_code,
         };
 
         try {

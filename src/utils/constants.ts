@@ -184,7 +184,7 @@ export const AuroraAProductorGPSEntries = [
     'variety/TSH-565',
     'PARENT_KEY',
     'KEY',
-];
+] as const;
 
 export const AuroraBColeccionFormEntries = [
     'SubmissionDate',
@@ -195,28 +195,42 @@ export const AuroraBColeccionFormEntries = [
     'enumerator',
     'prod_code',
     'collection_date',
-    'batch_weight_unknown',
-    'can_weight_unknown',
-    'batch_net_weight_unknown',
-    'unknown_note',
+    'batch_weight_mixed',
+    'batch_quality_mixed',
+    'batch_status_mixed',
+    'can_weight_mixed',
+    'batch_net_weight_mixed',
+    'mixed_note',
+    'pulp_code_mez',
+    'pulp_code_note_mez',
     'batch_weight_aromatic',
+    'batch_quality_aromatic',
+    'batch_status_aromatic',
     'can_weight_aromatic',
     'batch_net_weight_aromatic',
     'aromatic_note',
+    'pulp_code_arm',
+    'pulp_code_note_arm',
     'batch_weight_hybrid',
+    'batch_quality_hybrid',
+    'batch_status_hybrid',
     'can_weight_hybrid',
     'batch_net_weight_hybrid',
     'hybrid_note',
-    'batch_weight_CCN',
-    'can_weight_CCN',
-    'batch_net_weight_CCN',
-    'CCN_note',
-    'batch_quality',
-    'batch_status',
+    'pulp_code_hbr',
+    'pulp_code_note_hbr',
+    'batch_weight_ccn',
+    'batch_quality_ccn',
+    'batch_statust_ccn',
+    'can_weight_ccn',
+    'batch_net_weight_ccn',
+    'ccn_note',
+    'pulp_code_ccn',
+    'pulp_code_note_ccn',
     'batch_kg_price',
     'batch_total_price',
-    'batch_total_note',
     'sales_receipt',
+    'batch_total_note',
     'thank_you_note',
     'gen_comment',
     'meta-instanceID',
@@ -243,6 +257,8 @@ export const AuroraCFermentacionFormEntries = [
     'batch_code',
     'num_codes',
     'code_r_count',
+    'num_pulp_codes',
+    'pulp_code_r_count',
     'ferm_start_date',
     'batch_weight',
     'genetics',
@@ -272,12 +288,26 @@ export const AuroraCFermentacionFormEntries = [
     'FormVersion',
 ] as const;
 
+export const AuroraCFermentacionFormProdCodeEntries = [
+    'code_r_repeat_num',
+    'prod_code',
+    'PARENT_KEY',
+    'KEY',
+] as const;
+
+export const AuroraCFermentacionFormProdPulpCodeEntries = [
+    'pulp_code_r_repeat_num',
+    'pulp_codes',
+    'PARENT_KEY',
+    'KEY',
+] as const;
+
 export const AuroraCFermentacionProducersFormEntries = [
     'code_r_repeat_num',
     'prod_code',
     'PARENT_KEY',
     'KEY',
-];
+] as const;
 
 export const AuroraCFermentacionPHFormEntries = [
     'SubmissionDate',
