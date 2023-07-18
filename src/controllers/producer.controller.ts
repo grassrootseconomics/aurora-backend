@@ -141,9 +141,9 @@ router.get(
 
 router.get(
     '/:code/batches',
-    // extractJWT,
-    // requiresAuth,
-    // requiresRoles(['association']),
+    extractJWT,
+    requiresAuth,
+    requiresRoles(['association']),
     asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
         const { code } = req.params;
 
