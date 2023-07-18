@@ -172,6 +172,8 @@ model FermentationPhase {
   brixDegrees  Decimal
   humidity     Decimal
   hoursDrained Decimal
+  initialTemp  Decimal?
+  roomTemp     Decimal?
   nrFlips      Decimal
   totalDays    Decimal
 

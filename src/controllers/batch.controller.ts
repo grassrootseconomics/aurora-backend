@@ -13,7 +13,6 @@ import {
     addBatchFermentationDayReport,
     addBatchFermentationFlip,
     getBatchByCode,
-    getBatchCertificateSnapshotByCode,
     getBatchFermentationModelByCode,
     getMonthlyCocoaPulp,
     getMonthlySalesInUSD,
@@ -73,6 +72,8 @@ import {
     updateBatchSalesSchema,
     updateBatchStorageSchema,
 } from '@/utils/validations/batchValidations';
+
+import assocInfo from '../utils/assocDetails.json';
 
 const router = Router();
 
@@ -140,7 +141,13 @@ router.get(
             ] = await Promise.all([
                 getProductionByDepartment(year, department),
                 getSalesInKgByDepartment(true, year, department),
-                getSumKGOfCocoaBySoldStatus(year, false, false, department),
+                getSumKGOfCocoaBySoldStatus(
+                    year,
+                    false,
+                    false,
+                    'department',
+                    department
+                ),
                 getAllProducers({ department }),
             ]);
 
@@ -176,14 +183,14 @@ router.get(
                         year,
                         false,
                         false,
-                        '',
+                        'association',
                         userAssociationName
                     ),
                     getSumKGOfCocoaBySoldStatus(
                         year,
                         true,
                         true,
-                        '',
+                        'association',
                         userAssociationName
                     ),
                     getAllProducers({ association: userAssociationName }),
@@ -216,8 +223,20 @@ router.get(
                     getUSDPriceOfOrganicCocoa(year),
                     getProductionByDepartment(year),
                     getMonthlySalesInUSD(year),
-                    getSumKGOfCocoaBySoldStatus(year, false, false),
-                    getSumKGOfCocoaBySoldStatus(year, true, true),
+                    getSumKGOfCocoaBySoldStatus(
+                        year,
+                        false,
+                        false,
+                        'association',
+                        ''
+                    ),
+                    getSumKGOfCocoaBySoldStatus(
+                        year,
+                        true,
+                        true,
+                        'association',
+                        ''
+                    ),
                     getAllProducers({}),
                 ]);
                 producers = allProducers;
@@ -305,7 +324,8 @@ router.get(
             limit,
             filterField: 'association',
             filterValue: association,
-            internationallySold: true,
+            internationallySold: undefined,
+            sold: true,
             year,
         });
 
@@ -316,8 +336,8 @@ router.get(
                 getSumKGOfCocoaBySoldStatus(
                     year,
                     true,
-                    true,
-                    undefined,
+                    false,
+                    'association',
                     association
                 ),
             ]);
@@ -394,7 +414,7 @@ router.get(
                     year,
                     false,
                     false,
-                    undefined,
+                    'association',
                     association
                 ),
             ]);
@@ -426,7 +446,26 @@ router.get(
         }
 
         const batch = await getBatchByCode(code);
-        // const batch = await getBatchCertificateSnapshotByCode(code);
+
+        const assoc = batch.pulpsUsed[0].pulp.producer.association.name;
+
+        const assocDescription: any = {
+            en:
+                batch.pulpsUsed.length > 0
+                    ? batch.pulpsUsed[0].pulp.producer.association.description
+                    : '',
+            es:
+                batch.pulpsUsed.length > 0
+                    ? batch.pulpsUsed[0].pulp.producer.association.description
+                    : '',
+        };
+
+        if (batch.pulpsUsed.length > 0 && assocInfo[assoc]) {
+            assocDescription.en = assocInfo[assoc].description.en;
+            assocDescription.es = assocInfo[assoc].description.es;
+        }
+        batch.pulpsUsed[0].pulp.producer.association.description =
+            assocDescription;
 
         return res.status(200).json({
             success: true,
@@ -852,7 +891,7 @@ router.get(
             const token: JWTToken = res.locals.jwt;
 
             // To filter by sold
-            const sold: boolean = Boolean(req.query.sold);
+            const sold: boolean = req.query.sold === 'true';
 
             const year: number | undefined = isNaN(
                 parseInt(req.query.year?.toString())
@@ -887,13 +926,14 @@ router.get(
                 limit,
                 filterField: 'association',
                 filterValue: association,
-                internationallySold: sold,
+                sold,
+                internationallySold: sold ?? undefined,
                 year,
             });
 
             const batchesForExcel = sold
                 ? searchBatchesResult.data
-                      .filter((b) => b.sale != null)
+                      .filter((b) => b.sale !== undefined)
                       .map(
                           (b) =>
                               new BasicSoldBatch(

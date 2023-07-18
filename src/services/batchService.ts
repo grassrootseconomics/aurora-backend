@@ -53,16 +53,16 @@ import depInfo from '../utils/depDetails.json';
  * @param {number} year Year to filter by.
  * @param {boolean} sold Available/sold status.
  * @param {boolean} onlyInternational Wether to filter for internationaly sold only.
- * @param {string} department Optional to filter by department of batch producers.
- * @param {string} association Optional to filter by association of batch producers.
+ * @param {'department' | 'association'} filterField Filter to specify filtering by assoc or department.
+ * @param {string} filterValue Name of assoc or department to filter by.
  * @returns {Promise<Decimal>}
  */
 export const getSumKGOfCocoaBySoldStatus = async (
     year: number = new Date().getFullYear(),
     sold: boolean = false,
     onlyInternational: boolean = false,
-    department: string = '',
-    association: string = ''
+    filterField: 'department' | 'association',
+    filterValue: string
 ): Promise<Decimal | null> => {
     const startDate = new Date(year, 0, 1);
     const endDate = new Date(year + 1, 0, 1);
@@ -89,29 +89,12 @@ export const getSumKGOfCocoaBySoldStatus = async (
                 {
                     batch: {
                         pulpsUsed: {
-                            every: {
+                            some: {
                                 pulp: {
                                     producer: {
-                                        department: {
+                                        [filterField]: {
                                             name: {
-                                                contains: department,
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-                {
-                    batch: {
-                        pulpsUsed: {
-                            every: {
-                                pulp: {
-                                    producer: {
-                                        association: {
-                                            name: {
-                                                contains: association,
+                                                contains: filterValue,
                                             },
                                         },
                                     },
@@ -385,7 +368,6 @@ export const getSalesInKgByAssociation = async (
         });
     });
 
-    // console.log(reports);
     return reports;
 };
 
@@ -411,11 +393,11 @@ export const getSalesInKgByDepartment = async (
                 { name: departmentName },
                 {
                     producers: {
-                        every: {
+                        some: {
                             producedPulps: {
-                                every: {
+                                some: {
                                     batchesUsedFor: {
-                                        every: {
+                                        some: {
                                             batch: onlyInternational
                                                 ? {
                                                       sale: {
@@ -482,6 +464,9 @@ export const getSalesInKgByDepartment = async (
                                 return prev + 0;
                             } else {
                                 checkedBatchCodes.push(current.batch.code);
+                                if (!current.batch.sale) {
+                                    return prev + 0;
+                                }
                                 const dayEntry =
                                     current.batch.sale.negotiationDate;
                                 if (
@@ -632,6 +617,7 @@ export const getProductionOfDryCocoa = async (
     year: number = new Date().getFullYear(),
     associationName?: string
 ): Promise<MonthlyProductionOfCacao> => {
+    console.log(associationName);
     const associationsWithBatches = await prisma.association.findMany({
         where: {
             name: associationName,
@@ -656,6 +642,7 @@ export const getProductionOfDryCocoa = async (
             },
         },
     });
+    console.log(associationsWithBatches.map((assoc) => assoc.name));
 
     const reports: MonthlyProductionOfCacao = [...Array(12)].map(() => {
         const associationReport = {};
@@ -1159,7 +1146,7 @@ export const searchBatches = async ({
     filterField = 'association',
     filterValue = '',
     sold = false,
-    internationallySold = false,
+    internationallySold,
     year = new Date().getFullYear(),
 }: ISearchBatchParams) => {
     let startDate: Date | undefined;
@@ -1169,7 +1156,6 @@ export const searchBatches = async ({
         startDate = new Date(year, 0, 1);
         endDate = new Date(year + 1, 0, 1);
     }
-
     const data = await prisma.batch.findMany({
         // I should switch this to a cursor approach.
         skip: index * limit,
@@ -1183,7 +1169,7 @@ export const searchBatches = async ({
                 },
                 {
                     pulpsUsed: {
-                        every: {
+                        some: {
                             pulp: {
                                 producer: {
                                     [filterField]: {
@@ -1196,15 +1182,6 @@ export const searchBatches = async ({
                         },
                     },
                 },
-                internationallySold !== undefined
-                    ? internationallySold
-                        ? { sale: { negotiation: 'International' } }
-                        : { NOT: { sale: { negotiation: 'International' } } }
-                    : sold !== undefined
-                    ? sold
-                        ? { NOT: { sale: null } }
-                        : { sale: null }
-                    : null,
                 year !== undefined
                     ? {
                           storage: {
@@ -1214,6 +1191,15 @@ export const searchBatches = async ({
                               },
                           },
                       }
+                    : null,
+                internationallySold !== undefined
+                    ? internationallySold
+                        ? { sale: { negotiation: 'International' } }
+                        : { NOT: { sale: { negotiation: 'International' } } }
+                    : sold !== undefined
+                    ? sold
+                        ? { NOT: { sale: null } }
+                        : { sale: null }
                     : null,
             ],
         },

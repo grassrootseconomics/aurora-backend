@@ -17,7 +17,10 @@ import JSZip from 'jszip';
 import { ASSOCIATION_CODE_TO_NAME } from '@/utils/constants';
 import { groupArrayOfObjectsByProp } from '@/utils/methods/arrays';
 import { stringIsValidDate } from '@/utils/methods/date';
-import { convertStringToDate } from '@/utils/methods/dates';
+import {
+    convertStringToDate,
+    getNrOfDaysBetweenDates,
+} from '@/utils/methods/dates';
 import {
     convertStringToDecimal,
     convertStringToNumber,
@@ -474,14 +477,6 @@ export const seedFermentationFormData = async () => {
                 });
         });
 
-        // console.log(
-        //     `Fermentation (${
-        //         entries[i].batch_code
-        //     }): Producers (${producers.join(', ')}) with pulps (${pulpsUsed
-        //         .map((pulp) => pulp.idPulp)
-        //         .join(', ')})`
-        // );
-
         await prisma.batch.create({
             data: {
                 code: entries[i].batch_code,
@@ -502,6 +497,8 @@ export const seedFermentationFormData = async () => {
             brixDegrees: convertStringToDecimal(entries[i].brix_degrees),
             humidity: convertStringToDecimal(entries[i].flip_humidity),
             hoursDrained: convertStringToDecimal(entries[i].hours_drained),
+            initialTemp: convertStringToDecimal(entries[i].inital_temp),
+            roomTemp: convertStringToDecimal(entries[i].flip_ambient),
             nrFlips: new Prisma.Decimal(0),
             totalDays: new Prisma.Decimal(0),
             codeBatch: entries[i].batch_code,
@@ -560,12 +557,20 @@ export const seedFermentationPHFormData = async () => {
                 new Date(b.meassure_time).getTime()
             );
         });
+
+        const firstReport = convertStringToDate(reports[0].meassure_time);
+        const lastReport = convertStringToDate(
+            reports[reports.length - 1].meassure_time
+        );
+
+        const totalDays = getNrOfDaysBetweenDates(lastReport, firstReport);
         try {
             await prisma.fermentationPhase.update({
                 where: {
                     codeBatch: batchKeys[index],
                 },
                 data: {
+                    totalDays,
                     dailyReports: reports.map((report) => {
                         return {
                             temperatureMass: convertStringToNumber(
@@ -628,17 +633,18 @@ export const seedFermentationFlipsFormData = async () => {
                 new Date(b.flip_time).getTime()
             );
         });
-
+        const nrFlips = flips.length;
         try {
             await prisma.fermentationPhase.update({
                 where: {
                     codeBatch: batchKeys[index],
                 },
                 data: {
+                    nrFlips,
                     flips: flips.map((flip) => {
                         return {
                             type: 'time',
-                            time: convertStringToNumber(flip.flip_time),
+                            time: convertStringToNumber(flip.flip_duation),
                             temp: convertStringToNumber(flip.flip_temp),
                             ambient: convertStringToNumber(flip.flip_ambient),
                             humidity: convertStringToNumber(flip.flip_humidity),
@@ -787,7 +793,8 @@ export const seedSalesFormData = async () => {
         const storageData: Omit<Sale, 'id'> = {
             buyer: entries[i].buyer,
             lotCode: entries[i].lot_code,
-            negotiation: entries[i].nego_type,
+            negotiation:
+                entries[i].nego_type === '0' ? 'national' : 'international',
             negotiationTerm: entries[i].nego_term,
             negotiationDate: convertStringToDate(entries[i].nego_date),
             destination: entries[i].dest_country,
