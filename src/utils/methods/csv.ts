@@ -12,12 +12,11 @@ export const csvToJSONArray = (csv: string): any[] => {
 
     for (let i = 1; i < lines.length; i++) {
         const obj = {};
-
         if (lines[i] == undefined || lines[i].trim() == '') {
             continue;
         }
-
-        const words = lines[i].split(',');
+        // Split by commas and ignore commas within double quotes (string inputs)
+        const words = lines[i].split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/);
         for (let j = 0; j < words.length; j++) {
             obj[headers[j].trim()] = words[j].trimStart();
         }

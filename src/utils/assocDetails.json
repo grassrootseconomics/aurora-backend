@@ -1,0 +1,52 @@
+{
+    "COMCAP": {
+        "description": {
+            "en": "The organization has certification to commercialize cocoa organically in the European Community countries, Canada and the United States. They are the first Committee empowered to carry out export exercises directly and have business partners in Europe, with whom international marketing exercises have been carried out.",
+            "es": "La organización cuenta con una certificación para comercializar cacao de forma orgánica en los países de la Comunidad europea, Canadá y Estados Unidos. Son el primer Comité habilitado para ejecutar ejercicios de exportación de forma directa y cuenta con aliados comerciales en Europa, con los cuales se ha realizado ejercicios de comercialización internacional."
+        },
+        "sensoryProfile": {
+            "en": "Creamy profile with lactic acidity and fruity, that is complemented by fresh fruits such as berries, yellow flesh, sweet caramel and creamy residual.",
+            "es": "Perfil cremoso con acidez láctica y frutal que se complementa con frutos frescos como bayas, pulpa amarilla, dulce caramelo y residual cremoso."
+        }
+    },
+    "ASOPECA": {
+        "description": {
+            "en": "It was established in 2003 and its first commercialization in the national market was in 2010. Winners of the 2013 National Gold Cocoa contest. In 2015 they began the commercialization of cocoa in slime processed in the processing center with 4 Tons of dry cocoa per month, in that same year they remained among the 10 finalists of the same contest.",
+            "es": "Se constituyó en el año 2003 y su primera comercialización en el mercado nacional fue en el año 2010. Ganadores del concurso Cacao de Oro Nacional versión 2013. Para el año 2015 iniciaron la comercialización de cacao en baba procesados en la central de beneficio con capacidad de 4 Ton de cacao seco mensual, en ese mismo año se mantuvieron entre los 10 finalistas del mismo concurso."
+        },
+        "sensoryProfile": {
+            "en": "",
+            "es": ""
+        }
+    },
+    "ASOCAGIGANTE": {
+        "description": {
+            "en": "The Cocoa Producers and Traders Association was established on September 22, 2009 with the participation of 24 associates. Its main activity is the production and commercialization of cocoa in the national and international markets (indirect export). They began their sales in 2016. They currently manage a commercial link that allows increasing the purchase of cocoa slime to achieve quality standards and recognition of Huila origin in the international market.",
+            "es": "La Asociación de productores y comercializadores de Cacao fue constituida el 22 de septiembre del 2009 con la participación de 24 asociados. Su actividad principal es la producción y   comercialización de cacao en el mercado nacional e internacional (exportación de forma indirecta). En el 2016 iniciaron sus ventas, Actualmente gestionan un enlace comercial que permita aumentar la compra de cacao en baba para lograr los estándares de calidad y reconocimiento de origen Huila en el mercado internacional."
+        },
+        "sensoryProfile": {
+            "en": "",
+            "es": ""
+        }
+    },
+    "ASOACASAN": {
+        "description": {
+            "en": "",
+            "es": ""
+        },
+        "sensoryProfile": {
+            "en": "Citric acidity, cocoa flavor, pronounced notes of Nuts and fresh fruit, complementary wood and spices.",
+            "es": "Acidez cítrica, sabor a cacao, notas pronunciadas a Nuez y fruta fresca complementarios madera y especias."
+        }
+    },
+    "APROCALG": {
+        "description": {
+            "en": "",
+            "es": ""
+        },
+        "sensoryProfile": {
+            "en": "",
+            "es": ""
+        }
+    }
+}

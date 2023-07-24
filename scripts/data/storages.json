@@ -6,7 +6,7 @@
         "fermentationPercentage": 2,
         "grainIndex": 2.2,
         "sensoryProfile": "Profile #1",
-        "score": 8.7,
+        "score": 8,
         "codeBatch": "12672"
     },
     {
@@ -16,7 +16,7 @@
         "fermentationPercentage": 2,
         "grainIndex": 2.2,
         "sensoryProfile": "Profile #2",
-        "score": 8.7,
+        "score": 8,
         "codeBatch": "72132"
     },
     {
@@ -26,7 +26,7 @@
         "fermentationPercentage": 2,
         "grainIndex": 2.2,
         "sensoryProfile": "Profile #3",
-        "score": 8.7,
+        "score": 8,
         "codeBatch": "89236"
     },
     {
@@ -36,7 +36,7 @@
         "fermentationPercentage": 2,
         "grainIndex": 2.2,
         "sensoryProfile": "Profile #2",
-        "score": 8.7,
+        "score": 8,
         "codeBatch": "32867"
     },
     {
@@ -46,7 +46,7 @@
         "fermentationPercentage": 2,
         "grainIndex": 2.2,
         "sensoryProfile": "Profile #1",
-        "score": 8.7,
+        "score": 8,
         "codeBatch": "28937"
     },
     {
@@ -56,7 +56,7 @@
         "fermentationPercentage": 2,
         "grainIndex": 2.2,
         "sensoryProfile": "Profile #1",
-        "score": 8.7,
+        "score": 8,
         "codeBatch": "82322"
     }
 ]

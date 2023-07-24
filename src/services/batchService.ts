@@ -43,6 +43,9 @@ import {
     MonthlySalesInUSD,
 } from '@/utils/types/reports';
 
+import assocInfo from '../utils/assocDetails.json';
+import depInfo from '../utils/depDetails.json';
+
 /**
  *
  * Calculates the total kg of available/sold cocoa.
@@ -50,16 +53,16 @@ import {
  * @param {number} year Year to filter by.
  * @param {boolean} sold Available/sold status.
  * @param {boolean} onlyInternational Wether to filter for internationaly sold only.
- * @param {string} department Optional to filter by department of batch producers.
- * @param {string} association Optional to filter by association of batch producers.
+ * @param {'department' | 'association'} filterField Filter to specify filtering by assoc or department.
+ * @param {string} filterValue Name of assoc or department to filter by.
  * @returns {Promise<Decimal>}
  */
 export const getSumKGOfCocoaBySoldStatus = async (
     year: number = new Date().getFullYear(),
     sold: boolean = false,
     onlyInternational: boolean = false,
-    department: string = '',
-    association: string = ''
+    filterField: 'department' | 'association',
+    filterValue: string
 ): Promise<Decimal | null> => {
     const startDate = new Date(year, 0, 1);
     const endDate = new Date(year + 1, 0, 1);
@@ -86,29 +89,12 @@ export const getSumKGOfCocoaBySoldStatus = async (
                 {
                     batch: {
                         pulpsUsed: {
-                            every: {
+                            some: {
                                 pulp: {
                                     producer: {
-                                        department: {
+                                        [filterField]: {
                                             name: {
-                                                contains: department,
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-                {
-                    batch: {
-                        pulpsUsed: {
-                            every: {
-                                pulp: {
-                                    producer: {
-                                        association: {
-                                            name: {
-                                                contains: association,
+                                                contains: filterValue,
                                             },
                                         },
                                     },
@@ -292,11 +278,11 @@ export const getSalesInKgByAssociation = async (
                 },
                 {
                     producers: {
-                        every: {
+                        some: {
                             producedPulps: {
-                                every: {
+                                some: {
                                     batchesUsedFor: {
-                                        every: {
+                                        some: {
                                             batch: onlyInternational
                                                 ? {
                                                       sale: {
@@ -335,7 +321,6 @@ export const getSalesInKgByAssociation = async (
             },
         },
     });
-
     const reports: MonthlySalesInKg = [...Array(12)].map(() => {
         const associationReport = {};
         associationsWithBatches.forEach((assoc) => {
@@ -344,29 +329,37 @@ export const getSalesInKgByAssociation = async (
 
         return associationReport;
     });
-
+    const checkedBatchCodes: string[] = [];
     reports.forEach((_element, index) => {
         Object.keys(reports[index]).map((association) => {
             const associationData = associationsWithBatches.find(
                 (assoc) => assoc.name === association
             );
-
+            checkedBatchCodes.splice(0, checkedBatchCodes.length);
             // Add all kgs in storage of batches of an association
             associationData.producers.forEach((producer) => {
                 producer.producedPulps.forEach((pulp) => {
                     reports[index][association] += pulp.batchesUsedFor.reduce(
                         (prev, current) => {
-                            if (!current.batch.sale) return prev + 0;
-                            const dayEntry = current.batch.sale.negotiationDate;
                             if (
-                                dayEntry.getFullYear() === year &&
-                                dayEntry.getMonth() === index
-                            )
-                                return (
-                                    prev +
-                                    current.batch.storage.netWeight.toNumber()
-                                );
-                            else return prev + 0;
+                                checkedBatchCodes.includes(current.batch.code)
+                            ) {
+                                return prev + 0;
+                            } else {
+                                checkedBatchCodes.push(current.batch.code);
+                                if (!current.batch.sale) return prev + 0;
+                                const dayEntry =
+                                    current.batch.sale.negotiationDate;
+                                if (
+                                    dayEntry.getFullYear() === year &&
+                                    dayEntry.getMonth() === index
+                                ) {
+                                    return (
+                                        prev +
+                                        current.batch.storage.netWeight.toNumber()
+                                    );
+                                } else return prev + 0;
+                            }
                         },
                         0
                     );
@@ -400,11 +393,11 @@ export const getSalesInKgByDepartment = async (
                 { name: departmentName },
                 {
                     producers: {
-                        every: {
+                        some: {
                             producedPulps: {
-                                every: {
+                                some: {
                                     batchesUsedFor: {
-                                        every: {
+                                        some: {
                                             batch: onlyInternational
                                                 ? {
                                                       sale: {
@@ -453,26 +446,39 @@ export const getSalesInKgByDepartment = async (
         return departmentReport;
     });
 
+    const checkedBatchCodes: string[] = [];
     reports.forEach((_el, index) => {
         Object.keys(reports[index]).map((department) => {
             const departmentData = regionsWithSale.find(
                 (dep) => dep.name === department
             );
 
+            checkedBatchCodes.splice(0, checkedBatchCodes.length);
             departmentData.producers.forEach((producer) => {
                 producer.producedPulps.forEach((pulp) => {
                     reports[index][department] += pulp.batchesUsedFor.reduce(
                         function (prev, current) {
-                            const dayEntry = current.batch.sale.negotiationDate;
                             if (
-                                dayEntry.getFullYear() === year &&
-                                dayEntry.getMonth() === index
+                                checkedBatchCodes.includes(current.batch.code)
                             ) {
-                                return (
-                                    prev +
-                                    current.batch.storage.netWeight.toNumber()
-                                );
-                            } else return prev + 0;
+                                return prev + 0;
+                            } else {
+                                checkedBatchCodes.push(current.batch.code);
+                                if (!current.batch.sale) {
+                                    return prev + 0;
+                                }
+                                const dayEntry =
+                                    current.batch.sale.negotiationDate;
+                                if (
+                                    dayEntry.getFullYear() === year &&
+                                    dayEntry.getMonth() === index
+                                ) {
+                                    return (
+                                        prev +
+                                        current.batch.storage.netWeight.toNumber()
+                                    );
+                                } else return prev + 0;
+                            }
                         },
                         0
                     );
@@ -611,6 +617,7 @@ export const getProductionOfDryCocoa = async (
     year: number = new Date().getFullYear(),
     associationName?: string
 ): Promise<MonthlyProductionOfCacao> => {
+    console.log(associationName);
     const associationsWithBatches = await prisma.association.findMany({
         where: {
             name: associationName,
@@ -635,6 +642,7 @@ export const getProductionOfDryCocoa = async (
             },
         },
     });
+    console.log(associationsWithBatches.map((assoc) => assoc.name));
 
     const reports: MonthlyProductionOfCacao = [...Array(12)].map(() => {
         const associationReport = {};
@@ -656,18 +664,20 @@ export const getProductionOfDryCocoa = async (
                 producer.producedPulps.forEach((pulp) => {
                     reports[index][association] += pulp.batchesUsedFor.reduce(
                         (prev, current) => {
-                            const dayEntry = current.batch.storage.dayEntry;
-                            if (
-                                dayEntry.getFullYear() === year &&
-                                dayEntry.getMonth() === index
-                            ) {
-                                return (
-                                    prev +
-                                    current.batch.storage.netWeight.toNumber()
-                                );
-                            } else {
-                                return prev + 0;
-                            }
+                            if (current.batch.storage) {
+                                const dayEntry = current.batch.storage.dayEntry;
+                                if (
+                                    dayEntry.getFullYear() === year &&
+                                    dayEntry.getMonth() === index
+                                ) {
+                                    return (
+                                        prev +
+                                        current.batch.storage.netWeight.toNumber()
+                                    );
+                                } else {
+                                    return prev + 0;
+                                }
+                            } else return prev + 0;
                         },
                         0
                     );
@@ -753,6 +763,14 @@ export const getBatchesBySoldStatus = (
     });
 };
 
+/**
+ *
+ * Generate an information snapshot of a batch by its code.
+ *
+ * @param {string} code Code of the Batch
+ *
+ * @returns {Promise<CertificationNFT>}
+ */
 export const getBatchCertificateSnapshotByCode = async (
     code: string
 ): Promise<CertificationNFT> => {
@@ -808,15 +826,41 @@ export const getBatchCertificateSnapshotByCode = async (
 
     const assocDetails: CertificationAssocDetails = {
         name: assoc ? assoc.name : '',
-        department: dep ? dep.name : '',
-        town: firstProd ? firstProd.municipiality : '',
+        department: assoc ? assoc.department ?? '' : '',
+        town: assoc ? assoc.municipiality : '',
         nrOfAssociates: assoc ? assoc.nrOfAssociates : 0,
-        nrOfWomen: 0,
-        nrOfYoungPeople: 0,
-        story: assoc ? assoc.description : '',
+        nrOfWomen: assoc ? assoc.nrWomen.toNumber() : 0,
+        nrOfYoungPeople: assoc ? assoc.nrYoungPeople.toNumber() : 0,
+        story: assoc
+            ? assocInfo[assoc.name]
+                ? {
+                      en: assocInfo[assoc.name].description.en,
+                      es: assocInfo[assoc.name].description.es,
+                  }
+                : {
+                      en: assoc ? assoc.description : '',
+                      es: assoc ? assoc.description : '',
+                  }
+            : {
+                  es: '',
+                  en: '',
+              },
         yearsOfExistence: assoc ? getAgeByBirthDate(assoc.creationDate) : 0,
         certifications: assoc ? getAgeByBirthDate(assoc.creationDate) : 0,
-        regionInformation: dep ? dep.description : '',
+        regionInformation: dep
+            ? depInfo[dep.name]
+                ? {
+                      en: depInfo[dep.name].description.en,
+                      es: depInfo[dep.name].description.es,
+                  }
+                : {
+                      en: dep.description,
+                      es: dep.description,
+                  }
+            : {
+                  en: '',
+                  es: '',
+              },
     };
 
     association.producers.forEach((prod) => {
@@ -850,14 +894,25 @@ export const getBatchCertificateSnapshotByCode = async (
             ? batchInfo.storage.conversionFaction.toString()
             : '',
         score: batchInfo.storage ? batchInfo.storage.score : undefined,
-        sensoryProfile: batchInfo.storage
-            ? batchInfo.storage.sensoryProfile
-            : '',
+        sensoryProfile: assoc
+            ? assocInfo[assoc.name]
+                ? {
+                      en: assocInfo[assoc.name].sensoryProfile.en,
+                      es: assocInfo[assoc.name].sensoryProfile.es,
+                  }
+                : {
+                      en: assoc ? assoc.sensoryProfile : '',
+                      es: assoc ? assoc.sensoryProfile : '',
+                  }
+            : {
+                  es: '',
+                  en: '',
+              },
     };
     const producers: CertificationProducersInfo = {
         haCocoa: 0,
         haConservationForest: 0,
-        identifiedVarieties: [],
+        identifiedVarieties: '',
         nrMen: 0,
         nrWomen: 0,
     };
@@ -870,10 +925,20 @@ export const getBatchCertificateSnapshotByCode = async (
         if (prod.gender === 'male') producers.nrMen++;
         else producers.nrWomen++;
 
-        if (!identifiedVarieties.find((variety) => variety === prod.wildlife)) {
-            identifiedVarieties.push(prod.wildlife);
-        }
+        // Split the each producer's wildlife collection into separate varieties
+        const prodWildlifeVarieties = prod.wildlife.split(' ');
+        // Check each variety if it exists.
+        prodWildlifeVarieties.forEach((prodVariety) => {
+            if (
+                prodVariety &&
+                !identifiedVarieties.find((variety) => variety === prodVariety)
+            ) {
+                identifiedVarieties.push(prod.wildlife);
+            }
+        });
     });
+
+    producers.identifiedVarieties = identifiedVarieties.join(', ');
 
     const harvesting: CertificationHarvestingInfo = {
         date: batchInfo.pulpsUsed
@@ -887,6 +952,7 @@ export const getBatchCertificateSnapshotByCode = async (
                 : undefined
             : undefined,
     };
+
     const fermentation: CertificationFermentationInfo = {
         startDate: batchInfo.fermentationPhase
             ? batchInfo.fermentationPhase.startDate.toISOString()
@@ -1080,7 +1146,7 @@ export const searchBatches = async ({
     filterField = 'association',
     filterValue = '',
     sold = false,
-    internationallySold = false,
+    internationallySold,
     year = new Date().getFullYear(),
 }: ISearchBatchParams) => {
     let startDate: Date | undefined;
@@ -1090,7 +1156,6 @@ export const searchBatches = async ({
         startDate = new Date(year, 0, 1);
         endDate = new Date(year + 1, 0, 1);
     }
-
     const data = await prisma.batch.findMany({
         // I should switch this to a cursor approach.
         skip: index * limit,
@@ -1104,7 +1169,7 @@ export const searchBatches = async ({
                 },
                 {
                     pulpsUsed: {
-                        every: {
+                        some: {
                             pulp: {
                                 producer: {
                                     [filterField]: {
@@ -1117,15 +1182,6 @@ export const searchBatches = async ({
                         },
                     },
                 },
-                internationallySold !== undefined
-                    ? internationallySold
-                        ? { sale: { negotiation: 'International' } }
-                        : { NOT: { sale: { negotiation: 'International' } } }
-                    : sold !== undefined
-                    ? sold
-                        ? { NOT: { sale: null } }
-                        : { sale: null }
-                    : null,
                 year !== undefined
                     ? {
                           storage: {
@@ -1135,6 +1191,15 @@ export const searchBatches = async ({
                               },
                           },
                       }
+                    : null,
+                internationallySold !== undefined
+                    ? internationallySold
+                        ? { sale: { negotiation: 'International' } }
+                        : { NOT: { sale: { negotiation: 'International' } } }
+                    : sold !== undefined
+                    ? sold
+                        ? { NOT: { sale: null } }
+                        : { sale: null }
                     : null,
             ],
         },

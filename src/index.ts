@@ -31,9 +31,9 @@ app.listen(SERVER.PORT, () => {
     console.log(`Application started on port ${SERVER.PORT}!`);
 });
 
-cron.schedule('0 8 * * * 1', () => {
+cron.schedule('0 8 * * * 1', async () => {
     try {
-        syncODKForms();
+        await syncODKForms();
     } catch (err) {
         console.log(err);
     }

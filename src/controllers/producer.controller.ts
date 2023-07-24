@@ -12,6 +12,7 @@ import { getAssociationById } from '@/services/associationService';
 import { getAssociationNameOfProducerByUserWallet } from '@/services/authService';
 import { getBatchesByPulpIds } from '@/services/batchService';
 import { getDepartmentById } from '@/services/departmentService';
+import { generateExcel } from '@/services/excelService';
 import {
     checkProducerLinkedToBatch,
     getAllProducers,
@@ -32,7 +33,6 @@ import {
     changeProducerFromBatch,
     updateProducerSchema,
 } from '@/utils/validations/producerValidations';
-import { generateExcel } from '@/services/excelService';
 
 const router = Router();
 
@@ -285,7 +285,7 @@ router.get(
     extractJWT,
     requiresAuth,
     requiresRoles(['association']),
-    asyncMiddleware(async (req: Request, res: Response) => {    
+    asyncMiddleware(async (req: Request, res: Response) => {
         const token: JWTToken = res.locals.jwt;
 
         let association = null;
@@ -293,14 +293,14 @@ router.get(
         if (token.role === 'association')
             association = await getAssociationNameOfProducerByUserWallet(
                 token.address
-        );
+            );
 
         // Fetch producers using the fetchProducers function
         const producers = await getAllProducers({ association });
-    
+
         // Generate the Excel file using the generateExcel function
         const workbook = generateExcel(producers);
-    
+
         // Set the response headers for Excel download
         res.setHeader(
             'Content-Type',
@@ -310,10 +310,11 @@ router.get(
             'Content-Disposition',
             'attachment; filename=producers.xlsx'
         );
-    
+
         // Write the workbook to the response and end the response
         await workbook.xlsx.write(res);
         res.end();
-  }));
+    })
+);
 
-  export default router;
+export default router;

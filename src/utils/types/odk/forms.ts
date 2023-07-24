@@ -3,8 +3,9 @@ import {
     AuroraAProductorGPSEntries,
     AuroraBColeccionFormEntries,
     AuroraCFermentacionFormEntries,
+    AuroraCFermentacionFormProdCodeEntries,
+    AuroraCFermentacionFormProdPulpCodeEntries,
     AuroraCFermentacionPHFormEntries,
-    AuroraCFermentacionProducersFormEntries,
     AuroraCFermentacionVolteoFormEntries,
     AuroraDSecadoFormEntries,
     AuroraEAlmacenamientoFormEntries,
@@ -31,8 +32,12 @@ export type AuroraCFermentacionForm = Record<
     (typeof AuroraCFermentacionFormEntries)[number],
     string
 >;
-export type AuroraCFermentacionProducersForm = Record<
-    (typeof AuroraCFermentacionProducersFormEntries)[number],
+export type AuroraCFermentacionFormProdCodes = Record<
+    (typeof AuroraCFermentacionFormProdCodeEntries)[number],
+    string
+>;
+export type AuroraCFermentacionFormProdPulpCodes = Record<
+    (typeof AuroraCFermentacionFormProdPulpCodeEntries)[number],
     string
 >;
 
