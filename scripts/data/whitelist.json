@@ -1,0 +1,20 @@
+[
+    {
+        "walletAddress": "0xd1707E22850Ea82192B5aEAE3d882482DE301900",
+        "role": "association",
+        "producer": 3
+    },
+    {
+        "walletAddress": "0xF399045212F539d719A0272C006Cb8194A00D0CA",
+        "role": "project"
+    },
+    {
+        "walletAddress": "0x3eD3Bfa95A5E5eC26279468b05392bfB5A360692",
+        "role": "project"
+    },
+    {
+        "walletAddress": "0x36c81fA848e6bfe48D61c6EfA20D39AF1f0fe414",
+        "role": "association",
+        "producer": 2
+    }
+]
