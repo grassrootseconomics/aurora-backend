@@ -8,7 +8,7 @@ type CreateUserInput = {
     idProducer?: number;
 };
 
-const main = async () => {
+export default async () => {
     console.log(`STARTING WHITELISTING PROCESS`);
 
     const nrUsersToWhitelist = whitelist.length;
@@ -17,7 +17,13 @@ const main = async () => {
 
     for (let i = 0; i < nrUsersToWhitelist; i++) {
         const user = whitelist[i];
-
+        const checkExists = await prisma.user.findUnique({
+            where: {
+                walletAddress: user.walletAddress,
+            },
+        });
+        // We don't seed what already exists
+        if (checkExists) continue;
         if (user.producer) {
             // Seeding Association/Producer User
             const producerExists = await prisma.producer.findUnique({
@@ -60,5 +66,3 @@ const main = async () => {
 
     console.log(`WHITELIST PROCESS ENDED`);
 };
-
-main();

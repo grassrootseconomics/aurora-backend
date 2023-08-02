@@ -11,6 +11,7 @@ import pulps from './data/pulps.json';
 import roles from './data/roles.json';
 import sales from './data/sales.json';
 import storages from './data/storages.json';
+import whitelist from './whitelist';
 
 // This needs some automation
 // Possibly via an ordered array of collection names
@@ -85,6 +86,8 @@ const main = async () => {
         await prisma.pulpBatch.createMany({ data: pulpBatches });
         console.log(`Complete!`);
     }
+    await whitelist();
+
     console.log(`SEEDING PROCESS ENDED SUCCESSFULLY!`);
 };
 
