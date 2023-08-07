@@ -133,7 +133,8 @@ export const seedProducersFormData = async () => {
     // For each entry
     for (let i = 0; i < entries.length; i++) {
         // Check for existing producers.
-        const producerCode = entries[i]['a-old_producer_code'];
+        const producerCode = entries[i]['a-producer_code_num'];
+
         if (producerCode) {
             // Check first if the producer exists with that code
             const codeTaken = await prisma.producer.findUnique({
@@ -167,7 +168,6 @@ export const seedProducersFormData = async () => {
                 continue;
             }
         }
-
         // seed associations if these do not exist
         let association = await prisma.association.findUnique({
             where: {
@@ -213,7 +213,11 @@ export const seedProducersFormData = async () => {
             idDepartment: department.id,
             idAssociation: association.id,
             farmName: entries[i]['a-farm_name'] ?? '',
-            location: '',
+            location: `lat:${entries[i]['a-gpsloc-Latitude'] ?? ''}, lon:${
+                entries[i]['a-gpsloc-Longitude'] ?? ''
+            }, alt: ${entries[i]['a-gpsloc-Altitude'] ?? ''}, acc:${
+                entries[i]['a-gpsloc-Accuracy'] ?? ''
+            }`,
             nrOfHa: convertStringToDecimal(entries[i]['a-total_area']),
             nrCocoaHa: convertStringToDecimal(entries[i]['a-cacao_area']),
             nrForestHa: convertStringToDecimal(entries[i]['a-protected_area']),

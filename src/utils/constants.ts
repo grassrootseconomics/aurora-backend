@@ -87,11 +87,11 @@ export const DB_CONSTANTS = {
 };
 
 export const ASSOCIATION_CODE_TO_NAME = {
-    ASG: 'Asogigante',
-    APG: 'Aprocalg',
-    ASP: 'Asopeca',
-    ACS: 'Asoacasan',
-    CMP: 'Comcap',
+    ASG: 'ASOCAGIGANTE',
+    APG: 'APROCALG',
+    ASP: 'ASOPECA',
+    ACS: 'ASOACASAN',
+    CMP: 'COMCAP',
 };
 
 export const SYNC_ODK_FORM_IDS = [
