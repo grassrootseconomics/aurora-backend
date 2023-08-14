@@ -12,7 +12,7 @@ import { getAssociationById } from '@/services/associationService';
 import { getAssociationNameOfProducerByUserWallet } from '@/services/authService';
 import { getBatchesByPulpIds } from '@/services/batchService';
 import { getDepartmentById } from '@/services/departmentService';
-import { generateExcel } from '@/services/excelService';
+import { generateProducersExcel } from '@/services/excelService';
 import {
     checkProducerLinkedToBatch,
     getAllProducers,
@@ -299,7 +299,7 @@ router.get(
         const producers = await getAllProducers({ association });
 
         // Generate the Excel file using the generateExcel function
-        const workbook = generateExcel(producers);
+        const workbook = generateProducersExcel(producers);
 
         // Set the response headers for Excel download
         res.setHeader(

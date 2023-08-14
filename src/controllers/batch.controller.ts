@@ -34,7 +34,10 @@ import {
 } from '@/services/batchService';
 import { getDepartmentsHarvestDatesByName } from '@/services/departmentService';
 import { sendBatchRequestEmails } from '@/services/emailService';
-import { generateExcel } from '@/services/excelService';
+import {
+    generateAvailableBatchesExcel,
+    generateSoldBatchesExcel,
+} from '@/services/excelService';
 import { getAllProducers } from '@/services/producerService';
 import { getBatchRequestUserEmails } from '@/services/userService';
 
@@ -308,7 +311,10 @@ router.get(
             : parseInt(req.query.limit?.toString());
 
         // For project users to filter by association
-        let association: string | undefined = req.query.association?.toString();
+        let association: string | undefined =
+            req.query.association && req.query.association.toString() !== ''
+                ? req.query.association?.toString()
+                : undefined;
         // For producers & project users to search by batch code.
         const search: string | undefined = req.query.search?.toString();
 
@@ -324,7 +330,7 @@ router.get(
             limit,
             filterField: 'association',
             filterValue: association,
-            internationallySold: undefined,
+            internationallySold: false,
             sold: true,
             year,
         });
@@ -336,7 +342,7 @@ router.get(
                 getSumKGOfCocoaBySoldStatus(
                     year,
                     true,
-                    false,
+                    true,
                     'association',
                     association
                 ),
@@ -385,7 +391,10 @@ router.get(
             : parseInt(req.query.limit?.toString());
 
         // For project users to filter by association
-        let association: string | undefined = req.query.association?.toString();
+        let association: string | undefined =
+            req.query.association && req.query.association.toString() !== ''
+                ? req.query.association?.toString()
+                : undefined;
         // For producers & project users to search by batch code.
         const search: string | undefined = req.query.search?.toString();
 
@@ -927,7 +936,7 @@ router.get(
                 filterField: 'association',
                 filterValue: association,
                 sold,
-                internationallySold: sold ?? undefined,
+                internationallySold: false,
                 year,
             });
 
@@ -961,7 +970,9 @@ router.get(
                               )
                       );
 
-            const workbook = generateExcel(batchesForExcel);
+            const workbook = sold
+                ? generateSoldBatchesExcel(batchesForExcel)
+                : generateAvailableBatchesExcel(batchesForExcel);
 
             // Set the response headers for Excel download
             res.setHeader(

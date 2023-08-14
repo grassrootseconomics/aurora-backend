@@ -73,7 +73,7 @@ export const getSumKGOfCocoaBySoldStatus = async (
                     batch: onlyInternational
                         ? {
                               sale: {
-                                  negotiation: 'International',
+                                  negotiation: 'international',
                               },
                           }
                         : sold
@@ -287,7 +287,7 @@ export const getSalesInKgByAssociation = async (
                                                 ? {
                                                       sale: {
                                                           negotiation:
-                                                              'International',
+                                                              'international',
                                                       },
                                                   }
                                                 : { NOT: { sale: null } },
@@ -320,6 +320,9 @@ export const getSalesInKgByAssociation = async (
                 },
             },
         },
+    });
+    associationsWithBatches.forEach((assoc) => {
+        console.log(assoc.name);
     });
     const reports: MonthlySalesInKg = [...Array(12)].map(() => {
         const associationReport = {};
@@ -402,7 +405,7 @@ export const getSalesInKgByDepartment = async (
                                                 ? {
                                                       sale: {
                                                           negotiation:
-                                                              'International',
+                                                              'international',
                                                       },
                                                   }
                                                 : { NOT: { sale: null } },
@@ -539,7 +542,7 @@ export const getMonthlySalesInUSD = async (
             (batch) =>
                 batch.sale.negotiationDate.getFullYear() === year &&
                 batch.sale.negotiationDate.getMonth() === index &&
-                batch.sale.currency === 'US'
+                batch.sale.currency === 'USD'
         );
 
         reports[index].salesInUSD = filteredBatches.reduce(
@@ -617,7 +620,6 @@ export const getProductionOfDryCocoa = async (
     year: number = new Date().getFullYear(),
     associationName?: string
 ): Promise<MonthlyProductionOfCacao> => {
-    console.log(associationName);
     const associationsWithBatches = await prisma.association.findMany({
         where: {
             name: associationName,
@@ -642,7 +644,6 @@ export const getProductionOfDryCocoa = async (
             },
         },
     });
-    console.log(associationsWithBatches.map((assoc) => assoc.name));
 
     const reports: MonthlyProductionOfCacao = [...Array(12)].map(() => {
         const associationReport = {};
@@ -738,7 +739,7 @@ export const getBatchesBySoldStatus = (
                 onlyInternational
                     ? {
                           sale: {
-                              negotiation: 'International',
+                              negotiation: 'international',
                           },
                       }
                     : sold
@@ -1146,7 +1147,7 @@ export const searchBatches = async ({
     filterField = 'association',
     filterValue = '',
     sold = false,
-    internationallySold,
+    internationallySold = false,
     year = new Date().getFullYear(),
 }: ISearchBatchParams) => {
     let startDate: Date | undefined;
@@ -1160,6 +1161,7 @@ export const searchBatches = async ({
         // I should switch this to a cursor approach.
         skip: index * limit,
         take: limit,
+
         where: {
             AND: [
                 {
@@ -1169,7 +1171,7 @@ export const searchBatches = async ({
                 },
                 {
                     pulpsUsed: {
-                        some: {
+                        every: {
                             pulp: {
                                 producer: {
                                     [filterField]: {
@@ -1182,6 +1184,11 @@ export const searchBatches = async ({
                         },
                     },
                 },
+                internationallySold
+                    ? { sale: { negotiation: 'international' } }
+                    : sold
+                    ? { NOT: { sale: null } }
+                    : { sale: null },
                 year !== undefined
                     ? {
                           storage: {
@@ -1191,15 +1198,6 @@ export const searchBatches = async ({
                               },
                           },
                       }
-                    : null,
-                internationallySold !== undefined
-                    ? internationallySold
-                        ? { sale: { negotiation: 'International' } }
-                        : { NOT: { sale: { negotiation: 'International' } } }
-                    : sold !== undefined
-                    ? sold
-                        ? { NOT: { sale: null } }
-                        : { sale: null }
                     : null,
             ],
         },
@@ -1246,15 +1244,11 @@ export const searchBatches = async ({
                         },
                     },
                 },
-                internationallySold !== undefined
-                    ? internationallySold
-                        ? { sale: { negotiation: 'International' } }
-                        : { NOT: { sale: { negotiation: 'International' } } }
-                    : sold !== undefined
-                    ? sold
-                        ? { NOT: { sale: null } }
-                        : { sale: null }
-                    : null,
+                internationallySold
+                    ? { sale: { negotiation: 'international' } }
+                    : sold
+                    ? { NOT: { sale: null } }
+                    : { sale: null },
                 year !== undefined
                     ? {
                           storage: {
