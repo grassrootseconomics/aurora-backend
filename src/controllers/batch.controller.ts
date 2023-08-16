@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response, Router } from 'express';
 
-import { Producer } from '@prisma/client';
+import { Association, Producer } from '@prisma/client';
 
 import asyncMiddleware from '@/middleware/asyncMiddleware';
 import extractJWT from '@/middleware/extractJWT';
@@ -456,25 +456,25 @@ router.get(
 
         const batch = await getBatchByCode(code);
 
-        const assoc = batch.pulpsUsed[0].pulp.producer.association.name;
+        const assoc: Association | null =
+            batch.pulpsUsed.length > 0
+                ? batch.pulpsUsed[0].pulp.producer.association
+                : null;
 
+        // Default to association information.
         const assocDescription: any = {
-            en:
-                batch.pulpsUsed.length > 0
-                    ? batch.pulpsUsed[0].pulp.producer.association.description
-                    : '',
-            es:
-                batch.pulpsUsed.length > 0
-                    ? batch.pulpsUsed[0].pulp.producer.association.description
-                    : '',
+            en: assoc ? assoc.description : '',
+            es: assoc ? assoc.description : '',
         };
 
-        if (batch.pulpsUsed.length > 0 && assocInfo[assoc]) {
-            assocDescription.en = assocInfo[assoc].description.en;
-            assocDescription.es = assocInfo[assoc].description.es;
+        if (batch.pulpsUsed.length > 0 && assoc && assocInfo[assoc.name]) {
+            assocDescription.en = assocInfo[assoc.name].description.en;
+            assocDescription.es = assocInfo[assoc.name].description.es;
         }
-        batch.pulpsUsed[0].pulp.producer.association.description =
-            assocDescription;
+        batch.pulpsUsed.forEach((pulpUsed, index) => {
+            batch.pulpsUsed[index].pulp.producer.association.description =
+                assocDescription;
+        });
 
         return res.status(200).json({
             success: true,

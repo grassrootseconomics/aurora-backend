@@ -321,9 +321,6 @@ export const getSalesInKgByAssociation = async (
             },
         },
     });
-    associationsWithBatches.forEach((assoc) => {
-        console.log(assoc.name);
-    });
     const reports: MonthlySalesInKg = [...Array(12)].map(() => {
         const associationReport = {};
         associationsWithBatches.forEach((assoc) => {
