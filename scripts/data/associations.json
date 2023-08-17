@@ -9,7 +9,8 @@
         "municipiality": "El Doncello",
         "sensoryProfile": "Creamy profile with lactic acidity and fruity, that is complemented by fresh fruits such as berries, yellow flesh, sweet caramel and creamy residual.",
         "fbSocialLink": "https://web.facebook.com/comitecomcap/?_rdc=1&_rdr",
-        "instSocialLink": "https://instagram.com/comcap_cacao?igshid=ZWIzMWE5ZmU3Zg=="
+        "instSocialLink": "https://instagram.com/comcap_cacao?igshid=ZWIzMWE5ZmU3Zg==",
+        "department": "Caquetá"
     },
     {
         "name": "ASOPECA",
@@ -18,7 +19,8 @@
         "nrOfAssociates": 110,
         "nrWomen": 33,
         "nrYoungPeople": 5,
-        "municipiality": "Campoalegre"
+        "municipiality": "Campoalegre",
+        "department": "Huila"
     },
     {
         "name": "ASOCAGIGANTE",
@@ -28,7 +30,8 @@
         "nrWomen": 8,
         "nrYoungPeople": 4.9,
         "municipiality": "Gigante",
-        "fbSocialLink": "https://www.facebook.com/asocagigante?mibextid=ZbWKwL"
+        "fbSocialLink": "https://www.facebook.com/asocagigante?mibextid=ZbWKwL",
+        "department": "Huila"
     },
     {
         "name": "ASOACASAN - Asociación Orgánica Agrícola de Cacaoteros de San José del Fragua.",
@@ -39,7 +42,8 @@
         "nrYoungPeople": 4,
         "municipiality": "San José del fragua",
         "fbSocialLink": "https://www.facebook.com/Asoacasan?mibextid=ZbWKwL",
-        "instSocialLink": "https://instagram.com/asoacasan?igshid=MzRlODBiNWFlZA=="
+        "instSocialLink": "https://instagram.com/asoacasan?igshid=MzRlODBiNWFlZA==",
+        "department": "Caquetá"
     },
     {
         "name": "APROCALG",
@@ -48,6 +52,7 @@
         "nrOfAssociates": 10,
         "municipiality": "Algeciras",
         "fbSocialLink": "https://www.facebook.com/Algecirascacaoterera/?mibextid=ZbWKwL",
-        "instSocialLink": "https://instagram.com/aprocalg?igshid=NTc4MTIwNjQ2YQ=="
+        "instSocialLink": "https://instagram.com/aprocalg?igshid=NTc4MTIwNjQ2YQ==",
+        "department": "Huila"
     }
 ]

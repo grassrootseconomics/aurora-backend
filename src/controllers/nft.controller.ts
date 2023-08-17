@@ -30,7 +30,6 @@ import { convertObjectToXml, convertXmlToObject } from '@/utils/methods/xml';
 import {
     CertificationNFT,
     CertificationSignedLink,
-    FromXmlCertificationSignedLink,
 } from '@/utils/types/certification';
 import ApiError from '@/utils/types/errors/ApiError';
 import { JWTToken } from '@/utils/types/server';

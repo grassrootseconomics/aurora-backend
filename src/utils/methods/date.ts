@@ -6,7 +6,7 @@
  * @returns {number} Age derived from Birth Date.
  */
 export const getAgeByBirthDate = (date: Date): number => {
-    return date.getFullYear() - new Date().getFullYear();
+    return new Date().getFullYear() - date.getFullYear();
 };
 
 export const stringIsValidDate = (str: string): boolean => {

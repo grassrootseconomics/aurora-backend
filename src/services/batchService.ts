@@ -802,8 +802,6 @@ export const getBatchCertificateSnapshotByCode = async (
 
     const dep = batchInfo.pulpsUsed[0]?.pulp.producer.department;
 
-    const firstProd = batchInfo.pulpsUsed[0]?.pulp.producer;
-
     const batchProducers: Producer[] = [];
 
     batchInfo.pulpsUsed.forEach((pulpUsed) => {

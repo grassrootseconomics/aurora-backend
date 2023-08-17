@@ -168,6 +168,21 @@ export const seedProducersFormData = async () => {
                 continue;
             }
         }
+        // seed departments if these do not exist
+        let department = await prisma.department.findUnique({
+            where: {
+                name: entries[i]['a-department'],
+            },
+        });
+        if (!department) {
+            department = await prisma.department.create({
+                data: {
+                    name: entries[i]['a-department'],
+                    description: '',
+                    nrOfAssociates: 1,
+                },
+            });
+        }
         // seed associations if these do not exist
         let association = await prisma.association.findUnique({
             where: {
@@ -181,21 +196,7 @@ export const seedProducersFormData = async () => {
                     creationDate: new Date(),
                     description: '',
                     nrOfAssociates: 1,
-                },
-            });
-        }
-        // seed departments if these do not exist
-        let department = await prisma.department.findUnique({
-            where: {
-                name: entries[i]['a-department'],
-            },
-        });
-        if (!department) {
-            department = await prisma.department.create({
-                data: {
-                    name: entries[i]['a-department'],
-                    description: '',
-                    nrOfAssociates: 1,
+                    department: department.name,
                 },
             });
         }
