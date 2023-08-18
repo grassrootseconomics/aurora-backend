@@ -11,6 +11,14 @@ export const getCertificateOwners = (certificationKey: string) => {
     });
 };
 
+export const getCertificateOwnerByTokenId = (tokenId: string) => {
+    return prisma.certificateOwner.findFirst({
+        where: {
+            tokenId,
+        },
+    });
+};
+
 export const getCertificateBySignedFingerprint = (
     signedDataFingerprint: string
 ) => {

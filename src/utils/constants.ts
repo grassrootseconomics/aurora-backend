@@ -64,6 +64,8 @@ export const APP_CONSTANTS = {
             NOT_FOUND: 'Department Does Not Exist!',
         },
         CERTIFICATION: {
+            MISSING_TOKEN_ID: 'Missing required token Id!',
+            TOKEN_ID_TAKEN: 'Buyer already owns this certification!',
             FIND_SUCCESS:
                 'Successfully fetched Batch Details via Nft Metadata Certification Key!',
             GENERATE_SUCCESS: 'Successfully generated fingerprint for Data!',

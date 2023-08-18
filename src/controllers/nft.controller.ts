@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response, Router } from 'express';
 
 import { recoverMessageAddress } from 'viem';
-import { xml2js } from 'xml-js';
 
 import asyncMiddleware from '@/middleware/asyncMiddleware';
 import extractJWT from '@/middleware/extractJWT';
@@ -16,6 +15,7 @@ import {
 import {
     checkOwnerOfCertification,
     getCertificateBySignedFingerprint,
+    getCertificateOwnerByTokenId,
     saveNFTCertificateOwnership,
 } from '@/services/certificateOwnerService';
 import {
@@ -23,6 +23,7 @@ import {
     getCertificationByKey,
     getLatestSignedCertificationForBatch,
 } from '@/services/certification.service';
+import { getTokenMetadata } from '@/services/nftService';
 import { getDataByHash, sendXMLDataToWala } from '@/services/walaService';
 
 import { APP_CONSTANTS } from '@/utils/constants';
@@ -36,11 +37,83 @@ import { JWTToken } from '@/utils/types/server';
 import {
     createBatchBaseCertificateSchema,
     getBatchCertificateNFTDetailsSchema,
+    getTokenIdExistsSchema,
     saveBatchNFTCertificationSchema,
     saveBatchSignedCertificationSchema,
 } from '@/utils/validations/nftValidation';
 
 const router = Router();
+
+router.get(
+    '/token',
+    extractJWT,
+    requiresAuth,
+    requiresRoles(['project', 'association', 'buyer']),
+    validate(getTokenIdExistsSchema),
+    asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
+        const { id, buyer } = req.query;
+
+        // Get Token
+        const token: JWTToken = res.locals.jwt;
+
+        if (!id) {
+            return next(
+                new ApiError(
+                    400,
+                    APP_CONSTANTS.RESPONSE.CERTIFICATION.MISSING_TOKEN_ID
+                )
+            );
+        }
+        let tokenIdTaken: boolean =
+            (await getCertificateOwnerByTokenId(id.toString())) !== null;
+
+        if (!tokenIdTaken) {
+            try {
+                // In case we find it in the blockchain, resync the ownership to the database.
+                const metadata: (string | string[])[] = await getTokenMetadata(
+                    id.toString()
+                );
+                tokenIdTaken = metadata !== null && metadata[2].length > 0;
+
+                if (tokenIdTaken) {
+                    // should update the database with the corresponding certificate ownership here.
+                    const certificate: string = metadata[2][0];
+
+                    const checkCertificateExists = await getCertificationByKey(
+                        certificate
+                    );
+
+                    if (checkCertificateExists) {
+                        await saveNFTCertificateOwnership({
+                            certificationKey: certificate,
+                            minterWallet: token.address,
+                            buyerWallet: buyer.toString(),
+                            tokenId: id.toString(),
+                        });
+                    } else {
+                        return next(
+                            new ApiError(
+                                400,
+                                APP_CONSTANTS.RESPONSE.CERTIFICATION.NOT_FOUND
+                            )
+                        );
+                    }
+                }
+            } catch (err) {
+                console.log(err);
+                tokenIdTaken = true;
+            }
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: APP_CONSTANTS.RESPONSE.CERTIFICATION.TOKEN_ID_TAKEN,
+            data: {
+                tokenIdTaken,
+            },
+        });
+    })
+);
 
 // Get Batch Details from wala via Signature key from NFT Metadata.
 router.get(
@@ -103,7 +176,6 @@ router.get(
                     )
                 );
             }
-
             // Should also check the NFT on the blockchain.
         }
 
