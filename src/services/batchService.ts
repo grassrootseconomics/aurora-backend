@@ -1166,7 +1166,7 @@ export const searchBatches = async ({
                 },
                 {
                     pulpsUsed: {
-                        every: {
+                        some: {
                             pulp: {
                                 producer: {
                                     [filterField]: {
@@ -1179,21 +1179,21 @@ export const searchBatches = async ({
                         },
                     },
                 },
-                internationallySold
-                    ? { sale: { negotiation: 'international' } }
-                    : sold
-                    ? { NOT: { sale: null } }
-                    : { sale: null },
-                year !== undefined
-                    ? {
-                          storage: {
-                              dayEntry: {
-                                  gte: startDate.toISOString(),
-                                  lte: endDate.toISOString(),
-                              },
-                          },
-                      }
-                    : null,
+                {
+                    storage: {
+                        dayEntry: {
+                            gte: startDate.toISOString(),
+                            lte: endDate.toISOString(),
+                        },
+                    },
+                },
+                {
+                    sale: internationallySold
+                        ? { negotiation: 'international' }
+                        : sold
+                        ? { isNot: null }
+                        : null,
+                },
             ],
         },
         include: {
@@ -1226,7 +1226,7 @@ export const searchBatches = async ({
                 },
                 {
                     pulpsUsed: {
-                        every: {
+                        some: {
                             pulp: {
                                 producer: {
                                     [filterField]: {
@@ -1239,21 +1239,21 @@ export const searchBatches = async ({
                         },
                     },
                 },
-                internationallySold
-                    ? { sale: { negotiation: 'international' } }
-                    : sold
-                    ? { NOT: { sale: null } }
-                    : { sale: null },
-                year !== undefined
-                    ? {
-                          storage: {
-                              dayEntry: {
-                                  gte: startDate.toISOString(),
-                                  lte: endDate.toISOString(),
-                              },
-                          },
-                      }
-                    : null,
+                {
+                    storage: {
+                        dayEntry: {
+                            gte: startDate.toISOString(),
+                            lte: endDate.toISOString(),
+                        },
+                    },
+                },
+                {
+                    sale: internationallySold
+                        ? { negotiation: 'international' }
+                        : sold
+                        ? { isNot: null }
+                        : null,
+                },
             ],
         },
     });
