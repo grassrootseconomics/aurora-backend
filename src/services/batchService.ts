@@ -920,7 +920,6 @@ export const getBatchCertificateSnapshotByCode = async (
         producers.haConservationForest += prod.nrForestHa.toNumber();
         if (prod.gender === 'male') producers.nrMen++;
         else producers.nrWomen++;
-
         // Split the each producer's wildlife collection into separate varieties
         const prodWildlifeVarieties = prod.wildlife.split(' ');
         // Check each variety if it exists.
@@ -929,11 +928,10 @@ export const getBatchCertificateSnapshotByCode = async (
                 prodVariety &&
                 !identifiedVarieties.find((variety) => variety === prodVariety)
             ) {
-                identifiedVarieties.push(prod.wildlife);
+                identifiedVarieties.push(prodVariety);
             }
         });
     });
-
     producers.identifiedVarieties = identifiedVarieties.join(', ');
 
     const harvesting: CertificationHarvestingInfo = {

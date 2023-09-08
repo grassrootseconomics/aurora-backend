@@ -233,16 +233,6 @@ export const seedProducersFormData = async () => {
             await prisma.producer.create({
                 data: producerData,
             });
-            // Increment members of association if it exists
-            if (association)
-                await prisma.association.update({
-                    where: {
-                        id: association.id,
-                    },
-                    data: {
-                        nrOfAssociates: association.nrOfAssociates + 1,
-                    },
-                });
             producersSeeded++;
         } catch (err) {
             console.log(err);
