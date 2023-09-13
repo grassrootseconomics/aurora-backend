@@ -841,8 +841,23 @@ export const getBatchCertificateSnapshotByCode = async (
                   es: '',
                   en: '',
               },
-        yearsOfExistence: assoc ? getAgeByBirthDate(assoc.creationDate) : 0,
-        certifications: assoc ? getAgeByBirthDate(assoc.creationDate) : 0,
+        yearsOfExistence: assoc
+            ? assocInfo[assoc.name]
+                ? {
+                      ...assocInfo[assoc.name].yearsOfExistence,
+                  }
+                : getAgeByBirthDate(assoc.creationDate)
+            : 0,
+        certifications:
+            assoc && assocInfo[assoc.name]
+                ? {
+                      en: assocInfo[assoc.name].certifications.en,
+                      es: assocInfo[assoc.name].certifications.es,
+                  }
+                : {
+                      en: '',
+                      es: '',
+                  },
         regionInformation: dep
             ? depInfo[dep.name]
                 ? {

@@ -7,16 +7,32 @@
         "sensoryProfile": {
             "en": "Creamy profile with lactic acidity and fruity, that is complemented by fresh fruits such as berries, yellow flesh, sweet caramel and creamy residual.",
             "es": "Perfil cremoso con acidez láctica y frutal que se complementa con frutos frescos como bayas, pulpa amarilla, dulce caramelo y residual cremoso."
+        },
+        "yearsOfExistence": {
+            "en": "15 years of activity",
+            "es": "15 años de actividad"
+        },
+        "certifications": {
+            "en": "Organic; NOP -USDA and European community.",
+            "es": "Orgánica; NOP -USDA y comunidad Europea."
         }
     },
     "ASOPECA": {
         "description": {
             "en": "It was established in 2003 and its first commercialization in the national market was in 2010. Winners of the 2013 National Gold Cocoa contest. In 2015 they began the commercialization of cocoa in slime processed in the processing center with 4 Tons of dry cocoa per month, in that same year they remained among the 10 finalists of the same contest.",
-            "es": "Se constituyó en el año 2003 y su primera comercialización en el mercado nacional fue en el año 2010. Ganadores del concurso Cacao de Oro Nacional versión 2013. Para el año 2015 iniciaron la comercialización de cacao en baba procesados en la central de beneficio con capacidad de 4 Ton de cacao seco mensual, en ese mismo año se mantuvieron entre los 10 finalistas del mismo concurso."
+            "es": "Se constituyo en el año 2003 y su primera comercialización en el mercado nacional fue en el año 2010. Ganadores del concurso Cacao de Oro Nacional versión 2013. Para el año 2015 iniciaron la comercialización de cacao en baba procesados en la central de beneficio con capacidad de 4 Ton de cacao seco mensual, en ese mismo año se mantuvieron entre los 10 finalistas del mismo concurso."
         },
         "sensoryProfile": {
             "en": "Sweet with fruit and walnut notes.",
             "es": "Acaramelado con sabores frutales y nuez."
+        },
+        "yearsOfExistence": {
+            "en": "19 years of activity",
+            "es": "19 años de actividad"
+        },
+        "certifications": {
+            "en": "Some producers with BPA",
+            "es": "BPA de algunos productores."
         }
     },
     "ASOCAGIGANTE": {
@@ -27,6 +43,14 @@
         "sensoryProfile": {
             "en": "Sweet profile with a pronounced acetic acidity with complementary attributes of dark fresh fruits, plum, some notes of spices and intense nuttiness.",
             "es": "Perfil dulce con una acidez acética pronunciada con atributos complementarios a frutos frescos oscuros, ciruela, algunas notas a especias y nuez intensa."
+        },
+        "yearsOfExistence": {
+            "en": "13 años de actividad",
+            "es": "13 years of activity"
+        },
+        "certifications": {
+            "en": "9 certified producers with UTZ labels.",
+            "es": "Han sido certificados 9 productores en el sello UTZ."
         }
     },
     "ASOACASAN": {
@@ -35,8 +59,16 @@
             "es": "La organización ha sido reconocida por la calidad en concursos nacionales, en el año 2019 ganaron el concurso de Cacao de Oro Regional Caquetá, y en el año 2021 se alcanzó el segundo puesto. De esta forma, cuentan con una central de beneficio donde implementan un modelo de producción de cacao estandarizado."
         },
         "sensoryProfile": {
-            "en": "Citric acidity, cocoa flavor, pronounced notes of Nuts and fresh fruit, complementary wood and spices.",
-            "es": "Acidez cítrica, sabor a cacao, notas pronunciadas a Nuez y fruta fresca complementarios madera y especias."
+            "en": "Lactic acidity, cacao taste, strong nut notes complemented with fresh fruit, spices and wood.",
+            "es": "Acidez láctica, sabor a cacao, notas pronunciadas a Nuez y fruta fresca complementarios madera y especias."
+        },
+        "yearsOfExistence": {
+            "en": "14 years of activity",
+            "es": "14 años de actividad"
+        },
+        "certifications": {
+            "en": "NTC - ISO 34101 (In progress)",
+            "es": "NTC - ISO 34101 (En proceso)"
         }
     },
     "APROCALG": {
@@ -46,7 +78,15 @@
         },
         "sensoryProfile": {
             "en": "Elegant acidity, fruity,  cocoa and walnuts notes that are complemented with fresh red fruits attributes. Identifying raspberry, cherry and spices that make for an elegant and complex profile on the palate.",
-            "es": "Acidez elegante, frutal, notas a cacao y nuez que se complementan con atributos complementarios de frutos frescos rojos como frambuesa, cereza y especias que hacen un perfil elegante y complejo en boca"
+            "es": "Acidez elegante, frutal, notas a cacao y nuez que se complementan con atributos complementarios de frutos frescos rojos como frambuesa, cereza y especias que hacen un perfil elegante y complejo en boca."
+        },
+        "yearsOfExistence": {
+            "en": "Since 2004, 17 years of activity",
+            "es": "Desde el 2004, 17 años de actividad"
+        },
+        "certifications": {
+            "en": "49 organically certified producers, with USDA ORGANIC and INTERNATIONAL CERTIFICATION BIO SUISSE labels for USA, EU, Japan and Switzerland markets. 10 in good practices",
+            "es": "Se cuenta con 49 productores certificados orgánicamente, con los sellos USDA ORGANIC, INTERNATIONAL CERTIFICATION BIO SUISSE, para los mercados de Estados Unidos, Unión Europea, Japón y Suiza. 10 en Buenas prácticas."
         }
     }
 }
