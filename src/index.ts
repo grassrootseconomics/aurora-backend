@@ -31,7 +31,10 @@ app.listen(SERVER.PORT, () => {
     console.log(`Application started on port ${SERVER.PORT}!`);
 });
 
-cron.schedule('0 8 * * * 1', async () => {
+/**
+ * Configured to run every monday at 08 AM.
+ */
+cron.schedule('0 0 8 * * 1', async () => {
     try {
         await syncODKForms();
     } catch (err) {
