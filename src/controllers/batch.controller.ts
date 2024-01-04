@@ -205,13 +205,13 @@ router.get(
                     monthlyCocoaPulp,
                     monthlySalesInUSD,
                 };
-                (statistics.kgDryCocoaAvailable = kgDryCocoaAvailable
+                statistics.kgDryCocoaAvailable = kgDryCocoaAvailable
                     ? kgDryCocoaAvailable.toNumber()
-                    : 0),
-                    (statistics.kgDryCocoaInternationallySold =
-                        kgDryCocoaInternationallySold
-                            ? kgDryCocoaInternationallySold.toNumber()
-                            : 0);
+                    : 0;
+                statistics.kgDryCocoaInternationallySold =
+                    kgDryCocoaInternationallySold
+                        ? kgDryCocoaInternationallySold.toNumber()
+                        : 0;
             } else {
                 const [
                     productionOfDryCocoa,
@@ -250,10 +250,9 @@ router.get(
                     productionByRegions,
                     monthlySalesInUSD,
                 };
-                (statistics.kgDryCocoaAvailable =
-                    kgDryCocoaAvailable.toNumber()),
-                    (statistics.kgDryCocoaInternationallySold =
-                        kgDryCocoaInternationallySold.toNumber());
+                statistics.kgDryCocoaAvailable = kgDryCocoaAvailable.toNumber();
+                statistics.kgDryCocoaInternationallySold =
+                    kgDryCocoaInternationallySold.toNumber();
             }
             statistics.nrYoungMen = producers.filter(
                 (producer) =>

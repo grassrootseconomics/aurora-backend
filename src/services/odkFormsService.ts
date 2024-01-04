@@ -96,6 +96,7 @@ export const getODKFormSubmissionCSVFileContents = async (
     projectId?: string
 ): Promise<string[]> => {
     if (!projectId) projectId = ODK.PROJECT_ID;
+
     const response: AxiosResponse<ArrayBuffer> = await odkAPI.get<ArrayBuffer>(
         `/v1/projects/${projectId}/forms/${formId}/submissions.csv.zip?attachments=false&groupPaths=true&deletedFields=false&splitSelectMultiples=true&$filter=${getSubmissionFilterForPastWeek()}`,
         {
@@ -133,7 +134,12 @@ export const seedProducersFormData = async () => {
     // For each entry
     for (let i = 0; i < entries.length; i++) {
         // Check for existing producers.
-        const producerCode = entries[i]['a-producer_code_num'];
+
+        let producerCode = '';
+        if (entries[i]['a-old_producer_code'].length > 0)
+            producerCode = entries[i]['a-old_producer_code'];
+        if (entries[i]['a-producer_code_num'])
+            producerCode = entries[i]['a-producer_code_num'];
 
         if (producerCode) {
             // Check first if the producer exists with that code
@@ -200,15 +206,15 @@ export const seedProducersFormData = async () => {
                 },
             });
         }
-        // seed
-        const birthYear = parseInt(entries[i]['a-age']);
+
+        const birthYear = convertStringToNumber(entries[i]['a-age']);
         const producerData: Omit<Producer, 'id'> = {
             code: producerCode !== '' ? producerCode : undefined,
             firstName: entries[i].farmer_first_name ?? '',
             lastName: entries[i].farmer_last_name ?? '',
             phoneNumber: entries[i].phone_number ?? '',
             gender: entries[i]['a-resp_gender'] ?? '',
-            birthYear: isNaN(birthYear) ? new Date().getFullYear() : birthYear,
+            birthYear: birthYear === 0 ? new Date().getFullYear() : birthYear,
             municipiality: entries[i]['a-town'],
             village: entries[i]['a-village_name'] ?? '',
             idDepartment: department.id,
@@ -297,7 +303,7 @@ export const seedCollectionFormData = async () => {
         if (entries[i].pulp_code_arm) {
             const existingPulp = await prisma.pulp.findUnique({
                 where: {
-                    code: entries[i].pulp_code_mez,
+                    code: entries[i].pulp_code_arm,
                 },
             });
 
@@ -329,7 +335,7 @@ export const seedCollectionFormData = async () => {
         if (entries[i].pulp_code_hbr) {
             const existingPulp = await prisma.pulp.findUnique({
                 where: {
-                    code: entries[i].pulp_code_mez,
+                    code: entries[i].pulp_code_hbr,
                 },
             });
 
@@ -361,7 +367,7 @@ export const seedCollectionFormData = async () => {
         if (entries[i].pulp_code_ccn) {
             const existingPulp = await prisma.pulp.findUnique({
                 where: {
-                    code: entries[i].pulp_code_mez,
+                    code: entries[i].pulp_code_ccn,
                 },
             });
 
@@ -390,7 +396,6 @@ export const seedCollectionFormData = async () => {
                 });
             }
         }
-
         try {
             await prisma.pulp.createMany({
                 data: pulps,
@@ -454,7 +459,6 @@ export const seedFermentationFormData = async () => {
                 },
             },
         });
-        // const nrOfPulps = producerPulps.length;
 
         // Create the batch
 
@@ -478,12 +482,12 @@ export const seedFermentationFormData = async () => {
             },
         });
 
-        // // Link pulps with batches.
+        // Link pulps with batches.
         await prisma.pulpBatch.createMany({
             data: [...pulpsUsed],
         });
 
-        // // Create the fermentation phase and link with batch.
+        // Create the fermentation phase and link with batch.
         const fermentationPhaseEntries: Omit<FermentationPhase, 'id'> = {
             cocoaType: entries[i].cacao_type,
             startDate: convertStringToDate(entries[i].ferm_start_date),
@@ -687,10 +691,10 @@ export const seedDryingFormData = async () => {
         const dryingPhaseData: Omit<DryingPhase, 'id'> = {
             startDate,
             endDate,
-            totalDryingDays: isNaN(parseInt(entries[i].dry_days))
-                ? 0
-                : parseInt(entries[i].dry_days),
-            finalGrainHumidity: parseInt(entries[i].moisture_final),
+            totalDryingDays: convertStringToNumber(entries[i].dry_days),
+            finalGrainHumidity: convertStringToNumber(
+                entries[i].moisture_final
+            ),
             codeBatch: entries[i].batch_code,
         };
 
@@ -782,9 +786,6 @@ export const seedSalesFormData = async () => {
         // Check if this batch exists or if storage was seeded for this batch.
         if (!batch || batch.sale) continue;
 
-        const pricePerKg = parseInt(entries[i].val_kg);
-        const totalValue = parseInt(entries[i].batch_total_price);
-
         const storageData: Omit<Sale, 'id'> = {
             buyer: entries[i].buyer,
             lotCode: entries[i].lot_code,
@@ -794,8 +795,8 @@ export const seedSalesFormData = async () => {
             negotiationDate: convertStringToDate(entries[i].nego_date),
             destination: entries[i].dest_country,
             currency: entries[i].currency,
-            pricePerKg: isNaN(pricePerKg) ? 0 : pricePerKg,
-            totalValue: isNaN(totalValue) ? 0 : totalValue,
+            pricePerKg: convertStringToNumber(entries[i].val_kg),
+            totalValue: convertStringToNumber(entries[i].batch_total_price),
             codeBatch: entries[i].prod_code,
         };
 

@@ -7,7 +7,7 @@ import {
     Sale,
     Storage,
 } from '@prisma/client';
-import { Decimal } from '@prisma/client/runtime';
+import { Decimal } from '@prisma/client/runtime/library';
 
 import { APP_CONSTANTS } from '@/utils/constants';
 import { getAgeByBirthDate } from '@/utils/methods/date';
@@ -55,7 +55,6 @@ import depInfo from '../utils/depDetails.json';
  * @param {boolean} onlyInternational Wether to filter for internationaly sold only.
  * @param {'department' | 'association'} filterField Filter to specify filtering by assoc or department.
  * @param {string} filterValue Name of assoc or department to filter by.
- * @returns {Promise<Decimal>}
  */
 export const getSumKGOfCocoaBySoldStatus = async (
     year: number = new Date().getFullYear(),
@@ -63,7 +62,7 @@ export const getSumKGOfCocoaBySoldStatus = async (
     onlyInternational: boolean = false,
     filterField: 'department' | 'association',
     filterValue: string
-): Promise<Decimal | null> => {
+): Promise<Decimal> => {
     const startDate = new Date(year, 0, 1);
     const endDate = new Date(year + 1, 0, 1);
     const aggregation = await prisma.storage.aggregate({
@@ -109,8 +108,9 @@ export const getSumKGOfCocoaBySoldStatus = async (
             netWeight: true,
         },
     });
-
-    return aggregation._sum.netWeight;
+    return aggregation._sum.netWeight
+        ? aggregation._sum.netWeight
+        : new Decimal(0);
 };
 
 /**
@@ -273,9 +273,11 @@ export const getSalesInKgByAssociation = async (
     const associationsWithBatches = await prisma.association.findMany({
         where: {
             AND: [
-                {
-                    name: associationName,
-                },
+                associationName
+                    ? {
+                          name: associationName,
+                      }
+                    : undefined,
                 {
                     producers: {
                         some: {
@@ -1252,21 +1254,25 @@ export const searchBatches = async ({
                         },
                     },
                 },
-                {
-                    storage: {
-                        dayEntry: {
-                            gte: startDate.toISOString(),
-                            lte: endDate.toISOString(),
-                        },
-                    },
-                },
-                {
-                    sale: internationallySold
-                        ? { negotiation: 'international' }
-                        : sold
-                        ? { isNot: null }
-                        : null,
-                },
+                year !== undefined
+                    ? {
+                          storage: {
+                              dayEntry: {
+                                  gte: startDate.toISOString(),
+                                  lte: endDate.toISOString(),
+                              },
+                          },
+                      }
+                    : null,
+                internationallySold !== undefined
+                    ? internationallySold
+                        ? { sale: { negotiation: 'International' } }
+                        : { NOT: { sale: { negotiation: 'International' } } }
+                    : sold !== undefined
+                    ? sold
+                        ? { NOT: { sale: null } }
+                        : { sale: null }
+                    : null,
             ],
         },
     });
