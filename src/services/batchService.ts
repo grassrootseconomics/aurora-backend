@@ -72,7 +72,7 @@ export const getSumKGOfCocoaBySoldStatus = async (
                     batch: onlyInternational
                         ? {
                               sale: {
-                                  negotiation: 'International',
+                                  negotiation: 'international',
                               },
                           }
                         : sold
@@ -289,7 +289,7 @@ export const getSalesInKgByAssociation = async (
                                                 ? {
                                                       sale: {
                                                           negotiation:
-                                                              'International',
+                                                              'international',
                                                       },
                                                   }
                                                 : { NOT: { sale: null } },
@@ -404,7 +404,7 @@ export const getSalesInKgByDepartment = async (
                                                 ? {
                                                       sale: {
                                                           negotiation:
-                                                              'International',
+                                                              'international',
                                                       },
                                                   }
                                                 : { NOT: { sale: null } },
@@ -541,7 +541,7 @@ export const getMonthlySalesInUSD = async (
             (batch) =>
                 batch.sale.negotiationDate.getFullYear() === year &&
                 batch.sale.negotiationDate.getMonth() === index &&
-                batch.sale.currency === 'US'
+                batch.sale.currency === 'USD'
         );
 
         reports[index].salesInUSD = filteredBatches.reduce(
@@ -738,7 +738,7 @@ export const getBatchesBySoldStatus = (
                 onlyInternational
                     ? {
                           sale: {
-                              negotiation: 'International',
+                              negotiation: 'international',
                           },
                       }
                     : sold
@@ -804,8 +804,6 @@ export const getBatchCertificateSnapshotByCode = async (
 
     const dep = batchInfo.pulpsUsed[0]?.pulp.producer.department;
 
-    const firstProd = batchInfo.pulpsUsed[0]?.pulp.producer;
-
     const batchProducers: Producer[] = [];
 
     batchInfo.pulpsUsed.forEach((pulpUsed) => {
@@ -845,8 +843,23 @@ export const getBatchCertificateSnapshotByCode = async (
                   es: '',
                   en: '',
               },
-        yearsOfExistence: assoc ? getAgeByBirthDate(assoc.creationDate) : 0,
-        certifications: assoc ? getAgeByBirthDate(assoc.creationDate) : 0,
+        yearsOfExistence: assoc
+            ? assocInfo[assoc.name]
+                ? {
+                      ...assocInfo[assoc.name].yearsOfExistence,
+                  }
+                : getAgeByBirthDate(assoc.creationDate)
+            : 0,
+        certifications:
+            assoc && assocInfo[assoc.name]
+                ? {
+                      en: assocInfo[assoc.name].certifications.en,
+                      es: assocInfo[assoc.name].certifications.es,
+                  }
+                : {
+                      en: '',
+                      es: '',
+                  },
         regionInformation: dep
             ? depInfo[dep.name]
                 ? {
@@ -924,7 +937,6 @@ export const getBatchCertificateSnapshotByCode = async (
         producers.haConservationForest += prod.nrForestHa.toNumber();
         if (prod.gender === 'male') producers.nrMen++;
         else producers.nrWomen++;
-
         // Split the each producer's wildlife collection into separate varieties
         const prodWildlifeVarieties = prod.wildlife.split(' ');
         // Check each variety if it exists.
@@ -933,11 +945,10 @@ export const getBatchCertificateSnapshotByCode = async (
                 prodVariety &&
                 !identifiedVarieties.find((variety) => variety === prodVariety)
             ) {
-                identifiedVarieties.push(prod.wildlife);
+                identifiedVarieties.push(prodVariety);
             }
         });
     });
-
     producers.identifiedVarieties = identifiedVarieties.join(', ');
 
     const harvesting: CertificationHarvestingInfo = {
@@ -1146,7 +1157,7 @@ export const searchBatches = async ({
     filterField = 'association',
     filterValue = '',
     sold = false,
-    internationallySold,
+    internationallySold = false,
     year = new Date().getFullYear(),
 }: ISearchBatchParams) => {
     let startDate: Date | undefined;
@@ -1160,6 +1171,7 @@ export const searchBatches = async ({
         // I should switch this to a cursor approach.
         skip: index * limit,
         take: limit,
+
         where: {
             AND: [
                 {
@@ -1182,25 +1194,21 @@ export const searchBatches = async ({
                         },
                     },
                 },
-                year !== undefined
-                    ? {
-                          storage: {
-                              dayEntry: {
-                                  gte: startDate.toISOString(),
-                                  lte: endDate.toISOString(),
-                              },
-                          },
-                      }
-                    : null,
-                internationallySold !== undefined
-                    ? internationallySold
-                        ? { sale: { negotiation: 'International' } }
-                        : { NOT: { sale: { negotiation: 'International' } } }
-                    : sold !== undefined
-                    ? sold
-                        ? { NOT: { sale: null } }
-                        : { sale: null }
-                    : null,
+                {
+                    storage: {
+                        dayEntry: {
+                            gte: startDate.toISOString(),
+                            lte: endDate.toISOString(),
+                        },
+                    },
+                },
+                {
+                    sale: internationallySold
+                        ? { negotiation: 'international' }
+                        : sold
+                        ? { isNot: null }
+                        : null,
+                },
             ],
         },
         include: {

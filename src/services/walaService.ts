@@ -4,11 +4,12 @@ import ApiError from '@/utils/types/errors/ApiError';
 
 export const getDataByHash = async (certification: string) => {
     try {
+        console.log(`Requesting from wala with cert:`, certification);
         const response = await certAPI.get(`/${certification}`);
 
         return response.data;
     } catch (err) {
-        console.log(err);
+        console.log(`GET Data from Walla Response: `, err.message);
         return undefined;
     }
 };
@@ -24,7 +25,7 @@ export const sendXMLDataToWala = async (
         });
         return response.data;
     } catch (err) {
-        console.log(err);
+        console.log(`PUT Data to Walla Response: `, err.message);
         switch (err.code) {
             default:
                 throw new ApiError(500, err.message);

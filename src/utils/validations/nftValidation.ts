@@ -2,6 +2,13 @@ import Joi from 'joi';
 
 import { DefaultValidation } from '../types/server';
 
+export const getTokenIdExistsSchema: DefaultValidation = {
+    query: Joi.object().keys({
+        id: Joi.string().required(),
+        buyer: Joi.string().required(),
+    }),
+};
+
 export const getBatchCertificateNFTDetailsSchema: DefaultValidation = {
     params: Joi.object().keys({
         code: Joi.string().required(),

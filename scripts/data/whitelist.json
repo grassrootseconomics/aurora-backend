@@ -16,5 +16,30 @@
         "walletAddress": "0x36c81fA848e6bfe48D61c6EfA20D39AF1f0fe414",
         "role": "association",
         "producer": 2
+    },
+    {
+        "walletAddress": "0x5EcB76c3a010Dd1F2CF06C995f25F4E9c3E98A63",
+        "role": "association",
+        "producer": 10
+    },
+    {
+        "walletAddress": "0x92d713809b42C77b7b1F532768F895155A43674A",
+        "role": "association",
+        "producer": 22
+    },
+    {
+        "walletAddress": "0x7ef52fD80785146Aa3850F0E5e2237A4B39Bcc77",
+        "role": "association",
+        "producer": 21
+    },
+    {
+        "walletAddress": "0xcf2ccfff149E8E6Ca61AE126f899DAd3388bE599",
+        "role": "association",
+        "producer": 15
+    },
+    {
+        "walletAddress": "0x71EB2F929c27370D049e83A738863E9A5Fb204A4",
+        "role": "association",
+        "producer": 13
     }
 ]

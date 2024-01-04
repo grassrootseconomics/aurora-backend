@@ -26,9 +26,17 @@ export type CertificationAssocDetails = {
         en: string;
         es: string;
     };
-    yearsOfExistence: number; // from assoc
+    yearsOfExistence:
+        | number
+        | {
+              en: string;
+              es: string;
+          };
     // Unsure, but coudl be form assoc
-    certifications: number;
+    certifications: {
+        en: string;
+        es: string;
+    };
     // from department description.
     regionInformation: {
         en: string;

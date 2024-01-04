@@ -64,6 +64,8 @@ export const APP_CONSTANTS = {
             NOT_FOUND: 'Department Does Not Exist!',
         },
         CERTIFICATION: {
+            MISSING_TOKEN_ID: 'Missing required token Id!',
+            TOKEN_ID_TAKEN: 'Buyer already owns this certification!',
             FIND_SUCCESS:
                 'Successfully fetched Batch Details via Nft Metadata Certification Key!',
             GENERATE_SUCCESS: 'Successfully generated fingerprint for Data!',
@@ -87,11 +89,11 @@ export const DB_CONSTANTS = {
 };
 
 export const ASSOCIATION_CODE_TO_NAME = {
-    ASG: 'Asogigante',
-    APG: 'Aprocalg',
-    ASP: 'Asopeca',
-    ACS: 'Asoacasan',
-    CMP: 'Comcap',
+    ASG: 'ASOCAGIGANTE',
+    APG: 'APROCALG',
+    ASP: 'ASOPECA',
+    ACS: 'ASOACASAN',
+    CMP: 'COMCAP',
 };
 
 export const SYNC_ODK_FORM_IDS = [

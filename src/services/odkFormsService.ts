@@ -174,7 +174,21 @@ export const seedProducersFormData = async () => {
                 continue;
             }
         }
-
+        // seed departments if these do not exist
+        let department = await prisma.department.findUnique({
+            where: {
+                name: entries[i]['a-department'],
+            },
+        });
+        if (!department) {
+            department = await prisma.department.create({
+                data: {
+                    name: entries[i]['a-department'],
+                    description: '',
+                    nrOfAssociates: 1,
+                },
+            });
+        }
         // seed associations if these do not exist
         let association = await prisma.association.findUnique({
             where: {
@@ -188,21 +202,7 @@ export const seedProducersFormData = async () => {
                     creationDate: new Date(),
                     description: '',
                     nrOfAssociates: 1,
-                },
-            });
-        }
-        // seed departments if these do not exist
-        let department = await prisma.department.findUnique({
-            where: {
-                name: entries[i]['a-department'],
-            },
-        });
-        if (!department) {
-            department = await prisma.department.create({
-                data: {
-                    name: entries[i]['a-department'],
-                    description: '',
-                    nrOfAssociates: 1,
+                    department: department.name,
                 },
             });
         }
@@ -220,7 +220,11 @@ export const seedProducersFormData = async () => {
             idDepartment: department.id,
             idAssociation: association.id,
             farmName: entries[i]['a-farm_name'] ?? '',
-            location: '',
+            location: `lat:${entries[i]['a-gpsloc-Latitude'] ?? ''}, lon:${
+                entries[i]['a-gpsloc-Longitude'] ?? ''
+            }, alt: ${entries[i]['a-gpsloc-Altitude'] ?? ''}, acc:${
+                entries[i]['a-gpsloc-Accuracy'] ?? ''
+            }`,
             nrOfHa: convertStringToDecimal(entries[i]['a-total_area']),
             nrCocoaHa: convertStringToDecimal(entries[i]['a-cacao_area']),
             nrForestHa: convertStringToDecimal(entries[i]['a-protected_area']),
@@ -235,16 +239,6 @@ export const seedProducersFormData = async () => {
             await prisma.producer.create({
                 data: producerData,
             });
-            // Increment members of association if it exists
-            if (association)
-                await prisma.association.update({
-                    where: {
-                        id: association.id,
-                    },
-                    data: {
-                        nrOfAssociates: association.nrOfAssociates + 1,
-                    },
-                });
             producersSeeded++;
         } catch (err) {
             console.log(err);

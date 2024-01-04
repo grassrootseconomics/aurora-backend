@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response, Router } from 'express';
 
-import { Producer } from '@prisma/client';
+import { Association, Producer } from '@prisma/client';
 
 import asyncMiddleware from '@/middleware/asyncMiddleware';
 import extractJWT from '@/middleware/extractJWT';
@@ -34,7 +34,10 @@ import {
 } from '@/services/batchService';
 import { getDepartmentsHarvestDatesByName } from '@/services/departmentService';
 import { sendBatchRequestEmails } from '@/services/emailService';
-import { generateExcel } from '@/services/excelService';
+import {
+    generateAvailableBatchesExcel,
+    generateSoldBatchesExcel,
+} from '@/services/excelService';
 import { getAllProducers } from '@/services/producerService';
 import { getBatchRequestUserEmails } from '@/services/userService';
 
@@ -307,7 +310,10 @@ router.get(
             : parseInt(req.query.limit?.toString());
 
         // For project users to filter by association
-        let association: string | undefined = req.query.association?.toString();
+        let association: string | undefined =
+            req.query.association && req.query.association.toString() !== ''
+                ? req.query.association?.toString()
+                : undefined;
         // For producers & project users to search by batch code.
         const search: string | undefined = req.query.search?.toString();
 
@@ -323,7 +329,7 @@ router.get(
             limit,
             filterField: 'association',
             filterValue: association,
-            internationallySold: undefined,
+            internationallySold: false,
             sold: true,
             year,
         });
@@ -335,7 +341,7 @@ router.get(
                 getSumKGOfCocoaBySoldStatus(
                     year,
                     true,
-                    false,
+                    true,
                     'association',
                     association
                 ),
@@ -384,7 +390,10 @@ router.get(
             : parseInt(req.query.limit?.toString());
 
         // For project users to filter by association
-        let association: string | undefined = req.query.association?.toString();
+        let association: string | undefined =
+            req.query.association && req.query.association.toString() !== ''
+                ? req.query.association?.toString()
+                : undefined;
         // For producers & project users to search by batch code.
         const search: string | undefined = req.query.search?.toString();
 
@@ -446,25 +455,25 @@ router.get(
 
         const batch = await getBatchByCode(code);
 
-        const assoc = batch.pulpsUsed[0].pulp.producer.association.name;
+        const assoc: Association | null =
+            batch.pulpsUsed.length > 0
+                ? batch.pulpsUsed[0].pulp.producer.association
+                : null;
 
+        // Default to association information.
         const assocDescription: any = {
-            en:
-                batch.pulpsUsed.length > 0
-                    ? batch.pulpsUsed[0].pulp.producer.association.description
-                    : '',
-            es:
-                batch.pulpsUsed.length > 0
-                    ? batch.pulpsUsed[0].pulp.producer.association.description
-                    : '',
+            en: assoc ? assoc.description : '',
+            es: assoc ? assoc.description : '',
         };
 
-        if (batch.pulpsUsed.length > 0 && assocInfo[assoc]) {
-            assocDescription.en = assocInfo[assoc].description.en;
-            assocDescription.es = assocInfo[assoc].description.es;
+        if (batch.pulpsUsed.length > 0 && assoc && assocInfo[assoc.name]) {
+            assocDescription.en = assocInfo[assoc.name].description.en;
+            assocDescription.es = assocInfo[assoc.name].description.es;
         }
-        batch.pulpsUsed[0].pulp.producer.association.description =
-            assocDescription;
+        batch.pulpsUsed.forEach((pulpUsed, index) => {
+            batch.pulpsUsed[index].pulp.producer.association.description =
+                assocDescription;
+        });
 
         return res.status(200).json({
             success: true,
@@ -926,7 +935,7 @@ router.get(
                 filterField: 'association',
                 filterValue: association,
                 sold,
-                internationallySold: sold ?? undefined,
+                internationallySold: false,
                 year,
             });
 
@@ -960,7 +969,9 @@ router.get(
                               )
                       );
 
-            const workbook = generateExcel(batchesForExcel);
+            const workbook = sold
+                ? generateSoldBatchesExcel(batchesForExcel)
+                : generateAvailableBatchesExcel(batchesForExcel);
 
             // Set the response headers for Excel download
             res.setHeader(

@@ -1,6 +1,6 @@
 [
     {
-        "name": "COMCAP - Comité de Cacaoteros de los municipios de El Paujil y El Doncello- Caquetá",
+        "name": "COMCAP",
         "creationDate": "2023-05-12T08:20:37.902Z",
         "description": "The organization has certification to commercialize cocoa organically in the European Community countries, Canada and the United States. They are the first Committee empowered to carry out export exercises directly and have business partners in Europe, with whom international marketing exercises have been carried out.",
         "nrOfAssociates": 97,
@@ -9,7 +9,8 @@
         "municipiality": "El Doncello",
         "sensoryProfile": "Creamy profile with lactic acidity and fruity, that is complemented by fresh fruits such as berries, yellow flesh, sweet caramel and creamy residual.",
         "fbSocialLink": "https://web.facebook.com/comitecomcap/?_rdc=1&_rdr",
-        "instSocialLink": "https://instagram.com/comcap_cacao?igshid=ZWIzMWE5ZmU3Zg=="
+        "instSocialLink": "https://instagram.com/comcap_cacao?igshid=ZWIzMWE5ZmU3Zg==",
+        "department": "Caquetá"
     },
     {
         "name": "ASOPECA",
@@ -18,17 +19,19 @@
         "nrOfAssociates": 110,
         "nrWomen": 33,
         "nrYoungPeople": 5,
-        "municipiality": "Campoalegre"
+        "municipiality": "Campoalegre",
+        "department": "Huila"
     },
     {
         "name": "ASOCAGIGANTE",
         "creationDate": "2009-09-22T08:00:00.000Z",
         "description": "The Cocoa Producers and Traders Association was established on September 22, 2009 with the participation of 24 associates. Its main activity is the production and commercialization of cocoa in the national and international markets (indirect export). They began their sales in 2016. They currently manage a commercial link that allows increasing the purchase of cocoa slime to achieve quality standards and recognition of Huila origin in the international market.",
         "nrOfAssociates": 49,
-        "nrWomen": 8,
-        "nrYoungPeople": 4.9,
+        "nrWomen": 1,
+        "nrYoungPeople": 1,
         "municipiality": "Gigante",
-        "fbSocialLink": "https://www.facebook.com/asocagigante?mibextid=ZbWKwL"
+        "fbSocialLink": "https://www.facebook.com/asocagigante?mibextid=ZbWKwL",
+        "department": "Huila"
     },
     {
         "name": "ASOACASAN - Asociación Orgánica Agrícola de Cacaoteros de San José del Fragua.",
@@ -39,15 +42,19 @@
         "nrYoungPeople": 4,
         "municipiality": "San José del fragua",
         "fbSocialLink": "https://www.facebook.com/Asoacasan?mibextid=ZbWKwL",
-        "instSocialLink": "https://instagram.com/asoacasan?igshid=MzRlODBiNWFlZA=="
+        "instSocialLink": "https://instagram.com/asoacasan?igshid=MzRlODBiNWFlZA==",
+        "department": "Caquetá"
     },
     {
-        "name": "APROCALG- Asociación de Productores de Cacao de Algeciras",
+        "name": "APROCALG",
         "creationDate": "2023-05-10T14:42:37.902Z",
         "description": "",
-        "nrOfAssociates": 10,
+        "nrOfAssociates": 98,
+        "nrWomen": 48,
+        "nrYoungPeople": 8,
         "municipiality": "Algeciras",
         "fbSocialLink": "https://www.facebook.com/Algecirascacaoterera/?mibextid=ZbWKwL",
-        "instSocialLink": "https://instagram.com/aprocalg?igshid=NTc4MTIwNjQ2YQ=="
+        "instSocialLink": "https://instagram.com/aprocalg?igshid=NTc4MTIwNjQ2YQ==",
+        "department": "Huila"
     }
 ]
