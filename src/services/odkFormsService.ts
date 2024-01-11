@@ -461,7 +461,6 @@ export const seedFermentationFormData = async () => {
         });
 
         // Create the batch
-
         const pulpsUsed: Omit<PulpBatch, 'id'>[] = [];
 
         const fermentationPulpCodes = pulpEntries
@@ -773,10 +772,10 @@ export const seedSalesFormData = async () => {
 
     let seededSalesPhases = 0;
     for (let i = 0; i < entries.length; i++) {
-        if (!entries[i].prod_code) continue;
+        if (!entries[i].batch_code) continue;
         const batch = await prisma.batch.findUnique({
             where: {
-                code: entries[i].prod_code,
+                code: entries[i].batch_code,
             },
             include: {
                 sale: true,
@@ -797,7 +796,7 @@ export const seedSalesFormData = async () => {
             currency: entries[i].currency,
             pricePerKg: convertStringToNumber(entries[i].val_kg),
             totalValue: convertStringToNumber(entries[i].batch_total_price),
-            codeBatch: entries[i].prod_code,
+            codeBatch: entries[i].batch_code,
         };
 
         try {

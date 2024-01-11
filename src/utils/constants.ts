@@ -440,7 +440,6 @@ export const AuroraFVentasFormEntries = [
     'starttime',
     'endtime',
     'enumerator',
-    'prod_code',
     'batch_code',
     'buyer',
     'tot_weight',
