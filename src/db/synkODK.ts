@@ -23,14 +23,15 @@ export const syncODKForms = async () => {
     console.log(`Sync Process Start: ${new Date().toISOString()}`);
 
     // Seed producers
+    // Adds producers and possibly adds associations & departments.
     await seedProducersFormData();
 
     // Seed batches pulps
-    // Adds pulps.
+    // Adds pulps, independent from batches.
     await seedCollectionFormData();
 
     // Seed fermentation phases
-    // Adds batches, fermentation phases and links existing pulps to batches.
+    // Adds batches, fermentation phases and links pulps to batches.
     await seedFermentationFormData();
 
     // Seed Fermentation PH Form Data

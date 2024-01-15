@@ -69,15 +69,34 @@ export const getSumKGOfCocoaBySoldStatus = async (
         where: {
             AND: [
                 {
-                    batch: onlyInternational
-                        ? {
-                              sale: {
-                                  negotiation: 'international',
-                              },
-                          }
-                        : sold
-                        ? { NOT: { sale: null } }
-                        : { sale: null },
+                    batch: {
+                        fermentationPhase: {
+                            NOT: undefined,
+                        },
+                    },
+                },
+                {
+                    batch: {
+                        dryingPhase: {
+                            NOT: undefined,
+                        },
+                    },
+                },
+                {
+                    batch: {
+                        sale:
+                            onlyInternational || sold
+                                ? {
+                                      negotiation: onlyInternational
+                                          ? 'international'
+                                          : {
+                                                not: null,
+                                            },
+                                  }
+                                : {
+                                      is: null,
+                                  },
+                    },
                 },
                 {
                     dayEntry: {
@@ -88,7 +107,7 @@ export const getSumKGOfCocoaBySoldStatus = async (
                 {
                     batch: {
                         pulpsUsed: {
-                            some: {
+                            every: {
                                 pulp: {
                                     producer: {
                                         [filterField]: {
@@ -1171,7 +1190,6 @@ export const searchBatches = async ({
         // I should switch this to a cursor approach.
         skip: index * limit,
         take: limit,
-
         where: {
             AND: [
                 {
@@ -1180,8 +1198,23 @@ export const searchBatches = async ({
                     },
                 },
                 {
+                    fermentationPhase: {
+                        NOT: undefined,
+                    },
+                },
+                {
+                    dryingPhase: {
+                        NOT: undefined,
+                    },
+                },
+                {
+                    storage: {
+                        NOT: undefined,
+                    },
+                },
+                {
                     pulpsUsed: {
-                        some: {
+                        every: {
                             pulp: {
                                 producer: {
                                     [filterField]: {
@@ -1194,14 +1227,16 @@ export const searchBatches = async ({
                         },
                     },
                 },
-                {
-                    storage: {
-                        dayEntry: {
-                            gte: startDate.toISOString(),
-                            lte: endDate.toISOString(),
-                        },
-                    },
-                },
+                year !== undefined
+                    ? {
+                          storage: {
+                              dayEntry: {
+                                  gte: startDate.toISOString(),
+                                  lte: endDate.toISOString(),
+                              },
+                          },
+                      }
+                    : null,
                 {
                     sale: internationallySold
                         ? { negotiation: 'international' }
@@ -1240,8 +1275,23 @@ export const searchBatches = async ({
                     },
                 },
                 {
+                    fermentationPhase: {
+                        NOT: undefined,
+                    },
+                },
+                {
+                    dryingPhase: {
+                        NOT: undefined,
+                    },
+                },
+                {
+                    storage: {
+                        NOT: undefined,
+                    },
+                },
+                {
                     pulpsUsed: {
-                        some: {
+                        every: {
                             pulp: {
                                 producer: {
                                     [filterField]: {
@@ -1264,15 +1314,13 @@ export const searchBatches = async ({
                           },
                       }
                     : null,
-                internationallySold !== undefined
-                    ? internationallySold
-                        ? { sale: { negotiation: 'International' } }
-                        : { NOT: { sale: { negotiation: 'International' } } }
-                    : sold !== undefined
-                    ? sold
-                        ? { NOT: { sale: null } }
-                        : { sale: null }
-                    : null,
+                {
+                    sale: internationallySold
+                        ? { negotiation: 'international' }
+                        : sold
+                        ? { isNot: null }
+                        : null,
+                },
             ],
         },
     });
