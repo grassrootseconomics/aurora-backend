@@ -13,7 +13,7 @@ export default async () => {
 
     const nrUsersToWhitelist = whitelist.length;
 
-    const producersToSeed: CreateUserInput[] = [];
+    const usersToSeed: CreateUserInput[] = [];
 
     for (let i = 0; i < nrUsersToWhitelist; i++) {
         const user = whitelist[i];
@@ -33,7 +33,7 @@ export default async () => {
             });
 
             if (producerExists) {
-                producersToSeed.push({
+                usersToSeed.push({
                     walletAddress: user.walletAddress,
                     idRole: 2,
                     idProducer: producerExists.id,
@@ -45,12 +45,12 @@ export default async () => {
             }
         } else {
             if (user.role === 'project') {
-                producersToSeed.push({
+                usersToSeed.push({
                     walletAddress: user.walletAddress,
                     idRole: 3,
                 });
             } else {
-                producersToSeed.push({
+                usersToSeed.push({
                     walletAddress: user.walletAddress,
                     idRole: 1,
                 });
@@ -59,7 +59,7 @@ export default async () => {
     }
 
     const { count } = await prisma.user.createMany({
-        data: producersToSeed,
+        data: usersToSeed,
     });
 
     console.log(`WHITELIST PROCESS FINALE: Successfully Whitelisted ${count}`);

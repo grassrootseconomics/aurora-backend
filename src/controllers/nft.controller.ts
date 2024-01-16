@@ -240,9 +240,9 @@ router.post(
         // Convert to XML
         const xmlVersion = convertObjectToXml({ batchSnapshotData });
 
-        // // Hash of Data does not exist
-        // // This means that the batch info changed.
-        // // Generate a new certification.
+        // Hash of Data does not exist
+        // This means that the batch info changed.
+        // Generate a new certification.
         const certificationHash = await sendXMLDataToWala(xmlVersion);
 
         return res.status(200).json({

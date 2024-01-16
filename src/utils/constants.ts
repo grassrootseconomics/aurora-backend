@@ -1,3 +1,5 @@
+import { ODKSyncRateType } from './types/odk/sync';
+
 export const APP_CONSTANTS = {
     RESPONSE: {
         ROOT: {
@@ -86,6 +88,16 @@ export const APP_CONSTANTS = {
 
 export const DB_CONSTANTS = {
     ROLES: ['buyer', 'association', 'project'] as const,
+};
+
+export const SYNC_RATES_ALLOWED = ['HOURLY', 'WEEKLY'] as const;
+
+/**
+ * Default node cron job expressions to use
+ */
+export const SYNC_RATES_TO_EXPRESSION: Record<ODKSyncRateType, string> = {
+    HOURLY: '0 * * * *',
+    WEEKLY: '0 0 8 * * 1',
 };
 
 export const ASSOCIATION_CODE_TO_NAME = {

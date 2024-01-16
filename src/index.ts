@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { SERVER } from '@/config';
+import { ODK, SERVER } from '@/config';
 import cors from 'cors';
 import cron from 'node-cron';
 
@@ -34,7 +34,7 @@ app.listen(SERVER.PORT, () => {
 /**
  * Configured to run every hour.
  */
-cron.schedule('0 * * * *', async () => {
+cron.schedule(ODK.SYNC_CRON.STR, async () => {
     try {
         await syncODKForms();
     } catch (err) {

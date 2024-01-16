@@ -156,7 +156,7 @@ model DryingPhase {
   startDate          DateTime
   endDate            DateTime
   totalDryingDays    Int
-  finalGrainHumidity Int
+  finalGrainHumidity Decimal
 
   codeBatch String @unique
   batch     Batch  @relation(fields: [codeBatch], references: [code])

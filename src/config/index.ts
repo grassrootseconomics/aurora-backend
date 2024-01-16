@@ -1,5 +1,10 @@
 import dotenv from 'dotenv';
 
+import {
+    SYNC_RATES_ALLOWED,
+    SYNC_RATES_TO_EXPRESSION,
+} from '@/utils/constants';
+
 dotenv.config();
 
 const CONNECTION_URL: string =
@@ -26,6 +31,7 @@ const ACCESS_TOKEN_ISSUER: string =
 const ODK_API_URL: string = process.env.ODK_API_URL || '';
 const ODK_PROJECT_ID: string = process.env.ODK_PROJECT_ID || '';
 const ODK_AUTH_BASIC_TOKEN: string = process.env.ODK_AUTH_BASIC_TOKEN || '';
+const ODK_SYNC_RATE: string = process.env.ODK_SYNC_RATE || '';
 
 const CERT_API_URL: string = process.env.CERT_API_URL || '';
 
@@ -65,6 +71,15 @@ const ODK = {
     API_URL: ODK_API_URL,
     PROJECT_ID: ODK_PROJECT_ID,
     BASIC_AUTH_TOKEN: ODK_AUTH_BASIC_TOKEN,
+    SYNC_CRON: SYNC_RATES_TO_EXPRESSION[ODK_SYNC_RATE]
+        ? {
+              STR: SYNC_RATES_TO_EXPRESSION[ODK_SYNC_RATE],
+              RATE: ODK_SYNC_RATE,
+          }
+        : {
+              STR: SYNC_RATES_TO_EXPRESSION[SYNC_RATES_ALLOWED[0]],
+              RATE: SYNC_RATES_ALLOWED[0],
+          },
 };
 
 const WALA = {

@@ -39,6 +39,7 @@ import {
     AuroraFVentasForm,
     AuroraFormID,
 } from '@/utils/types/odk/forms';
+import { ODKSyncRateType } from '@/utils/types/odk/sync';
 
 /**
  *
@@ -55,7 +56,7 @@ import {
  * @example <caption>Example of filter</caption>
  *    year(__sytem/submissionDate) eq 2023
  */
-export const getSubmissionFilterForPastWeek = (): string => {
+const getSubmissionFilterForPastWeek = (): string => {
     const currentDay = new Date();
 
     const lastWeekDay = new Date(
@@ -93,7 +94,7 @@ export const getSubmissionFilterForPastWeek = (): string => {
  * @example <caption>Example of filter</caption>
  *    year(__sytem/submissionDate) eq 2023
  */
-export const getSubmissionFilterForPastHour = (): string => {
+const getSubmissionFilterForPastHour = (): string => {
     const currentDay = new Date();
 
     const lastHour = new Date(currentDay.getTime() - 1000 * 60 * 60);
@@ -118,6 +119,11 @@ export const getSubmissionFilterForPastHour = (): string => {
     return `(${lastYearCondition} and ${lastMonthCondition} and ${lastDayCondition} and ${lastHourCondition}) or (${currentYearCondition} and ${currentMonthCondition} and ${currentDayCondition} and ${currentHourCondition})`;
 };
 
+export const RATE_FILTERS: Record<ODKSyncRateType, () => string> = {
+    HOURLY: getSubmissionFilterForPastHour,
+    WEEKLY: getSubmissionFilterForPastWeek,
+};
+
 /**
  *
  * Queries the submissions endpoint for an Aurora ODK form.
@@ -135,8 +141,10 @@ export const getODKFormSubmissionCSVFileContents = async (
 ): Promise<string[]> => {
     if (!projectId) projectId = ODK.PROJECT_ID;
 
+    const filter = RATE_FILTERS[ODK.SYNC_CRON.RATE];
+
     const response: AxiosResponse<ArrayBuffer> = await odkAPI.get<ArrayBuffer>(
-        `/v1/projects/${projectId}/forms/${formId}/submissions.csv.zip?attachments=false&groupPaths=true&deletedFields=false&splitSelectMultiples=true&$filter=${getSubmissionFilterForPastHour()}`,
+        `/v1/projects/${projectId}/forms/${formId}/submissions.csv.zip?attachments=false&groupPaths=true&deletedFields=false&splitSelectMultiples=true&$filter=${filter()}`,
         {
             responseType: 'arraybuffer',
         }
@@ -728,7 +736,7 @@ export const seedDryingFormData = async () => {
             startDate,
             endDate,
             totalDryingDays: convertStringToNumber(entries[i].dry_days),
-            finalGrainHumidity: convertStringToNumber(
+            finalGrainHumidity: convertStringToDecimal(
                 entries[i].moisture_final
             ),
             codeBatch: entries[i].batch_code,

@@ -1024,7 +1024,7 @@ export const getBatchCertificateSnapshotByCode = async (
             ? batchInfo.dryingPhase.totalDryingDays
             : undefined,
         finalHumidity: batchInfo.dryingPhase
-            ? batchInfo.dryingPhase.finalGrainHumidity
+            ? batchInfo.dryingPhase.finalGrainHumidity.toNumber()
             : undefined,
     };
     const storage: CertificationStorageInfo = {
