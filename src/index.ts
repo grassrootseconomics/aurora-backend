@@ -32,9 +32,9 @@ app.listen(SERVER.PORT, () => {
 });
 
 /**
- * Configured to run every monday at 08 AM.
+ * Configured to run every hour.
  */
-cron.schedule('0 0 8 * * 1', async () => {
+cron.schedule('0 * * * *', async () => {
     try {
         await syncODKForms();
     } catch (err) {

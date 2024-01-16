@@ -53,9 +53,9 @@ import {
  * @returns {string} Submission filter
  *
  * @example <caption>Example of filter</caption>
- * //   year(__sytem/submissionDate) eq 2023
+ *    year(__sytem/submissionDate) eq 2023
  */
-export const getSubmissionFilterForPastWeek = () => {
+export const getSubmissionFilterForPastWeek = (): string => {
     const currentDay = new Date();
 
     const lastWeekDay = new Date(
@@ -75,9 +75,47 @@ export const getSubmissionFilterForPastWeek = () => {
         currentDay.getMonth() + 1
     }`;
     // LT to filter for days before present
-    const currentDayCondition = `day(__system/submissionDate) le ${currentDay.getDate()}`;
+    const currentDayCondition = `day(__system/submissionDate) lt ${currentDay.getDate()}`;
 
     return `(${lastYearCondition} and ${lastMonthCondition} and ${lastDayCondition}) or (${currentYearCondition} and ${currentMonthCondition} and ${currentDayCondition})`;
+};
+
+/**
+ *
+ * Constructs an oData filter for submissions.
+ *
+ * {@link https://learn.microsoft.com/en-us/dynamics-nav/using-filter-expressions-in-odata-uris#filter-expressions OData Filter Expressions}
+ *
+ * Submissions that have been submitted at a present date will be synced next hour.
+ *
+ * @returns {string} Submission filter
+ *
+ * @example <caption>Example of filter</caption>
+ *    year(__sytem/submissionDate) eq 2023
+ */
+export const getSubmissionFilterForPastHour = (): string => {
+    const currentDay = new Date();
+
+    const lastHour = new Date(currentDay.getTime() - 1000 * 60 * 60);
+
+    // Filters for submissions later than the day it was last week (including the start day).
+    const lastYearCondition = `year(__system/submissionDate) eq ${lastHour.getFullYear()}`;
+    const lastMonthCondition = `month(__system/submissionDate) eq ${
+        lastHour.getMonth() + 1
+    }`;
+    const lastDayCondition = `day(__system/submissionDate) eq ${lastHour.getDate()}`;
+    const lastHourCondition = `hour(__system/submissionDate) ge ${lastHour.getHours()}`;
+
+    // Filters for submissions earlier than today (excluding today).
+    const currentYearCondition = `year(__system/submissionDate) eq ${currentDay.getFullYear()}`;
+    const currentMonthCondition = `month(__system/submissionDate) eq ${
+        currentDay.getMonth() + 1
+    }`;
+    // LT to filter for days before present
+    const currentDayCondition = `day(__system/submissionDate) eq ${currentDay.getDate()}`;
+    const currentHourCondition = `hour(__system/submissionDate) lt ${currentDay.getHours()}`;
+
+    return `(${lastYearCondition} and ${lastMonthCondition} and ${lastDayCondition} and ${lastHourCondition}) or (${currentYearCondition} and ${currentMonthCondition} and ${currentDayCondition} and ${currentHourCondition})`;
 };
 
 /**
@@ -98,7 +136,7 @@ export const getODKFormSubmissionCSVFileContents = async (
     if (!projectId) projectId = ODK.PROJECT_ID;
 
     const response: AxiosResponse<ArrayBuffer> = await odkAPI.get<ArrayBuffer>(
-        `/v1/projects/${projectId}/forms/${formId}/submissions.csv.zip?attachments=false&groupPaths=true&deletedFields=false&splitSelectMultiples=true&$filter=${getSubmissionFilterForPastWeek()}`,
+        `/v1/projects/${projectId}/forms/${formId}/submissions.csv.zip?attachments=false&groupPaths=true&deletedFields=false&splitSelectMultiples=true&$filter=${getSubmissionFilterForPastHour()}`,
         {
             responseType: 'arraybuffer',
         }
@@ -130,7 +168,6 @@ export const seedProducersFormData = async () => {
         parseCSVFileToJSONArray<AuroraAProductorForm>(csvFiles[0]);
 
     let producersSeeded = 0;
-
     // For each entry
     for (let i = 0; i < entries.length; i++) {
         // Check for existing producers.
