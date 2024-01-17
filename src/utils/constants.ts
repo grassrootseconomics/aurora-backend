@@ -397,7 +397,7 @@ export const AuroraDSecadoFormEntries = [
     'dry_end_date',
     'dry_days',
     'date_note',
-    'moisture_final',
+    'moisture',
     'thank_you_note',
     'gen_comment',
     'meta-instanceID',

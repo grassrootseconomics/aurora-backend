@@ -736,9 +736,7 @@ export const seedDryingFormData = async () => {
             startDate,
             endDate,
             totalDryingDays: convertStringToNumber(entries[i].dry_days),
-            finalGrainHumidity: convertStringToDecimal(
-                entries[i].moisture_final
-            ),
+            finalGrainHumidity: convertStringToDecimal(entries[i].moisture),
             codeBatch: entries[i].batch_code,
         };
 
